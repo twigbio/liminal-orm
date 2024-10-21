@@ -1,4 +1,5 @@
 site_name: Liminal ORM
+site_url: https://dynotx.github.io/liminal-orm/
 nav:
   - index.md
   - Guides:
