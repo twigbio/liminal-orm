@@ -13,7 +13,7 @@ Benchling is an industry standard cloud platform for life sciences R&D. Liminal 
 
 For a full and in-depth overview of Liminal, please refer to our [full documentation](dynotx.github.io/liminal-orm/). Below is a [quickstart guide](#getting-started) to get you Liminal set up in your project.
 
-Reach out in the [Discussions](https://github.com/dynotx/liminal-orm/discussions) forum with any questions or to simply introduce yourself! If you run into any issues, during setup or usage, don't hesitate to post in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly at <opensource@dynotx.com>. You can expect responses within 48 hours :) ⭐️ 
+Reach out in the [Discussions](https://github.com/dynotx/liminal-orm/discussions) forum with any questions or to simply introduce yourself! If you run into any issues, during setup or usage, don't hesitate to post in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly at <opensource@dynotx.com>. You can expect responses within 48 hours :) 
 
 ⭐️ Leave a star on the repo to spread the word!
 
