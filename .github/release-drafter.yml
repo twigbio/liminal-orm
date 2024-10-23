@@ -16,7 +16,7 @@ categories:
       - type:documentation
   - title: ⛏ Dependency Upgrades
     labels:
-      - type:dependency-upgrade
+      - type:dependency
   - title: "\U0001F6A7 Tasks"
     labels:
       - type:task
