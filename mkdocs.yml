@@ -51,7 +51,6 @@ theme:
     - search.share
     - search.highlight
     - content.tabs.link
-    - toc.integrate
     - header.autohide
     - navigation.footer
 markdown_extensions:
