@@ -7,7 +7,7 @@
 [![CI](https://github.com/dynotx/liminal-orm/actions/workflows/liminal.yml/badge.svg)](https://github.com/dynotx/liminal-orm/actions/workflows/liminal.yml)
 [![Downloads](https://static.pepy.tech/personalized-badge/liminal-orm?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Downloads)](https://pepy.tech/project/liminal-orm)
 
-Liminal ORM<sup>1</sup> is an open-source Python package that builds on [Benchling's](https://www.benchling.com/) LIMS<sup>2</sup> platform and provides a simple framework to keep your upstream Benchling schemas and downstream dependencies in sync. Liminal provides an ORM framework using [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) along with a schema migration service inspired by [Alembic](https://alembic.sqlalchemy.org/en/latest/). This allows you to define your Benchling schemas in code and create a *single source of truth* that synchronizes with your upstream Benchling tenant(s) and downstream dependencies. Through one line CLI commands, Liminal enables a code-first approach for managing Benchling tenants and accessing Benchling data. With the schemas defined in code, you can also take advantage of the additional capabilities that the Liminal toolkit provides. This includes:
+Liminal ORM<sup>1</sup> is an open-source Python package that builds on [Benchling's](https://www.benchling.com/) LIMS<sup>2</sup> platform and provides a simple framework to keep your upstream Benchling schemas and downstream dependencies in sync. Liminal provides an ORM framework using [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) along with a schema migration service inspired by [Alembic](https://alembic.sqlalchemy.org/en/latest/). This allows you to define your Benchling schemas in code and create a *single source of truth* that synchronizes with your upstream Benchling tenant(s) and downstream dependencies. Through one line CLI<sup>3</sup> commands, Liminal enables a code-first approach for managing Benchling tenants and accessing Benchling data. With the schemas defined in code, you can also take advantage of the additional capabilities that the Liminal toolkit provides. This includes:
 
 - The ability to run migrations to your Benchling tenant(s) through an easy to use CLI.
 - One source of truth defined in code for your Benchling schema model that your many Benchling tenants can stay in sync with.
@@ -32,7 +32,6 @@ If you or your organization use Liminal, please consider adding yourself or your
 ## Mission
 
 The democratization of software in Biotech is crucial. By building a community around complex, yet common, problems and creating open-source solutions, we can work together to tackle these challenges together and enable faster innovation in the industry. By breaking down the silos between private platforms, we can enable a more dynamic and open ecosystem. This was the motivation for Liminal's creation. Liminal's goal is to create an open-source software product that enables a standard, code-first approach to configuration and change management for LIMS systems. We started with Benchling, but the goal is to make Liminal the go-to solution for any LIMS system.
-
 
 ## Direct contact information
 
