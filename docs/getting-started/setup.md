@@ -20,7 +20,6 @@
             current_revision_id_var_name="PROD_CURRENT_REVISION_ID",
             api_client_id="my-secret-api-client-id",
             api_client_secret="my-secret-api-client-secret",
-            warehouse_connection_string="my-warehouse-connection-string",
             internal_api_admin_email="my-secret-internal-api-admin-email",
             internal_api_admin_password="my-secret-internal-api-admin-password",
     )
@@ -28,7 +27,6 @@
 
     * Required: The `api_client_id` and `api_client_secret` are used to connect to Benchling's SDK. For more information, see the [Benchling API documentation](https://docs.benchling.com/docs/getting-started-benchling-apps#calling-the-api-as-an-app).
     * Required: The `internal_api_admin_email` and `internal_api_admin_password` are used to connect to Benchling's API for the migration service. This must be the email and password used to log in to an Admin account.
-    * Optional: The `warehouse_connection_string` is used to connect to Benchling's Postgres warehouse. This is optional, but recommended for querying the Benchling warehouse using SQLAlchemy.
 
     The `CURRENT_REVISION_ID` variable is used to store the current state of where your Benchling tenant lies on the revision timeline. The id is the `revision_id` of the revision file that has been applied to your Benchling tenant.
 
