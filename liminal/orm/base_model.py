@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import logging
-from abc import abstractmethod
+from types import FunctionType
 from typing import TYPE_CHECKING, Any, Generic, Type, TypeVar  # noqa: UP035
 
 import pandas as pd  # type: ignore
@@ -15,10 +16,7 @@ from liminal.orm.base import Base
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.orm.user import User
 from liminal.utils import to_snake_case
-from liminal.validation import (
-    BenchlingValidator,
-    BenchlingValidatorReport,
-)
+from liminal.validation import BenchlingValidatorReport
 
 if TYPE_CHECKING:
     from liminal.orm.column import Column
@@ -230,12 +228,17 @@ class BaseModel(Generic[T], Base):
         """
         return session.query(cls)
 
-    @abstractmethod
-    def get_validators(self) -> list[BenchlingValidator]:
-        """Abstract method that all subclasses must implement. Each subclass will have a differently defined list of
-        validators to validate the entity. These validators will be run on each entity returned from the query.
-        """
-        raise NotImplementedError
+    @classmethod
+    def get_defined_validators(cls) -> list[FunctionType]:
+        """Returns a list of all validators defined on the class."""
+        validators = []
+        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+            if (
+                hasattr(method, "__wrapped__")
+                and method.__wrapped__.__name__ == "liminal_validator"
+            ):
+                validators.append(method)
+        return validators
 
     @classmethod
     def validate(
@@ -260,9 +263,10 @@ class BaseModel(Generic[T], Base):
             cls.query(session), base_filters=base_filters
         ).all()
         logger.info(f"Validating {len(table)} entities for {cls.__name__}...")
+        validator_functions = cls.get_defined_validators()
         for entity in table:
-            for validator in entity.get_validators():
-                report: BenchlingValidatorReport = validator.validate(entity)
+            for validator_func in validator_functions:
+                report: BenchlingValidatorReport = validator_func(entity)
                 results.append(report)
         return results
 
