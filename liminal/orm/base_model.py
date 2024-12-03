@@ -131,7 +131,7 @@ class BaseModel(Generic[T], Base):
         model_columns = cls.get_columns_dict(exclude_base_columns=True)
         properties = {n: c.properties for n, c in model_columns.items()}
         errors = []
-        if not warehouse_access:
+        if warehouse_access:
             if cls.__schema_properties__.warehouse_name != to_snake_case(
                 cls.__schema_properties__.name
             ):
@@ -140,14 +140,15 @@ class BaseModel(Generic[T], Base):
                     Either set warehouse_access to True in BenchlingConnection or use the given Benchling schema warehouse name: {to_snake_case(cls.__schema_properties__.name)}. \
                     Reach out to Benchling support if you need help setting up warehouse access."
                 )
-        for wh_name, field in properties.items():
-            try:
-                field.validate_column(wh_name, warehouse_access)
-            except ValueError as e:
-                errors.append(str(e))
-        if errors:
-            raise ValueError(f"Invalid field properties: {' '.join(errors)}")
-        return True
+
+            for wh_name, field in properties.items():
+                try:
+                    field.validate_column(wh_name, warehouse_access)
+                except ValueError as e:
+                    errors.append(str(e))
+            if errors:
+                raise ValueError(f"Invalid field properties: {' '.join(errors)}")
+            return True
 
     @classmethod
     def apply_base_filters(

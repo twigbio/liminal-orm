@@ -90,11 +90,11 @@ def convert_field_type_to_api_field_type(
         ),
         BenchlingFieldType.PART_LINK: (
             BenchlingAPIFieldType.PART_LINK,
-            BenchlingFolderItemType.SEQUENCE,
+            None,
         ),
         BenchlingFieldType.TRANSLATION_LINK: (
             BenchlingAPIFieldType.TRANSLATION_LINK,
-            BenchlingFolderItemType.SEQUENCE,
+            None,
         ),
         BenchlingFieldType.ENTITY_LINK: (BenchlingAPIFieldType.FILE_LINK, None),
         BenchlingFieldType.DECIMAL: (BenchlingAPIFieldType.FLOAT, None),
@@ -137,11 +137,11 @@ def convert_api_field_type_to_field_type(
         ): BenchlingFieldType.AA_SEQUENCE_LINK,
         (
             BenchlingAPIFieldType.PART_LINK,
-            BenchlingFolderItemType.SEQUENCE,
+            None,
         ): BenchlingFieldType.PART_LINK,
         (
             BenchlingAPIFieldType.TRANSLATION_LINK,
-            BenchlingFolderItemType.SEQUENCE,
+            None,
         ): BenchlingFieldType.TRANSLATION_LINK,
         (BenchlingAPIFieldType.FILE_LINK, None): BenchlingFieldType.ENTITY_LINK,
         (BenchlingAPIFieldType.FLOAT, None): BenchlingFieldType.DECIMAL,
