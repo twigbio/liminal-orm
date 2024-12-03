@@ -17,4 +17,6 @@ class BenchlingAPIFieldType(StrEnum):
     LONG_TEXT = "ft_long_text"
     SELECTOR = "ft_selector"
     STORABLE_LINK = "ft_storable_link"
+    PART_LINK = "ft_part_link"
+    TRANSLATION_LINK = "ft_translation_link"
     STRING = "ft_string"
