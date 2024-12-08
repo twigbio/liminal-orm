@@ -223,29 +223,32 @@ class BaseModel(Generic[T], Base):
         return session.query(cls)
 
     @classmethod
-    def get_defined_validators(cls) -> list[FunctionType]:
-        """Returns a list of all validators defined on the class."""
+    def get_validators(cls) -> list[FunctionType]:
+        """Returns a list of all validators defined on the class. Validators are functions that are decorated with @validator."""
         validators = []
         for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
-            if (
-                hasattr(method, "__wrapped__")
-                and method.__wrapped__.__name__ == "liminal_validator"
-            ):
+            if hasattr(method, "_is_liminal_validator"):
                 validators.append(method)
         return validators
 
     @classmethod
     def validate(
-        cls, session: Session, base_filters: BaseValidatorFilters | None = None
+        cls,
+        session: Session,
+        base_filters: BaseValidatorFilters | None = None,
+        only_invalid: bool = False,
     ) -> list[BenchlingValidatorReport]:
         """Runs all validators for all entities returned from the query and returns a list of reports.
+        This returns a report for each entity, validator pair, regardless of whether the validation passed or failed.
 
         Parameters
         ----------
         session : Session
             Benchling database session.
-        base_filters: BenchlingBaseValidatorFilters
+        base_filters: BaseValidatorFilters
             Filters to apply to the query.
+        only_invalid: bool
+            If True, only returns reports for entities that failed validation.
 
         Returns
         -------
@@ -257,10 +260,12 @@ class BaseModel(Generic[T], Base):
             cls.query(session), base_filters=base_filters
         ).all()
         logger.info(f"Validating {len(table)} entities for {cls.__name__}...")
-        validator_functions = cls.get_defined_validators()
+        validator_functions = cls.get_validators()
         for entity in table:
             for validator_func in validator_functions:
                 report: BenchlingValidatorReport = validator_func(entity)
+                if only_invalid and report.valid:
+                    continue
                 results.append(report)
         return results
 
@@ -274,7 +279,7 @@ class BaseModel(Generic[T], Base):
         ----------
         session : Session
             Benchling database session.
-        base_filters: BenchlingBaseValidatorFilters
+        base_filters: BaseValidatorFilters
             Filters to apply to the query.
 
         Returns

@@ -1,12 +1,14 @@
 import inspect
 from datetime import datetime
 from functools import wraps
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 
-from liminal.orm.base_model import BaseModel
-from liminal.validation.validation_report_level import ValidationReportLevel
+from liminal.validation.validation_severity import ValidationSeverity
+
+if TYPE_CHECKING:
+    from liminal.orm.base_model import BaseModel as BenchlingBaseModel
 
 
 class BenchlingValidatorReport(BaseModel):
@@ -43,7 +45,7 @@ class BenchlingValidatorReport(BaseModel):
 
     valid: bool
     model: str
-    level: ValidationReportLevel
+    level: ValidationSeverity
     validator_name: str | None = None
     entity_id: str | None = None
     registry_id: str | None = None
@@ -56,57 +58,69 @@ class BenchlingValidatorReport(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+    @classmethod
+    def create_validation_report(
+        cls,
+        valid: bool,
+        level: ValidationSeverity,
+        entity: type["BenchlingBaseModel"],
+        validator_name: str,
+        message: str | None = None,
+    ) -> "BenchlingValidatorReport":
+        """Creates a BenchlingValidatorReport with the given parameters.
 
-def _create_validation_report(
-    valid: bool,
-    level: ValidationReportLevel,
-    entity: type[BaseModel],
-    validator_name: str,
-    message: str | None = None,
-) -> BenchlingValidatorReport:
-    """Creates a BenchlingValidatorReport with the given parameters."""
-    return BenchlingValidatorReport(
-        valid=valid,
-        level=level,
-        model=entity.__class__.__name__,
-        validator_name=validator_name,
-        entity_id=entity.id,
-        registry_id=entity.file_registry_id,
-        entity_name=entity.name,
-        web_url=entity.url,
-        creator_name=entity.creator.name if entity.creator else None,
-        creator_email=entity.creator.email if entity.creator else None,
-        updated_date=entity.modified_at,
-        message=message,
-    )
-
-
-class LiminalValidationError(Exception):
-    """An exception that is raised when a validation error occurs."""
-
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+        Parameters
+        ----------
+        valid: bool
+            Indicates whether the validation passed or failed.
+        level: ValidationSeverity
+            The severity level of the validation report.
+        entity: type[BenchlingBaseModel]
+            The entity being validated.
+        validator_name: str
+            The name of the validator that generated this report.
+        message: str | None
+            A message describing the result of the validation.
+        """
+        return cls(
+            valid=valid,
+            level=level,
+            model=entity.__class__.__name__,
+            validator_name=validator_name,
+            entity_id=entity.id,
+            registry_id=entity.file_registry_id,
+            entity_name=entity.name,
+            web_url=entity.url,
+            creator_name=entity.creator.name if entity.creator else None,
+            creator_email=entity.creator.email if entity.creator else None,
+            updated_date=entity.modified_at,
+            message=message,
+        )
 
 
 def liminal_validator(
     validator_name: str,
-    validator_level: ValidationReportLevel,
+    validator_level: ValidationSeverity,
 ) -> Callable:
     """A decorator that validates a function that takes a Benchling entity as an argument and returns None.
 
     Parameters:
-        validator_name: The name of the validator.
-        validator_level: The level of the validator.
+        validator_name: str
+            The name of the validator.
+        validator_level: ValidationSeverity
+            The level of the validator.
     """
 
-    def decorator(func: Callable[[type[BaseModel]], None]) -> Callable:
+    def decorator(func: Callable[[type["BenchlingBaseModel"]], None]) -> Callable:
+        """Decorator that validates a function that takes a Benchling entity as an argument and returns None."""
         sig = inspect.signature(func)
         params = list(sig.parameters.values())
         if not params or params[0].name != "self" or len(params) > 1:
-            raise TypeError("The only argument to this validator must be 'self'.")
+            raise TypeError(
+                "Validator must defined in a schema class, where the only argument to this validator must be 'self'."
+            )
 
-        if params[0].annotation is not type[BaseModel]:
+        if params[0].name != "self":
             raise TypeError(
                 "The only argument to this validator must be a Benchling entity."
             )
@@ -115,24 +129,26 @@ def liminal_validator(
             raise TypeError("The return type must be None.")
 
         @wraps(func)
-        def wrapper(self: type[BaseModel]) -> BenchlingValidatorReport:
+        def wrapper(self: type["BenchlingBaseModel"]) -> BenchlingValidatorReport:
+            """Wrapper that runs the validator function and returns a BenchlingValidatorReport."""
             try:
                 func(self)
-            except LiminalValidationError as e:
-                return _create_validation_report(
+            except Exception as e:
+                return BenchlingValidatorReport.create_validation_report(
                     valid=False,
                     level=validator_level,
                     entity=self,
                     validator_name=validator_name,
-                    message=e.message,
+                    message=str(e),
                 )
-            return _create_validation_report(
+            return BenchlingValidatorReport.create_validation_report(
                 valid=True,
                 level=validator_level,
                 entity=self,
                 validator_name=validator_name,
             )
 
+        setattr(wrapper, "_is_liminal_validator", True)
         return wrapper
 
     return decorator
