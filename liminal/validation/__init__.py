@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable
 
 from pydantic import BaseModel, ConfigDict
 
+from liminal.utils import pascalize
 from liminal.validation.validation_severity import ValidationSeverity
 
 if TYPE_CHECKING:
@@ -21,7 +22,7 @@ class BenchlingValidatorReport(BaseModel):
         Indicates whether the validation passed or failed.
     model : str
         The name of the model being validated. (eg: NGSSample)
-    level : BenchlingReportLevel
+    level : ValidationSeverity
         The severity level of the validation report.
     validator_name : str | None
         The name of the validator that generated this report. (eg: BioContextValidator)
@@ -99,16 +100,16 @@ class BenchlingValidatorReport(BaseModel):
 
 
 def liminal_validator(
-    validator_name: str,
-    validator_level: ValidationSeverity,
+    validator_level: ValidationSeverity = ValidationSeverity.LOW,
+    validator_name: str | None = None,
 ) -> Callable:
     """A decorator that validates a function that takes a Benchling entity as an argument and returns None.
 
     Parameters:
-        validator_name: str
-            The name of the validator.
         validator_level: ValidationSeverity
             The level of the validator.
+        validator_name: str | None
+            The name of the validator. Defaults to the pascalized name of the function.
     """
 
     def decorator(func: Callable[[type["BenchlingBaseModel"]], None]) -> Callable:
@@ -127,6 +128,10 @@ def liminal_validator(
 
         if sig.return_annotation is not None:
             raise TypeError("The return type must be None.")
+
+        nonlocal validator_name
+        if validator_name is None:
+            validator_name = pascalize(func.__name__)
 
         @wraps(func)
         def wrapper(self: type["BenchlingBaseModel"]) -> BenchlingValidatorReport:

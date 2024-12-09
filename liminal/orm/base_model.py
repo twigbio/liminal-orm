@@ -271,7 +271,10 @@ class BaseModel(Generic[T], Base):
 
     @classmethod
     def validate_to_df(
-        cls, session: Session, base_filters: BaseValidatorFilters | None = None
+        cls,
+        session: Session,
+        base_filters: BaseValidatorFilters | None = None,
+        only_invalid: bool = False,
     ) -> pd.DataFrame:
         """Runs all validators for all entities returned from the query and returns reports as a pandas dataframe.
 
@@ -287,5 +290,5 @@ class BaseModel(Generic[T], Base):
         pd.Dataframe
             Dataframe of reports from running all validators on all entities returned from the query.
         """
-        results = cls.validate(session, base_filters)
+        results = cls.validate(session, base_filters, only_invalid)
         return pd.DataFrame([r.model_dump() for r in results])
