@@ -15,6 +15,7 @@ from liminal.enums import (
     BenchlingFolderItemType,
     BenchlingSequenceType,
 )
+from liminal.enums.name_template_part_type import NameTemplatePartType
 from liminal.mappers import (
     convert_entity_type_to_api_entity_type,
     convert_field_type_to_api_field_type,
@@ -30,6 +31,15 @@ class FieldRequiredLinkShortModel(BaseModel):
     schemaInterface: Any | None = None
     tagSchema: dict[str, Any] | None = None
     storableSchema: dict[str, Any] | None = None
+
+
+class NameTemplatePartModel(BaseModel):
+    """A pydantic model to define a part of a name template."""
+
+    type: NameTemplatePartType | None = None
+    fieldId: str | None = None
+    text: str | None = None
+    datetimeFormat: str | None = None
 
 
 class UpdateTagSchemaModel(BaseModel):
@@ -256,7 +266,7 @@ class TagSchemaModel(BaseModel):
     mixtureSchemaConfig: MixtureSchemaConfig | None
     name: str | None
     nameTemplateFields: list[str] | None
-    nameTemplateParts: list[Any] | None
+    nameTemplateParts: list[NameTemplatePartModel] | None
     permissions: dict[str, bool] | None
     prefix: str | None
     registryId: str | None

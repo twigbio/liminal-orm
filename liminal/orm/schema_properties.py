@@ -4,6 +4,7 @@ from typing import Any
 
 from pydantic import model_validator
 
+from liminal.base.name_template_parts import NameTemplatePart
 from liminal.base.properties.base_schema_properties import (
     BaseSchemaProperties,
     MixtureSchemaConfig,
@@ -24,6 +25,7 @@ class SchemaProperties(BaseSchemaProperties):
     entity_type: BenchlingEntityType
     naming_strategies: set[BenchlingNamingStrategy]
     mixture_schema_config: MixtureSchemaConfig | None = None
+    name_template: list[NameTemplatePart] | None = None
     _archived: bool = False
 
     def __init__(self, **data: Any):
