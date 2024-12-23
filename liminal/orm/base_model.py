@@ -13,6 +13,7 @@ from sqlalchemy.orm.decl_api import declared_attr
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
+from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.validation import (
     BenchlingValidator,
@@ -32,6 +33,7 @@ class BaseModel(Generic[T], Base):
 
     __abstract__ = True
     __schema_properties__: SchemaProperties
+    __name_template__: NameTemplate = NameTemplate()
 
     _existing_schema_warehouse_names: set[str] = set()
     _existing_schema_names: set[str] = set()
@@ -73,6 +75,13 @@ class BaseModel(Generic[T], Base):
                 raise ValueError(
                     f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
                 )
+        # Validate name template
+        if cls.__name_template__:
+            if not cls.__schema_properties__.entity_type.is_sequence():
+                if cls.__name_template__.order_name_parts_by_sequence is True:
+                    raise ValueError(
+                        "order_name_parts_by_sequence is only supported for sequence entities. Must be set to False if entity type is not a sequence."
+                    )
 
         cls._existing_schema_warehouse_names.add(warehouse_name)
         cls._existing_schema_names.add(cls.__schema_properties__.name)

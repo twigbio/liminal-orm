@@ -62,13 +62,13 @@ def generate_all_entity_schema_files(
         for dropdown_name in benchling_dropdowns.keys()
     }
     wh_name_to_classname: dict[str, str] = {
-        sp.warehouse_name: pascalize(sp.name) for sp, _ in models
+        sp.warehouse_name: pascalize(sp.name) for sp, _, _ in models
     }
 
-    for schema_properties, columns in models:
+    for schema_properties, name_template, columns in models:
         classname = pascalize(schema_properties.name)
 
-    for schema_properties, columns in models:
+    for schema_properties, name_template, columns in models:
         classname = pascalize(schema_properties.name)
         filename = to_snake_case(schema_properties.name) + ".py"
         columns = {key: columns[key] for key in columns}

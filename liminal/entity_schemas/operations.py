@@ -8,6 +8,7 @@ from liminal.dropdowns.utils import get_benchling_dropdown_id_name_map
 from liminal.entity_schemas.api import (
     archive_tag_schemas,
     create_entity_schema,
+    set_tag_schema_name_template,
     unarchive_tag_schemas,
     update_tag_schema,
 )
@@ -22,6 +23,7 @@ from liminal.entity_schemas.utils import (
     convert_tag_schema_to_internal_schema,
 )
 from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
+from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.utils import to_snake_case
 
@@ -121,7 +123,7 @@ class CreateEntitySchema(BaseOperation):
                 f"Entity schema {self._validated_schema_properties.warehouse_name} is already active in Benchling."
             )
         dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
-        benchling_schema_props, benchling_fields_props = (
+        benchling_schema_props, _, benchling_fields_props = (
             convert_tag_schema_to_internal_schema(schema, dropdowns_map)
         )
         if (
@@ -255,6 +257,44 @@ class UpdateEntitySchema(BaseOperation):
                 "Invalid naming strategies for schema. The name template must be set on the schema through the UI when using template-based naming strategies."
             )
         return tag_schema
+
+
+class UpdateEntitySchemaNameTemplate(BaseOperation):
+    order: ClassVar[int] = 150
+
+    def __init__(
+        self,
+        wh_schema_name: str,
+        name_template: NameTemplate | None,
+    ) -> None:
+        self.wh_schema_name = wh_schema_name
+        self.name_template = name_template
+
+    def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
+        tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)
+        if self.name_template is None:
+            return set_tag_schema_name_template(
+                benchling_service,
+                tag_schema.id,
+                {"nameTemplateParts": [], "shouldOrderNamePartsBySequence": False},
+            )
+        updated_schema = tag_schema.update_name_template(
+            self.name_template.model_dump(exclude_unset=True)
+        )
+        return set_tag_schema_name_template(
+            benchling_service,
+            tag_schema.id,
+            {
+                "nameTemplateParts": updated_schema.nameTemplateParts,
+                "shouldOrderNamePartsBySequence": updated_schema.shouldOrderNamePartsBySequence,
+            },
+        )
+
+    def describe_operation(self) -> str:
+        return f"{self.wh_schema_name}: Updating name template to {str(self.name_template)}."
+
+    def describe(self) -> str:
+        return f"{self.wh_schema_name}: Name template is different in code versus Benchling."
 
 
 class CreateEntitySchemaField(BaseOperation):

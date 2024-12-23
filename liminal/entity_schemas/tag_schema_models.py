@@ -5,6 +5,12 @@ from typing import Any
 import requests
 from pydantic import BaseModel
 
+from liminal.base.name_template_parts import (
+    Field,
+    NameTemplatePart,
+    Separator,
+    Text,
+)
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
 from liminal.connection import BenchlingService
@@ -20,6 +26,7 @@ from liminal.mappers import (
     convert_entity_type_to_api_entity_type,
     convert_field_type_to_api_field_type,
 )
+from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import MixtureSchemaConfig
 
 
@@ -36,7 +43,7 @@ class FieldRequiredLinkShortModel(BaseModel):
 class NameTemplatePartModel(BaseModel):
     """A pydantic model to define a part of a name template."""
 
-    type: NameTemplatePartType | None = None
+    type: NameTemplatePartType
     fieldId: str | None = None
     text: str | None = None
     datetimeFormat: str | None = None
@@ -369,6 +376,22 @@ class TagSchemaModel(BaseModel):
                 return field
         raise ValueError(f"Field '{wh_field_name}' not found in schema")
 
+    def get_internal_name_template_parts(self) -> list[NameTemplatePart]:
+        parts: list[NameTemplatePart] = []
+        for part in self.nameTemplateParts:
+            if part.type == NameTemplatePartType.SEPARATOR:
+                parts.append(Separator(value=part.text))
+            elif part.type == NameTemplatePartType.TEXT:
+                parts.append(Text(value=part.text))
+            elif part.type == NameTemplatePartType.FIELD:
+                field = [f for f in self.fields if f.id == part.fieldId]
+                if not field:
+                    raise ValueError(f"Field with id{part.fieldId} not found in schema")
+                parts.append(Field(wh_field_name=field[0].systemName))
+            else:
+                parts.append(NameTemplatePart.resolve_type(part.type)())
+        return parts
+
     def update_schema_props(self, update_diff: dict[str, Any]) -> TagSchemaModel:
         """Updates the schema properties given the schema properties defined in code."""
         update_diff_names = list(update_diff.keys())
@@ -410,6 +433,21 @@ class TagSchemaModel(BaseModel):
             else self.sqlIdentifier
         )
         self.name = update_props.name if "name" in update_diff_names else self.name
+        return self
+
+    def update_name_template(self, update_diff: dict[str, Any]) -> TagSchemaModel:
+        update_diff_names = list(update_diff.keys())
+        update_props = NameTemplate(**update_diff)
+        self.nameTemplateParts = (
+            [part.to_model_type(self.fields) for part in update_props.parts]
+            if "parts" in update_diff_names
+            else self.nameTemplateParts
+        )
+        self.shouldOrderNamePartsBySequence = (
+            update_props.order_name_parts_by_sequence
+            if "order_name_parts_by_sequence" in update_diff_names
+            else self.shouldOrderNamePartsBySequence
+        )
         return self
 
     def update_field(
