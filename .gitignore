@@ -9,6 +9,7 @@ wheels/
 .ruff_cache
 # venv
 .venv
+.idea
 
 .DS_store
 **/*.ipynb

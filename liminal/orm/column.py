@@ -1,7 +1,8 @@
 from typing import Any, Type  # noqa: UP035
 
-from sqlalchemy import ARRAY, ForeignKey
-from sqlalchemy import Column as SqlColumn
+from sqlalchemy.sql.schema import Column as SqlColumn
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.types import JSON
 
 from liminal.base.base_dropdown import BaseDropdown
 from liminal.base.properties.base_field_properties import BaseFieldProperties
@@ -25,12 +26,16 @@ class Column(SqlColumn):
         Whether the field is a multi-value field.
     parent_link : bool = False
         Whether the entity link field is a parent of the entity schema.
+    tooltip : str | None = None
+        The tooltip text for the field.
     dropdown : Type[BaseDropdown] | None = None
         The dropdown for the field.
     entity_link : str | None = None
         The warehouse name of the entity the field links to.
-    tooltip : str | None = None
-        The tooltip text for the field.
+    _warehouse_name : str | None = None
+        The warehouse name of the column. Necessary when the variable name is not the same as the warehouse name.
+    _archived : bool = False
+        Whether the field is archived.
     """
 
     def __init__(
@@ -43,6 +48,8 @@ class Column(SqlColumn):
         tooltip: str | None = None,
         dropdown: Type[BaseDropdown] | None = None,  # noqa: UP006
         entity_link: str | None = None,
+        _warehouse_name: str | None = None,
+        _archived: bool = False,
         **kwargs: Any,
     ):
         """Initializes a Benchling Column object. Validates the type BenchlingFieldType maps to a valid sqlalchemy type.
@@ -56,11 +63,12 @@ class Column(SqlColumn):
             dropdown_link=dropdown.__benchling_name__ if dropdown else None,
             entity_link=entity_link,
             tooltip=tooltip,
+            _archived=_archived,
         )
         self.properties = properties
 
         nested_sql_type = convert_benchling_type_to_sql_alchemy_type(type)
-        sqlalchemy_type = ARRAY(nested_sql_type) if is_multi else nested_sql_type
+        sqlalchemy_type = JSON if is_multi else nested_sql_type
         if dropdown and type != BenchlingFieldType.DROPDOWN:
             raise ValueError("Dropdown can only be set if the field type is DROPDOWN.")
         if dropdown is None and type == BenchlingFieldType.DROPDOWN:
@@ -79,6 +87,8 @@ class Column(SqlColumn):
         foreign_key = None
         if type == BenchlingFieldType.ENTITY_LINK and entity_link:
             foreign_key = ForeignKey(f"{entity_link}$raw.id")
+        if _warehouse_name:
+            kwargs["name"] = _warehouse_name
         super().__init__(
             self.sqlalchemy_type,
             foreign_key,

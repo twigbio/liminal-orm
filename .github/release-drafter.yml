@@ -2,10 +2,10 @@ template: $CHANGES
 name-template: v$RESOLVED_VERSION
 tag-template: $RESOLVED_VERSION
 categories:
-  - title: ⭐️ Major Enhancements
+  - title: 🌠 Major Enhancements
     labels:
       - type:major-enhancement
-  - title: ➕ Minor Enhancements
+  - title: ⭐️ Minor Enhancements
     labels:
       - type:minor-enhancement
   - title: "\U0001F41E Bug Fixes"
