@@ -13,9 +13,7 @@ from liminal.entity_schemas.operations import (
     UpdateEntitySchema,
     UpdateEntitySchemaField,
 )
-from liminal.entity_schemas.utils import (
-    get_converted_tag_schemas,
-)
+from liminal.entity_schemas.utils import get_converted_tag_schemas
 from liminal.orm.base_model import BaseModel
 from liminal.orm.column import Column
 from liminal.utils import to_snake_case
@@ -43,7 +41,11 @@ def compare_entity_schemas(
     )
     # If models are provided, filter the schemas from benchling so that only the models passed in are compared.
     # If you don't filter, it will compare to all the schemas in benchling and think that they are missing from code and should be archived.
-    models = BaseModel.get_all_subclasses(schema_names)
+    models = [
+        m
+        for m in BaseModel.get_all_subclasses(schema_names)
+        if not m.__schema_properties__._archived
+    ]
     archived_benchling_schema_wh_names = [
         s.warehouse_name for s, _ in benchling_schemas if s._archived is True
     ]
@@ -59,9 +61,7 @@ def compare_entity_schemas(
             exclude_base_columns=True
         )
         # Validate the entity_link and dropdown_link reference an entity_schema or dropdown that exists in code.
-        model.validate_model(
-            warehouse_access=benchling_service.connection.warehouse_access
-        )
+        model.validate_model()
         # if the model table_name is found in the benchling schemas, check for changes...
         if (model_wh_name := model.__schema_properties__.warehouse_name) in [
             s.warehouse_name for s, _ in benchling_schemas
