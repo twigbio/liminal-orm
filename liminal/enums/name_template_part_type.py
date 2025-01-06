@@ -1,7 +1,7 @@
-from enum import Enum
+from liminal.base.str_enum import StrEnum
 
 
-class NameTemplatePartType(Enum):
+class NameTemplatePartType(StrEnum):
     SEPARATOR = "SEPARATOR"
     TEXT = "TEXT"
     CREATION_YEAR = "CREATED_AT_YEAR"

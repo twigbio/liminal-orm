@@ -15,6 +15,7 @@ from liminal.entity_schemas.operations import (
     UpdateEntitySchemaField,
 )
 from liminal.enums import BenchlingFieldType
+from liminal.orm.name_template import NameTemplate
 
 
 class TestCompareEntitySchemas:
@@ -320,7 +321,7 @@ class TestCompareEntitySchemas:
             keys[idx1], keys[idx2] = keys[idx2], keys[idx1]
             new_fields = {k: fields[k] for k in keys}
             new_benchling_unordered_fields_schema = [
-                (benchling_unordered_fields_schema[0][0], None, new_fields)
+                (benchling_unordered_fields_schema[0][0], NameTemplate(), new_fields)
             ]
             mock_get_benchling_entity_schemas.return_value = (
                 new_benchling_unordered_fields_schema

@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from liminal.base.name_template_parts import NameTemplatePart
+from liminal.base.name_template_parts import NameTemplateParts
 
 
 class BaseNameTemplate(BaseModel):
@@ -20,11 +20,8 @@ class BaseNameTemplate(BaseModel):
         Whether to order the name parts by sequence.
     """
 
-    parts: list[NameTemplatePart] | None = None
+    parts: list[NameTemplateParts] | None = None
     order_name_parts_by_sequence: bool | None = None
-
-    def __init__(self, **data: Any):
-        super().__init__(**data)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -60,4 +57,11 @@ class BaseNameTemplate(BaseModel):
 
     def __repr__(self) -> str:
         """Generates a string representation of the class so that it can be executed."""
-        return f"{self.__class__.__name__}({', '.join([f'{k}={v.__repr__()}' for k, v in self.model_dump(exclude_unset=True).items()])})"
+        parts_repr = (
+            f"[{', '.join(repr(part) for part in self.parts)}]" if self.parts else "[]"
+        )
+        return (
+            f"{self.__class__.__name__}("
+            f"parts={parts_repr}, "
+            f"order_name_parts_by_sequence={self.order_name_parts_by_sequence})"
+        )

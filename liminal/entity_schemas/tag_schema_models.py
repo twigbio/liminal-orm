@@ -6,10 +6,7 @@ import requests
 from pydantic import BaseModel
 
 from liminal.base.name_template_parts import (
-    Field,
     NameTemplatePart,
-    Separator,
-    Text,
 )
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
@@ -47,6 +44,34 @@ class NameTemplatePartModel(BaseModel):
     fieldId: str | None = None
     text: str | None = None
     datetimeFormat: str | None = None
+
+    @classmethod
+    def from_name_template_part(
+        cls, part: NameTemplatePart, fields: list[TagSchemaFieldModel] | None = None
+    ) -> NameTemplatePartModel:
+        data = part.model_dump()
+        field_id = None
+        if wh_field_name := data.get("wh_field_name"):
+            field = next((f for f in fields if f.systemName == wh_field_name), None)
+            if field is None:
+                raise ValueError(f"Field {wh_field_name} not found in fields")
+            field_id = field.id
+        return cls(
+            type=part.component_type,
+            fieldId=field_id,
+            text=data.get("value"),
+        )
+
+    def to_name_template_part(
+        self, fields: list[TagSchemaFieldModel] | None = None
+    ) -> NameTemplatePart:
+        part_cls = NameTemplatePart.resolve_type(self.type)
+        if self.fieldId:
+            field = next((f for f in fields if f.id == self.fieldId), None)
+            if field is None:
+                raise ValueError(f"Field {self.fieldId} not found in fields")
+            return part_cls(wh_field_name=field.systemName, value=self.text)
+        return part_cls(text=self.text)
 
 
 class TagSchemaConstraint(BaseModel):
@@ -377,20 +402,9 @@ class TagSchemaModel(BaseModel):
         raise ValueError(f"Field '{wh_field_name}' not found in schema")
 
     def get_internal_name_template_parts(self) -> list[NameTemplatePart]:
-        parts: list[NameTemplatePart] = []
-        for part in self.nameTemplateParts:
-            if part.type == NameTemplatePartType.SEPARATOR:
-                parts.append(Separator(value=part.text))
-            elif part.type == NameTemplatePartType.TEXT:
-                parts.append(Text(value=part.text))
-            elif part.type == NameTemplatePartType.FIELD:
-                field = [f for f in self.fields if f.id == part.fieldId]
-                if not field:
-                    raise ValueError(f"Field with id{part.fieldId} not found in schema")
-                parts.append(Field(wh_field_name=field[0].systemName))
-            else:
-                parts.append(NameTemplatePart.resolve_type(part.type)())
-        return parts
+        return [
+            part.to_name_template_part(self.fields) for part in self.nameTemplateParts
+        ]
 
     def update_schema_props(self, update_diff: dict[str, Any]) -> TagSchemaModel:
         """Updates the schema properties given the schema properties defined in code."""
@@ -439,7 +453,10 @@ class TagSchemaModel(BaseModel):
         update_diff_names = list(update_diff.keys())
         update_props = NameTemplate(**update_diff)
         self.nameTemplateParts = (
-            [part.to_model_type(self.fields) for part in update_props.parts]
+            [
+                NameTemplatePartModel.from_name_template_part(part, self.fields)
+                for part in update_props.parts
+            ]
             if "parts" in update_diff_names
             else self.nameTemplateParts
         )

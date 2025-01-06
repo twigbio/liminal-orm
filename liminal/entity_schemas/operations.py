@@ -2,6 +2,7 @@ from typing import Any, ClassVar
 
 from liminal.base.base_operation import BaseOperation
 from liminal.base.properties.base_field_properties import BaseFieldProperties
+from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdown_id_name_map
@@ -23,7 +24,6 @@ from liminal.entity_schemas.utils import (
     convert_tag_schema_to_internal_schema,
 )
 from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
-from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.utils import to_snake_case
 
@@ -265,19 +265,13 @@ class UpdateEntitySchemaNameTemplate(BaseOperation):
     def __init__(
         self,
         wh_schema_name: str,
-        name_template: NameTemplate | None,
+        name_template: BaseNameTemplate,
     ) -> None:
         self.wh_schema_name = wh_schema_name
         self.name_template = name_template
 
     def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
         tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)
-        if self.name_template is None:
-            return set_tag_schema_name_template(
-                benchling_service,
-                tag_schema.id,
-                {"nameTemplateParts": [], "shouldOrderNamePartsBySequence": False},
-            )
         updated_schema = tag_schema.update_name_template(
             self.name_template.model_dump(exclude_unset=True)
         )
@@ -285,7 +279,9 @@ class UpdateEntitySchemaNameTemplate(BaseOperation):
             benchling_service,
             tag_schema.id,
             {
-                "nameTemplateParts": updated_schema.nameTemplateParts,
+                "nameTemplateParts": [
+                    part.model_dump() for part in updated_schema.nameTemplateParts
+                ],
                 "shouldOrderNamePartsBySequence": updated_schema.shouldOrderNamePartsBySequence,
             },
         )

@@ -1,5 +1,6 @@
 from liminal.base.compare_operation import CompareOperation
 from liminal.base.properties.base_field_properties import BaseFieldProperties
+from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
 from liminal.connection import BenchlingService
 from liminal.entity_schemas.operations import (
@@ -241,15 +242,16 @@ def compare_entity_schemas(
                     ),
                 )
             if benchling_name_template != model.__name_template__:
+                print(model.__name_template__.__repr__())
                 ops.append(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            model.__name_template__,
+                            BaseNameTemplate(**model.__name_template__.model_dump()),
                         ),
                         reverse_op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            benchling_name_template,
+                            BaseNameTemplate(**benchling_name_template.model_dump()),
                         ),
                     )
                 )
@@ -292,16 +294,21 @@ def compare_entity_schemas(
                         ),
                     )
                 )
+            benchling_given_name_template = BaseNameTemplate(
+                parts=[], order_name_parts_by_sequence=False
+            )
             if benchling_name_template != model.__name_template__:
                 ops.append(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            model.__name_template__,
+                            BaseNameTemplate(**model.__name_template__.model_dump()),
                         ),
                         reverse_op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            None,
+                            BaseNameTemplate(
+                                **benchling_given_name_template.model_dump()
+                            ),
                         ),
                     )
                 )
