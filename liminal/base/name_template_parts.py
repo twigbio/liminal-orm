@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from liminal.enums.name_template_part_type import NameTemplatePartType
 
@@ -23,45 +23,63 @@ class NameTemplatePart(BaseModel):
         return cls._type_map[type]
 
 
-class Separator(NameTemplatePart):
+class SeparatorPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.SEPARATOR
     value: str
 
+    @field_validator("value")
+    def validate_value(cls, v: str) -> str:
+        if not v:
+            raise ValueError("value cannot be empty")
+        return v
 
-class Text(NameTemplatePart):
+
+class TextPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.TEXT
     value: str
 
+    @field_validator("value")
+    def validate_value(cls, v: str) -> str:
+        if not v:
+            raise ValueError("value cannot be empty")
+        return v
 
-class CreationYear(NameTemplatePart):
+
+class CreationYearPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.CREATION_YEAR
 
 
-class CreationDate(NameTemplatePart):
+class CreationDatePart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.CREATION_DATE
 
 
-class Field(NameTemplatePart):
+class FieldPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.FIELD
     wh_field_name: str
 
+    @field_validator("wh_field_name")
+    def validate_wh_field_name(cls, v: str) -> str:
+        if not v:
+            raise ValueError("wh_field_name cannot be empty")
+        return v
 
-class RegistryIdentifierNumber(NameTemplatePart):
+
+class RegistryIdentifierNumberPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = (
         NameTemplatePartType.REGISTRY_IDENTIFIER_NUMBER
     )
 
 
-class Project(NameTemplatePart):
+class ProjectPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.PROJECT
 
 
 NameTemplateParts = (
-    Separator
-    | Text
-    | CreationYear
-    | CreationDate
-    | Field
-    | RegistryIdentifierNumber
-    | Project
+    SeparatorPart
+    | TextPart
+    | CreationYearPart
+    | CreationDatePart
+    | FieldPart
+    | RegistryIdentifierNumberPart
+    | ProjectPart
 )

@@ -1,13 +1,13 @@
 # flake8: noqa: F401
 from liminal.base.base_operation import BaseOperation
 from liminal.base.name_template_parts import (
-    CreationDate,
-    CreationYear,
-    Field,
-    Project,
-    RegistryIdentifierNumber,
-    Separator,
-    Text,
+    CreationDatePart,
+    CreationYearPart,
+    FieldPart,
+    ProjectPart,
+    RegistryIdentifierNumberPart,
+    SeparatorPart,
+    TextPart,
 )
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_name_template import BaseNameTemplate

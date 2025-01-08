@@ -242,7 +242,6 @@ def compare_entity_schemas(
                     ),
                 )
             if benchling_name_template != model.__name_template__:
-                print(model.__name_template__.__repr__())
                 ops.append(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(

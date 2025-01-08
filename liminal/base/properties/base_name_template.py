@@ -17,7 +17,8 @@ class BaseNameTemplate(BaseModel):
     parts : list[NameTemplatePart] | None
         The list of name template parts that make up the name template.
     order_name_parts_by_sequence : bool | None
-        Whether to order the name parts by sequence.
+        Whether to order the name parts by sequence. If one or many part link fields are included in the name template,
+        list parts in the order they appear on the sequence map, sorted by start position and then end position.
     """
 
     parts: list[NameTemplateParts] | None = None
@@ -51,9 +52,17 @@ class BaseNameTemplate(BaseModel):
         return self.model_dump() == other.model_dump()
 
     def __str__(self) -> str:
-        return ", ".join(
-            [f"{k}={v}" for k, v in self.model_dump(exclude_unset=True).items()]
+        parts_str = (
+            f"parts=[{', '.join(repr(part) for part in self.parts)}]"
+            if self.parts is not None
+            else None
         )
+        order_name_parts_by_sequence_str = (
+            f"order_name_parts_by_sequence={self.order_name_parts_by_sequence}"
+            if self.order_name_parts_by_sequence is not None
+            else None
+        )
+        return ", ".join(filter(None, [parts_str, order_name_parts_by_sequence_str]))
 
     def __repr__(self) -> str:
         """Generates a string representation of the class so that it can be executed."""
