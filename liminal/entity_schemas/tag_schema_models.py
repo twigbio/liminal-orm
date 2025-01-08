@@ -71,7 +71,7 @@ class NameTemplatePartModel(BaseModel):
             if field is None:
                 raise ValueError(f"Field {self.fieldId} not found in fields")
             return part_cls(wh_field_name=field.systemName, value=self.text)
-        return part_cls(text=self.text)
+        return part_cls(value=self.text)
 
 
 class TagSchemaConstraint(BaseModel):
