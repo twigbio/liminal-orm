@@ -13,8 +13,8 @@ from sqlalchemy.orm.decl_api import declared_attr
 
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.orm.base import Base
+from liminal.orm.base_tables.user import User
 from liminal.orm.schema_properties import SchemaProperties
-from liminal.orm.user import User
 from liminal.validation import BenchlingValidatorReport
 
 if TYPE_CHECKING:
@@ -37,13 +37,14 @@ class BaseModel(Generic[T], Base):
 
     def __init_subclass__(cls, **kwargs: Any):
         super().__init_subclass__(**kwargs)
+        warehouse_name = cls.__schema_properties__.warehouse_name
+        cls.__tablename__ = warehouse_name + "$raw"
         if "__schema_properties__" not in cls.__dict__ or not isinstance(
             cls.__schema_properties__, SchemaProperties
         ):
             raise NotImplementedError(
                 f"{cls.__name__} must define 'schema_properties' class attribute"
             )
-        warehouse_name = cls.__schema_properties__.warehouse_name
         if warehouse_name in cls._existing_schema_warehouse_names:
             raise ValueError(
                 f"Warehouse name '{warehouse_name}' is already used by another subclass."
@@ -53,14 +54,27 @@ class BaseModel(Generic[T], Base):
                 f"Schema name '{cls.__schema_properties__.name}' is already used by another subclass."
             )
         if cls.__schema_properties__.prefix.lower() in cls._existing_schema_prefixes:
-            raise ValueError(
-                f"Schema prefix '{cls.__schema_properties__.prefix}' is already used by another subclass."
+            logger.warning(
+                f"Schema prefix '{cls.__schema_properties__.prefix}' is already used by another subclass. Please ensure fieldsets=True in BenchlingConnection you are updating/creating this schema."
             )
+        # Validate constraints
+        if cls.__schema_properties__.constraint_fields:
+            column_wh_names = [
+                c[0] for c in cls.__dict__.items() if isinstance(c[1], SqlColumn)
+            ]
+            invalid_constraints = [
+                c
+                for c in cls.__schema_properties__.constraint_fields
+                if c not in (set(column_wh_names) | {"bases"})
+            ]
+            if invalid_constraints:
+                raise ValueError(
+                    f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
+                )
 
         cls._existing_schema_warehouse_names.add(warehouse_name)
         cls._existing_schema_names.add(cls.__schema_properties__.name)
         cls._existing_schema_prefixes.add(cls.__schema_properties__.prefix.lower())
-        cls.__tablename__ = warehouse_name + "$raw"
 
     @declared_attr
     def creator_id(cls) -> SqlColumn:

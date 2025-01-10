@@ -125,6 +125,7 @@ def mock_benchling_schema(
         prefix="MockEntity",
         entity_type=BenchlingEntityType.CUSTOM_ENTITY,
         naming_strategies=[BenchlingNamingStrategy.NEW_IDS],
+        constraint_fields={"enum_field", "string_field_req"},
     )
     fields = {
         "enum_field": Props(
@@ -211,6 +212,24 @@ def mock_benchling_schema(
             is_multi=True,
             dropdown_link=mock_benchling_dropdown.__benchling_name__,
             parent_link=False,
+            entity_link=None,
+            tooltip=None,
+            _archived=False,
+        ),
+        "archived_field": Props(
+            name="Archived Field",
+            type=Type.TEXT,
+            required=False,
+            is_multi=False,
+            _archived=True,
+        ),
+        "wh_name_field_different": Props(
+            name="Different Wh Name Field",
+            type=Type.TEXT,
+            required=False,
+            is_multi=False,
+            parent_link=False,
+            dropdown_link=None,
             entity_link=None,
             tooltip=None,
             _archived=False,
@@ -329,6 +348,7 @@ def mock_benchling_subclass(mock_benchling_dropdown) -> list[type[BaseModel]]:  
             prefix="MockEntity",
             entity_type=BenchlingEntityType.CUSTOM_ENTITY,
             naming_strategies=[BenchlingNamingStrategy.NEW_IDS],
+            constraint_fields={"enum_field", "string_field_req"},
         )
         enum_field: SqlColumn = Column(
             name="Enum Field",
@@ -368,6 +388,20 @@ def mock_benchling_subclass(mock_benchling_dropdown) -> list[type[BaseModel]]:  
             required=False,
             is_multi=True,
             dropdown=mock_benchling_dropdown,
+        )
+        archived_field: SqlColumn = Column(
+            name="Archived Field",
+            type=Type.TEXT,
+            required=False,
+            is_multi=False,
+            _archived=True,
+        )
+        different_wh_name_field: SqlColumn = Column(
+            name="Different Wh Name Field",
+            type=Type.TEXT,
+            required=False,
+            is_multi=False,
+            _warehouse_name="wh_name_field_different",
         )
 
         def __init__(
