@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel
 
 from liminal.base.properties.base_field_properties import BaseFieldProperties
@@ -16,6 +18,37 @@ class FieldLinkShortModel(BaseModel):
 
     tagSchema: dict[str, str] | None = None
     folderItemType: str | None = None
+
+
+class EntitySchemaConstraint(BaseModel):
+    """
+    A class to define a constraint on an entity schema.
+    """
+
+    areUniqueResiduesCaseSensitive: bool | None = None
+    fields: dict[str, Any] | None = None
+    hasUniqueCanonicalSmilers: bool | None = None
+    hasUniqueResidues: bool | None = None
+
+    @classmethod
+    def from_constraint_fields(
+        cls, constraint_fields: set[str]
+    ) -> EntitySchemaConstraint:
+        """
+        Generates a Constraint object from a set of constraint fields to create a constraint on a schema.
+        """
+        if constraint_fields is None:
+            return None
+        hasUniqueResidues = False
+        if "bases" in constraint_fields:
+            constraint_fields.discard("bases")
+            hasUniqueResidues = True
+        return cls(
+            fields=[{"name": f} for f in constraint_fields],
+            hasUniqueResidues=hasUniqueResidues,
+            hasUniqueCanonicalSmilers=False,
+            areUniqueResiduesCaseSensitive=False,
+        )
 
 
 class CreateEntitySchemaFieldModel(BaseModel):
@@ -101,6 +134,7 @@ class CreateEntitySchemaModel(BaseModel):
     includeRegistryIdInChips: bool | None = None
     useOrganizationCollectionAliasForDisplayLabel: bool | None = None
     labelingStrategies: list[str] | None = None
+    constraint: EntitySchemaConstraint | None = None
 
     @classmethod
     def from_benchling_props(
@@ -134,6 +168,11 @@ class CreateEntitySchemaModel(BaseModel):
             includeRegistryIdInChips=benchling_props.include_registry_id_in_chips,
             useOrganizationCollectionAliasForDisplayLabel=benchling_props.use_registry_id_as_label,
             labelingStrategies=[s.value for s in benchling_props.naming_strategies],
+            constraint=EntitySchemaConstraint.from_constraint_fields(
+                benchling_props.constraint_fields
+            )
+            if benchling_props.constraint_fields
+            else None,
             fields=[
                 CreateEntitySchemaFieldModel.from_benchling_props(
                     field_props, benchling_service

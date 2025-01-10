@@ -127,6 +127,7 @@ def mock_benchling_schema(
         naming_strategies=[BenchlingNamingStrategy.NEW_IDS],
         use_registry_id_as_label=True,
         include_registry_id_in_chips=False,
+        constraint_fields={"enum_field", "string_field_req"},
     )
     fields = {
         "enum_field": Props(
@@ -351,6 +352,7 @@ def mock_benchling_subclass(mock_benchling_dropdown) -> list[type[BaseModel]]:  
             naming_strategies=[BenchlingNamingStrategy.NEW_IDS],
             use_registry_id_as_label=True,
             include_registry_id_in_chips=False,
+            constraint_fields={"enum_field", "string_field_req"},
         )
         enum_field: SqlColumn = Column(
             name="Enum Field",
