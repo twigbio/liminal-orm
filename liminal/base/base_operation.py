@@ -14,12 +14,12 @@ Order of operations based on order class var:
     7. ReorderDropdownOptions
     8. CreateSchema
     9. UpdateSchema
-    10. UpdateEntitySchemaNameTemplate
-    11. UnarchiveSchema
-    12. CreateField
-    13. UnarchiveField
-    14. UpdateField
-    15. ArchiveField
+    10. UnarchiveSchema
+    11. CreateField
+    12. UnarchiveField
+    13. UpdateField
+    14. ArchiveField
+    15. UpdateEntitySchemaNameTemplate
     16. ReorderFields
     17. ArchiveSchema
     18. ArchiveDropdown
