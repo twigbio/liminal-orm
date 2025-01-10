@@ -399,6 +399,23 @@ class TagSchemaModel(BaseModel):
             else:
                 self.constraint = None
 
+        if "constraint_fields" in update_diff_names:
+            if update_props.constraint_fields:
+                has_bases = False
+                if "bases" in update_props.constraint_fields:
+                    has_bases = True
+                    update_props.constraint_fields.discard("bases")
+                constraint_fields = [
+                    f
+                    for f in self.fields
+                    if f.systemName in update_props.constraint_fields
+                ]
+                self.constraint = TagSchemaConstraint.from_constraint_fields(
+                    constraint_fields, has_bases
+                )
+            else:
+                self.constraint = None
+
         self.prefix = (
             update_props.prefix if "prefix" in update_diff_names else self.prefix
         )
