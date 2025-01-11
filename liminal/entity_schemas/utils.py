@@ -71,6 +71,8 @@ def convert_tag_schema_to_internal_schema(
             ),
             constraint_fields=constraint_fields,
             _archived=tag_schema.archiveRecord is not None,
+            use_registry_id_as_label=tag_schema.useOrganizationCollectionAliasForDisplayLabel,
+            include_registry_id_in_chips=tag_schema.includeRegistryIdInChips,
         ),
         NameTemplate(
             parts=tag_schema.get_internal_name_template_parts(),

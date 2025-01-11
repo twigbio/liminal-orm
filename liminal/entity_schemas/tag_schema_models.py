@@ -113,6 +113,8 @@ class UpdateTagSchemaModel(BaseModel):
     sequenceType: BenchlingSequenceType | None = None
     shouldCreateAsOligo: bool | None = None
     showResidues: bool | None = None
+    includeRegistryIdInChips: bool | None = None
+    useOrganizationCollectionAliasForDisplayLabel: bool | None = None
     constraint: TagSchemaConstraint | None = None
 
 
@@ -420,6 +422,29 @@ class TagSchemaModel(BaseModel):
             self.labelingStrategies = [o.value for o in update_props.naming_strategies]
         if "mixture_schema_config" in update_diff_names:
             self.mixtureSchemaConfig = update_props.mixture_schema_config
+        if "use_registry_id_as_label" in update_diff_names:
+            self.useOrganizationCollectionAliasForDisplayLabel = (
+                update_props.use_registry_id_as_label
+            )
+        if "include_registry_id_in_chips" in update_diff_names:
+            self.includeRegistryIdInChips = update_props.include_registry_id_in_chips
+
+        if "constraint_fields" in update_diff_names:
+            if update_props.constraint_fields:
+                has_bases = False
+                if "bases" in update_props.constraint_fields:
+                    has_bases = True
+                    update_props.constraint_fields.discard("bases")
+                constraint_fields = [
+                    f
+                    for f in self.fields
+                    if f.systemName in update_props.constraint_fields
+                ]
+                self.constraint = TagSchemaConstraint.from_constraint_fields(
+                    constraint_fields, has_bases
+                )
+            else:
+                self.constraint = None
 
         if "constraint_fields" in update_diff_names:
             if update_props.constraint_fields:

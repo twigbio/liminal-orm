@@ -16,6 +16,30 @@ class SchemaProperties(BaseSchemaProperties):
     """
     This class is the validated class that is public facing and inherits from the BaseSchemaProperties class.
     It has the same fields as the BaseSchemaProperties class, but it is validated to ensure that the fields are valid.
+
+    Parameters
+    ----------
+    name : str
+        The name of the schema.
+    warehouse_name : str
+       The sql table name of the schema in the benchling warehouse.
+    prefix : str
+        The prefix to use for the schema.
+    entity_type : BenchlingEntityType
+        The entity type of the schema.
+    naming_strategies : set[BenchlingNamingStrategy]
+        The naming strategies of the schema.
+    mixture_schema_config : MixtureSchemaConfig | None
+        The mixture schema config of the schema.
+    use_registry_id_as_label : bool | None = None
+        If the schema will display the Registry ID as the main label for items
+    include_registry_id_in_chips : bool | None = None
+        If the registry ID is included in the chip for an item
+    constraint_fields : set[str] | None
+        Set of constraints of field values for the schema. Set of column names, that specify that their values must be a unique combination in their entities.
+        If the entity type is a Sequence, "bases" can be a constraint field.
+    _archived : bool | None
+        Whether the schema is archived in Benchling.
     """
 
     name: str
@@ -23,6 +47,8 @@ class SchemaProperties(BaseSchemaProperties):
     prefix: str
     entity_type: BenchlingEntityType
     naming_strategies: set[BenchlingNamingStrategy]
+    use_registry_id_as_label: bool | None = False
+    include_registry_id_in_chips: bool | None = False
     mixture_schema_config: MixtureSchemaConfig | None = None
     constraint_fields: set[str] | None = None
     _archived: bool = False
