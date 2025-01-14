@@ -30,7 +30,8 @@ class RevisionsTimeline:
             )
         all_raw_revisions: list[Revision] = []
         for file_path in versions_dir_path.iterdir():
-            all_raw_revisions.append(Revision.parse_from_file(file_path))
+            if file_path.is_file() and file_path.suffix == ".py":
+                all_raw_revisions.append(Revision.parse_from_file(file_path))
         self.revisions_map = self.validate_revisions(all_raw_revisions)
 
     def get_first_revision(self) -> Revision:
