@@ -35,7 +35,7 @@ class BaseModel(Generic[T], Base):
 
     _existing_schema_warehouse_names: set[str] = set()
     _existing_schema_names: set[str] = set()
-    _existing_schema_prefixes: set[str] = set()
+    _existing_schema_prefixes: list[str] = []
 
     def __init_subclass__(cls, **kwargs: Any):
         super().__init_subclass__(**kwargs)
@@ -55,10 +55,6 @@ class BaseModel(Generic[T], Base):
             raise ValueError(
                 f"Schema name '{cls.__schema_properties__.name}' is already used by another subclass."
             )
-        if cls.__schema_properties__.prefix.lower() in cls._existing_schema_prefixes:
-            logger.warning(
-                f"Schema prefix '{cls.__schema_properties__.prefix}' is already used by another subclass. Please ensure fieldsets=True in BenchlingConnection you are updating/creating this schema."
-            )
         # Validate constraints
         if cls.__schema_properties__.constraint_fields:
             column_wh_names = [
@@ -76,7 +72,7 @@ class BaseModel(Generic[T], Base):
 
         cls._existing_schema_warehouse_names.add(warehouse_name)
         cls._existing_schema_names.add(cls.__schema_properties__.name)
-        cls._existing_schema_prefixes.add(cls.__schema_properties__.prefix.lower())
+        cls._existing_schema_prefixes.append(cls.__schema_properties__.prefix.lower())
 
     @declared_attr
     def creator_id(cls) -> SqlColumn:
@@ -148,6 +144,15 @@ class BaseModel(Generic[T], Base):
         model_columns = cls.get_columns_dict(exclude_base_columns=True)
         properties = {n: c.properties for n, c in model_columns.items()}
         errors = []
+        if (
+            cls._existing_schema_prefixes.count(
+                cls.__schema_properties__.prefix.lower()
+            )
+            > 1
+        ):
+            logger.warning(
+                f"{cls.__name__}: schema prefix '{cls.__schema_properties__.prefix}' is already used by another subclass. Please ensure fieldsets=True in BenchlingConnection you are updating/creating this schema."
+            )
         for wh_name, field in properties.items():
             try:
                 field.validate_column(wh_name)
