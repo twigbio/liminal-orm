@@ -265,16 +265,14 @@ class UpdateEntitySchemaNameTemplate(BaseOperation):
     def __init__(
         self,
         wh_schema_name: str,
-        name_template: BaseNameTemplate,
+        update_name_template: BaseNameTemplate,
     ) -> None:
         self.wh_schema_name = wh_schema_name
-        self.name_template = name_template
+        self.update_name_template = update_name_template
 
     def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
         tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)
-        updated_schema = tag_schema.update_name_template(
-            self.name_template.model_dump(exclude_unset=True)
-        )
+        updated_schema = tag_schema.update_name_template(self.update_name_template)
         return set_tag_schema_name_template(
             benchling_service,
             tag_schema.id,
@@ -287,7 +285,7 @@ class UpdateEntitySchemaNameTemplate(BaseOperation):
         )
 
     def describe_operation(self) -> str:
-        return f"{self.wh_schema_name}: Updating name template to {str(self.name_template)}."
+        return f"{self.wh_schema_name}: Updating name template to {str(self.update_name_template)}."
 
     def describe(self) -> str:
         return f"{self.wh_schema_name}: Name template is different in code versus Benchling."

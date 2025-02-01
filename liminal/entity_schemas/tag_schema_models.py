@@ -9,6 +9,7 @@ from liminal.base.name_template_parts import (
     NameTemplatePart,
 )
 from liminal.base.properties.base_field_properties import BaseFieldProperties
+from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdown_summary_by_name
@@ -23,7 +24,6 @@ from liminal.mappers import (
     convert_entity_type_to_api_entity_type,
     convert_field_type_to_api_field_type,
 )
-from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import MixtureSchemaConfig
 
 
@@ -474,19 +474,20 @@ class TagSchemaModel(BaseModel):
         self.name = update_props.name if "name" in update_diff_names else self.name
         return self
 
-    def update_name_template(self, update_diff: dict[str, Any]) -> TagSchemaModel:
-        update_diff_names = list(update_diff.keys())
-        update_props = NameTemplate(**update_diff)
+    def update_name_template(
+        self, update_name_template: BaseNameTemplate
+    ) -> TagSchemaModel:
+        update_diff_names = update_name_template.model_dump(exclude_unset=True).keys()
         self.nameTemplateParts = (
             [
                 NameTemplatePartModel.from_name_template_part(part, self.fields)
-                for part in update_props.parts
+                for part in update_name_template.parts
             ]
             if "parts" in update_diff_names
             else self.nameTemplateParts
         )
         self.shouldOrderNamePartsBySequence = (
-            update_props.order_name_parts_by_sequence
+            update_name_template.order_name_parts_by_sequence
             if "order_name_parts_by_sequence" in update_diff_names
             else self.shouldOrderNamePartsBySequence
         )

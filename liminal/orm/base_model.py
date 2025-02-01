@@ -34,7 +34,9 @@ class BaseModel(Generic[T], Base):
 
     __abstract__ = True
     __schema_properties__: SchemaProperties
-    __name_template__: NameTemplate = NameTemplate()
+    __name_template__: NameTemplate = NameTemplate(
+        parts=[], order_name_parts_by_sequence=False
+    )
 
     _existing_schema_warehouse_names: set[str] = set()
     _existing_schema_names: set[str] = set()

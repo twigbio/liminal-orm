@@ -41,9 +41,10 @@ class BaseNameTemplate(BaseModel):
             A dictionary of the differences between the old and new name template.
         """
         diff = {}
-        for new_field_name, new_val in new_props.model_dump().items():
-            if getattr(self, new_field_name) != new_val:
-                diff[new_field_name] = new_val
+        for field_name in self.model_fields:
+            new_val = getattr(new_props, field_name)
+            if getattr(self, field_name) != new_val:
+                diff[field_name] = new_val
         return diff
 
     def __eq__(self, other: object) -> bool:
@@ -66,11 +67,17 @@ class BaseNameTemplate(BaseModel):
 
     def __repr__(self) -> str:
         """Generates a string representation of the class so that it can be executed."""
-        parts_repr = (
-            f"[{', '.join(repr(part) for part in self.parts)}]" if self.parts else "[]"
-        )
-        return (
-            f"{self.__class__.__name__}("
-            f"parts={parts_repr}, "
-            f"order_name_parts_by_sequence={self.order_name_parts_by_sequence})"
-        )
+        model_dump = self.model_dump(exclude_defaults=True, exclude_unset=True)
+        props = []
+        if "parts" in model_dump:
+            parts_repr = (
+                f"[{', '.join(repr(part) for part in self.parts)}]"
+                if self.parts
+                else "[]"
+            )
+            props.append(f"parts={parts_repr}")
+        if "order_name_parts_by_sequence" in model_dump:
+            props.append(
+                f"order_name_parts_by_sequence={self.order_name_parts_by_sequence}"
+            )
+        return f"{self.__class__.__name__}({', '.join(props)})"

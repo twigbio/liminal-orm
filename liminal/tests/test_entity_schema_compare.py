@@ -1,6 +1,7 @@
 import copy
 from unittest.mock import Mock, patch
 
+from liminal.base.name_template_parts import TextPart
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.entity_schemas.compare import compare_entity_schemas
 from liminal.entity_schemas.operations import (
@@ -13,6 +14,7 @@ from liminal.entity_schemas.operations import (
     UnarchiveEntitySchemaField,
     UpdateEntitySchema,
     UpdateEntitySchemaField,
+    UpdateEntitySchemaNameTemplate,
 )
 from liminal.enums import BenchlingFieldType
 from liminal.orm.name_template import NameTemplate
@@ -373,3 +375,18 @@ class TestCompareEntitySchemas:
             assert invalid_models["mock_entity"][
                 0
             ].op.update_props.use_registry_id_as_label
+
+            # Test when the Benchling schema has a name template and the schema defined in code does not
+            benchling_mismatch_display_fields = copy.deepcopy(mock_benchling_schema)
+            benchling_mismatch_display_fields[0][1].parts = [
+                TextPart(value="name_template_text")
+            ]
+            mock_get_benchling_entity_schemas.return_value = (
+                benchling_mismatch_display_fields
+            )
+            invalid_models = compare_entity_schemas(mock_benchling_sdk)
+            assert len(invalid_models["mock_entity"]) == 1
+            assert isinstance(
+                invalid_models["mock_entity"][0].op, UpdateEntitySchemaNameTemplate
+            )
+            assert invalid_models["mock_entity"][0].op.update_name_template.parts == []

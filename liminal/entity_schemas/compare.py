@@ -246,11 +246,15 @@ def compare_entity_schemas(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            BaseNameTemplate(**model.__name_template__.model_dump()),
+                            BaseNameTemplate(
+                                **benchling_name_template.merge(model.__name_template__)
+                            ),
                         ),
                         reverse_op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            BaseNameTemplate(**benchling_name_template.model_dump()),
+                            BaseNameTemplate(
+                                **model.__name_template__.merge(benchling_name_template)
+                            ),
                         ),
                     )
                 )
@@ -301,12 +305,18 @@ def compare_entity_schemas(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
-                            BaseNameTemplate(**model.__name_template__.model_dump()),
+                            BaseNameTemplate(
+                                **benchling_given_name_template.merge(
+                                    model.__name_template__
+                                )
+                            ),
                         ),
                         reverse_op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
                             BaseNameTemplate(
-                                **benchling_given_name_template.model_dump()
+                                **benchling_given_name_template.merge(
+                                    model.__name_template__
+                                )
                             ),
                         ),
                     )
