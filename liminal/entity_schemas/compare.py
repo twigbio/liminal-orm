@@ -48,6 +48,10 @@ def compare_entity_schemas(
         for m in BaseModel.get_all_subclasses(schema_names)
         if not m.__schema_properties__._archived
     ]
+    if len(models) == 0 and len(benchling_schemas) > 0:
+        raise ValueError(
+            "No model classes found that inherit from BaseModel. Ensure that the model classes are defined and imported correctly."
+        )
     archived_benchling_schema_wh_names = [
         s.warehouse_name for s, _, _ in benchling_schemas if s._archived is True
     ]

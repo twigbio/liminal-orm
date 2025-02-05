@@ -23,6 +23,10 @@ def compare_dropdowns(
     )
     processed_benchling_names = set()
     model_dropdowns = BaseDropdown.get_all_subclasses(dropdown_names)
+    if len(model_dropdowns) == 0 and len(benchling_dropdowns.keys()) > 0:
+        raise ValueError(
+            "No dropdown classes found that inherit from BaseDropdown. Ensure that the dropdown classes are defined and imported correctly."
+        )
     if dropdown_names:
         benchling_dropdowns = {
             name: benchling_dropdowns[name]
