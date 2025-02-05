@@ -121,11 +121,6 @@ def liminal_validator(
                 "Validator must defined in a schema class, where the only argument to this validator must be 'self'."
             )
 
-        if params[0].name != "self":
-            raise TypeError(
-                "The only argument to this validator must be a Benchling entity."
-            )
-
         if sig.return_annotation is not None:
             raise TypeError("The return type must be None.")
 
