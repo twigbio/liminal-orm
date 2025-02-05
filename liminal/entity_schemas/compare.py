@@ -1,3 +1,5 @@
+import logging
+
 from liminal.base.compare_operation import CompareOperation
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_name_template import BaseNameTemplate
@@ -19,6 +21,8 @@ from liminal.entity_schemas.utils import get_converted_tag_schemas
 from liminal.orm.base_model import BaseModel
 from liminal.orm.column import Column
 from liminal.utils import to_snake_case
+
+LOGGER = logging.getLogger(__name__)
 
 
 def compare_entity_schemas(
@@ -49,9 +53,10 @@ def compare_entity_schemas(
         if not m.__schema_properties__._archived
     ]
     if len(models) == 0 and len(benchling_schemas) > 0:
-        raise ValueError(
-            "No model classes found that inherit from BaseModel. Ensure that the model classes are defined and imported correctly."
+        LOGGER.warning(
+            "WARNING: No model classes found that inherit from BaseModel. Ensure that the model classes are defined and imported correctly."
         )
+
     archived_benchling_schema_wh_names = [
         s.warehouse_name for s, _, _ in benchling_schemas if s._archived is True
     ]
