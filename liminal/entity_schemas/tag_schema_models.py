@@ -56,6 +56,11 @@ class NameTemplatePartModel(BaseModel):
             if field is None:
                 raise ValueError(f"Field {wh_field_name} not found in fields")
             field_id = field.id
+            if part.component_type == NameTemplatePartType.CHILD_ENTITY_LOT_NUMBER:
+                if not field.isParentLink:
+                    raise ValueError(
+                        f"Field {wh_field_name} is not a parent link field. The field for type {part.component_type} must be a parent link field."
+                    )
         return cls(
             type=part.component_type,
             fieldId=field_id,
@@ -369,7 +374,11 @@ class TagSchemaModel(BaseModel):
                 if len(filtered_schemas) == len(wh_schema_names):
                     break
         else:
-            filtered_schemas = [cls.model_validate(schema) for schema in schemas_data]
+            for schema in schemas_data:
+                try:
+                    filtered_schemas.append(cls.model_validate(schema))
+                except Exception as e:
+                    print(f"Error validating schema {schema['sqlIdentifier']}: {e}")
         return filtered_schemas
 
     @classmethod

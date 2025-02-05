@@ -57,11 +57,12 @@ class FieldPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.FIELD
     wh_field_name: str
 
-    @field_validator("wh_field_name")
-    def validate_wh_field_name(cls, v: str) -> str:
-        if not v:
-            raise ValueError("wh_field_name cannot be empty")
-        return v
+
+class ParentLotNumberPart(NameTemplatePart):
+    component_type: ClassVar[NameTemplatePartType] = (
+        NameTemplatePartType.CHILD_ENTITY_LOT_NUMBER
+    )
+    wh_field_name: str
 
 
 class RegistryIdentifierNumberPart(NameTemplatePart):
@@ -82,4 +83,5 @@ NameTemplateParts = (
     | FieldPart
     | RegistryIdentifierNumberPart
     | ProjectPart
+    | ParentLotNumberPart
 )
