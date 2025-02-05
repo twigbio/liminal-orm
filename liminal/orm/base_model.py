@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import logging
-from abc import abstractmethod
+from types import FunctionType
 from typing import TYPE_CHECKING, Any, Generic, Type, TypeVar  # noqa: UP035
 
 import pandas as pd  # type: ignore
@@ -17,10 +18,7 @@ from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
 from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import SchemaProperties
-from liminal.validation import (
-    BenchlingValidator,
-    BenchlingValidatorReport,
-)
+from liminal.validation import BenchlingValidatorReport
 
 if TYPE_CHECKING:
     from liminal.orm.column import Column
@@ -170,7 +168,7 @@ class BaseModel(Generic[T], Base):
         return {c.name: c for c in columns}
 
     @classmethod
-    def validate_model(cls) -> bool:
+    def validate_model_definition(cls) -> bool:
         model_columns = cls.get_columns_dict(exclude_base_columns=True)
         properties = {n: c.properties for n, c in model_columns.items()}
         errors = []
@@ -185,7 +183,7 @@ class BaseModel(Generic[T], Base):
             )
         for wh_name, field in properties.items():
             try:
-                field.validate_column(wh_name)
+                field.validate_column_definition(wh_name)
             except ValueError as e:
                 errors.append(str(e))
         if errors:
@@ -273,25 +271,33 @@ class BaseModel(Generic[T], Base):
         """
         return session.query(cls)
 
-    @abstractmethod
-    def get_validators(self) -> list[BenchlingValidator]:
-        """Abstract method that all subclasses must implement. Each subclass will have a differently defined list of
-        validators to validate the entity. These validators will be run on each entity returned from the query.
-        """
-        raise NotImplementedError
+    @classmethod
+    def get_validators(cls) -> list[FunctionType]:
+        """Returns a list of all validators defined on the class. Validators are functions that are decorated with @validator."""
+        validators = []
+        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+            if hasattr(method, "_is_liminal_validator"):
+                validators.append(method)
+        return validators
 
     @classmethod
     def validate(
-        cls, session: Session, base_filters: BaseValidatorFilters | None = None
+        cls,
+        session: Session,
+        base_filters: BaseValidatorFilters | None = None,
+        only_invalid: bool = False,
     ) -> list[BenchlingValidatorReport]:
         """Runs all validators for all entities returned from the query and returns a list of reports.
+        This returns a report for each entity, validator pair, regardless of whether the validation passed or failed.
 
         Parameters
         ----------
         session : Session
             Benchling database session.
-        base_filters: BenchlingBaseValidatorFilters
+        base_filters: BaseValidatorFilters
             Filters to apply to the query.
+        only_invalid: bool
+            If True, only returns reports for entities that failed validation.
 
         Returns
         -------
@@ -303,15 +309,21 @@ class BaseModel(Generic[T], Base):
             cls.query(session), base_filters=base_filters
         ).all()
         logger.info(f"Validating {len(table)} entities for {cls.__name__}...")
+        validator_functions = cls.get_validators()
         for entity in table:
-            for validator in entity.get_validators():
-                report: BenchlingValidatorReport = validator.validate(entity)
+            for validator_func in validator_functions:
+                report: BenchlingValidatorReport = validator_func(entity)
+                if only_invalid and report.valid:
+                    continue
                 results.append(report)
         return results
 
     @classmethod
     def validate_to_df(
-        cls, session: Session, base_filters: BaseValidatorFilters | None = None
+        cls,
+        session: Session,
+        base_filters: BaseValidatorFilters | None = None,
+        only_invalid: bool = False,
     ) -> pd.DataFrame:
         """Runs all validators for all entities returned from the query and returns reports as a pandas dataframe.
 
@@ -319,7 +331,7 @@ class BaseModel(Generic[T], Base):
         ----------
         session : Session
             Benchling database session.
-        base_filters: BenchlingBaseValidatorFilters
+        base_filters: BaseValidatorFilters
             Filters to apply to the query.
 
         Returns
@@ -327,5 +339,5 @@ class BaseModel(Generic[T], Base):
         pd.Dataframe
             Dataframe of reports from running all validators on all entities returned from the query.
         """
-        results = cls.validate(session, base_filters)
+        results = cls.validate(session, base_filters, only_invalid)
         return pd.DataFrame([r.model_dump() for r in results])

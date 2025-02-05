@@ -63,7 +63,7 @@ def compare_entity_schemas(
             exclude_base_columns=True
         )
         # Validate the entity_link and dropdown_link reference an entity_schema or dropdown that exists in code.
-        model.validate_model()
+        model.validate_model_definition()
         # if the model table_name is found in the benchling schemas, check for changes...
         if (model_wh_name := model.__schema_properties__.warehouse_name) in [
             s.warehouse_name for s, _, _ in benchling_schemas

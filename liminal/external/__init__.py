@@ -40,6 +40,5 @@ from liminal.enums import (
     BenchlingFieldType,
     BenchlingFolderItemType,
     BenchlingNamingStrategy,
-    BenchlingReportLevel,
     BenchlingSequenceType,
 )

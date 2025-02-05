@@ -79,7 +79,6 @@ def generate_all_entity_schema_files(
             "from liminal.orm.base_model import BaseModel",
             "from liminal.orm.schema_properties import SchemaProperties",
             "from liminal.enums import BenchlingEntityType, BenchlingFieldType, BenchlingNamingStrategy",
-            "from liminal.validation import BenchlingValidator",
             f"from liminal.orm.mixins import {get_entity_mixin(schema_properties.entity_type)}",
         ]
         init_strings = [f"{tab}def __init__(", f"{tab}self,"]
@@ -151,11 +150,7 @@ def generate_all_entity_schema_files(
         relationship_string = "\n".join(relationship_strings)
         import_string = "\n".join(list(set(import_strings)))
         init_string = f"\n{tab}".join(init_strings) if len(columns) > 0 else ""
-        functions_string = """
-    def get_validators(self) -> list[BenchlingValidator]:
-        return []"""
-
-        content = f"""{import_string}
+        full_content = f"""{import_string}
 
 
 class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
@@ -168,7 +163,6 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
 
 {init_string}
 
-{functions_string}
 """
         write_directory_path = write_path / get_file_subdirectory(
             schema_properties.entity_type
@@ -181,7 +175,7 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
         )
         write_directory_path.mkdir(exist_ok=True)
         with open(write_directory_path / filename, "w") as file:
-            file.write(content)
+            file.write(full_content)
 
     for subdir, names in subdirectory_map.items():
         init_content = (
