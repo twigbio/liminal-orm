@@ -31,6 +31,10 @@ class SchemaProperties(BaseSchemaProperties):
         The naming strategies of the schema.
     mixture_schema_config : MixtureSchemaConfig | None
         The mixture schema config of the schema.
+    use_registry_id_as_label : bool | None = None
+        If the schema will display the Registry ID as the main label for items
+    include_registry_id_in_chips : bool | None = None
+        If the registry ID is included in the chip for an item
     constraint_fields : set[str] | None
         Set of constraints of field values for the schema. Set of column names, that specify that their values must be a unique combination in their entities.
         If the entity type is a Sequence, "bases" can be a constraint field.
@@ -43,6 +47,8 @@ class SchemaProperties(BaseSchemaProperties):
     prefix: str
     entity_type: BenchlingEntityType
     naming_strategies: set[BenchlingNamingStrategy]
+    use_registry_id_as_label: bool | None = False
+    include_registry_id_in_chips: bool | None = False
     mixture_schema_config: MixtureSchemaConfig | None = None
     constraint_fields: set[str] | None = None
     _archived: bool = False
@@ -74,7 +80,6 @@ class SchemaProperties(BaseSchemaProperties):
             )
         is_valid_wh_name(self.warehouse_name)
         is_valid_prefix(self.prefix)
-        # TODO:if naming_strategies contains SET_FROM_NAME_PARTS or REPLACE_NAMES_FROM_PARTS, name template for schema must be set
         return self
 
     def set_archived(self, value: bool) -> SchemaProperties:
