@@ -15,9 +15,9 @@ class BaseNameTemplate(BaseModel):
     Parameters
     ----------
     parts : list[NameTemplatePart] | None
-        The list of name template parts that make up the name template.
+        The list of name template parts that make up the name template (order matters).
     order_name_parts_by_sequence : bool | None
-        Whether to order the name parts by sequence. If one or many part link fields are included in the name template,
+        Whether to order the name parts by sequence. This can only be set to True for sequence enity types. If one or many part link fields are included in the name template,
         list parts in the order they appear on the sequence map, sorted by start position and then end position.
     """
 

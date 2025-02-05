@@ -12,6 +12,7 @@ from sqlalchemy.orm.decl_api import declared_attr
 
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.base.name_template_parts import FieldPart
+from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
 from liminal.orm.name_template import NameTemplate
@@ -77,6 +78,15 @@ class BaseModel(Generic[T], Base):
             if invalid_constraints:
                 raise ValueError(
                     f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
+                )
+        # Validate naming strategies
+        if any(
+            BenchlingNamingStrategy.is_template_based(strategy)
+            for strategy in cls.__schema_properties__.naming_strategies
+        ):
+            if not cls.__name_template__.parts:
+                raise ValueError(
+                    "Name template must be set when using template-based naming strategies."
                 )
         # Validate name template
         if cls.__name_template__:

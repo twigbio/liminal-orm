@@ -6,6 +6,15 @@ from liminal.enums.name_template_part_type import NameTemplatePartType
 
 
 class NameTemplatePart(BaseModel):
+    """Base class for all name template parts. These are put together in a list (where order matters) to form a name template.
+
+    Parameters
+    ----------
+    component_type : NameTemplatePartType
+        The type of the component. One of the values in the NameTemplatePartType enum.
+
+    """
+
     component_type: ClassVar[NameTemplatePartType]
 
     _type_map: ClassVar[dict[NameTemplatePartType, type["NameTemplatePart"]]] = {}

@@ -23,7 +23,7 @@ from liminal.entity_schemas.utils import (
     convert_tag_schema_field_to_field_properties,
     convert_tag_schema_to_internal_schema,
 )
-from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
+from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.utils import to_snake_case
 
@@ -246,15 +246,6 @@ class UpdateEntitySchema(BaseOperation):
         ):
             raise ValueError(
                 f"Entity schema prefix {self.update_props.prefix} already exists in Benchling."
-            )
-        if (
-            self.update_props.naming_strategies
-            and not BenchlingNamingStrategy.is_valid_set(
-                self.update_props.naming_strategies, bool(tag_schema.nameTemplateParts)
-            )
-        ):
-            raise ValueError(
-                "Invalid naming strategies for schema. The name template must be set on the schema through the UI when using template-based naming strategies."
             )
         return tag_schema
 

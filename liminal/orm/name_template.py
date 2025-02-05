@@ -16,10 +16,10 @@ class NameTemplate(BaseNameTemplate):
     Parameters
     ----------
     parts : list[NameTemplatePart] = []
-        The list of name template parts that make up the name template. Defaults to no parts, an empty list.
+        The list of name template parts that make up the name template (order matters). Defaults to no parts, an empty list.
     order_name_parts_by_sequence : bool = False
-        Whether to order the name parts by sequence. If one or many part link fields are included in the name template,
-        list parts in the order they appear on the sequence map, sorted by start position and then end position. Defaults to False.
+        Whether to order the name parts by sequence. This can only be set to True for sequence enity types. If one or many part link fields are included in the name template,
+        list parts in the order they appear on the sequence map, sorted by start position and then end position.Defaults to False.
     """
 
     parts: list[NameTemplateParts] = []
