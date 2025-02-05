@@ -11,7 +11,7 @@ from liminal.validation import ValidationSeverity, liminal_validator
 class Pizza(BaseModel, CustomEntityMixin):
     ...
 
-    @liminal_validator(ValidationSeverity.MEDIUM)
+    @liminal_validator(ValidationSeverity.MED)
     def cook_time_and_temp_validator(self) -> None:
         if self.cook_time is not None and self.cook_temp is None:
             raise ValueError("Cook temp is required if cook time is set")

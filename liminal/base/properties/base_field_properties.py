@@ -65,7 +65,7 @@ class BaseFieldProperties(BaseModel):
         self.warehouse_name = wh_name
         return self
 
-    def validate_column(self, wh_name: str) -> bool:
+    def validate_column_definition(self, wh_name: str) -> bool:
         """If the Field Properties are meant to represent a column in Benchling,
         this will validate the properties and ensure that the entity_link and dropdowns are valid names that exist in our code.
         """

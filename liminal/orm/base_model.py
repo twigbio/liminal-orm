@@ -168,7 +168,7 @@ class BaseModel(Generic[T], Base):
         return {c.name: c for c in columns}
 
     @classmethod
-    def validate_model(cls) -> bool:
+    def validate_model_definition(cls) -> bool:
         model_columns = cls.get_columns_dict(exclude_base_columns=True)
         properties = {n: c.properties for n, c in model_columns.items()}
         errors = []
@@ -183,7 +183,7 @@ class BaseModel(Generic[T], Base):
             )
         for wh_name, field in properties.items():
             try:
-                field.validate_column(wh_name)
+                field.validate_column_definition(wh_name)
             except ValueError as e:
                 errors.append(str(e))
         if errors:
