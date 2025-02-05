@@ -72,7 +72,7 @@ class NameTemplatePartModel(BaseModel):
     ) -> NameTemplatePart:
         part_cls = NameTemplatePart.resolve_type(self.type)
         if self.fieldId:
-            field = next((f for f in fields if f.id == self.fieldId), None)
+            field = next((f for f in fields if f.apiId == self.fieldId), None)
             if field is None:
                 raise ValueError(f"Field {self.fieldId} not found in fields")
             return part_cls(wh_field_name=field.systemName, value=self.text)
