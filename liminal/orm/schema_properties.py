@@ -80,7 +80,6 @@ class SchemaProperties(BaseSchemaProperties):
             )
         is_valid_wh_name(self.warehouse_name)
         is_valid_prefix(self.prefix)
-        # TODO:if naming_strategies contains SET_FROM_NAME_PARTS or REPLACE_NAMES_FROM_PARTS, name template for schema must be set
         return self
 
     def set_archived(self, value: bool) -> SchemaProperties:

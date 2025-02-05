@@ -11,8 +11,11 @@ from sqlalchemy.orm import Query, RelationshipProperty, Session, relationship
 from sqlalchemy.orm.decl_api import declared_attr
 
 from liminal.base.base_validation_filters import BaseValidatorFilters
+from liminal.base.name_template_parts import FieldPart
+from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
+from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.validation import (
     BenchlingValidator,
@@ -32,6 +35,9 @@ class BaseModel(Generic[T], Base):
 
     __abstract__ = True
     __schema_properties__: SchemaProperties
+    __name_template__: NameTemplate = NameTemplate(
+        parts=[], order_name_parts_by_sequence=False
+    )
 
     _existing_schema_warehouse_names: set[str] = set()
     _existing_schema_names: set[str] = set()
@@ -55,11 +61,11 @@ class BaseModel(Generic[T], Base):
             raise ValueError(
                 f"Schema name '{cls.__schema_properties__.name}' is already used by another subclass."
             )
+        column_wh_names = [
+            c[0] for c in cls.__dict__.items() if isinstance(c[1], SqlColumn)
+        ]
         # Validate constraints
         if cls.__schema_properties__.constraint_fields:
-            column_wh_names = [
-                c[0] for c in cls.__dict__.items() if isinstance(c[1], SqlColumn)
-            ]
             invalid_constraints = [
                 c
                 for c in cls.__schema_properties__.constraint_fields
@@ -69,7 +75,31 @@ class BaseModel(Generic[T], Base):
                 raise ValueError(
                     f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
                 )
-
+        # Validate naming strategies
+        if any(
+            BenchlingNamingStrategy.is_template_based(strategy)
+            for strategy in cls.__schema_properties__.naming_strategies
+        ):
+            if not cls.__name_template__.parts:
+                raise ValueError(
+                    "Name template must be set when using template-based naming strategies."
+                )
+        # Validate name template
+        if cls.__name_template__:
+            if not cls.__schema_properties__.entity_type.is_sequence():
+                if cls.__name_template__.order_name_parts_by_sequence is True:
+                    raise ValueError(
+                        "order_name_parts_by_sequence is only supported for sequence entities. Must be set to False if entity type is not a sequence."
+                    )
+            if cls.__name_template__.parts:
+                field_parts = [
+                    p for p in cls.__name_template__.parts if isinstance(p, FieldPart)
+                ]
+                for field_part in field_parts:
+                    if field_part.wh_field_name not in column_wh_names:
+                        raise ValueError(
+                            f"Field part {field_part.wh_field_name} is not a column on schema {cls.__schema_properties__.name}."
+                        )
         cls._existing_schema_warehouse_names.add(warehouse_name)
         cls._existing_schema_names.add(cls.__schema_properties__.name)
         cls._existing_schema_prefixes.append(cls.__schema_properties__.prefix.lower())

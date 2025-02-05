@@ -1,6 +1,7 @@
 import copy
 from unittest.mock import Mock, patch
 
+from liminal.base.name_template_parts import TextPart
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.entity_schemas.compare import compare_entity_schemas
 from liminal.entity_schemas.operations import (
@@ -13,8 +14,10 @@ from liminal.entity_schemas.operations import (
     UnarchiveEntitySchemaField,
     UpdateEntitySchema,
     UpdateEntitySchemaField,
+    UpdateEntitySchemaNameTemplate,
 )
 from liminal.enums import BenchlingFieldType
+from liminal.orm.name_template import NameTemplate
 
 
 class TestCompareEntitySchemas:
@@ -145,7 +148,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema is missing a field compared to the table model
             missing_field = copy.deepcopy(mock_benchling_schema)
-            missing_field[0][1].pop("string_field_req")
+            missing_field[0][2].pop("string_field_req")
             mock_get_benchling_entity_schemas.return_value = missing_field
             invalid_models = compare_entity_schemas(mock_benchling_sdk)
             assert len(invalid_models["mock_entity"]) == 1
@@ -162,7 +165,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has an extra field compared to the table model
             extra_field = copy.deepcopy(mock_benchling_schema)
-            extra_field[0][1]["extra_field"] = BaseFieldProperties(
+            extra_field[0][2]["extra_field"] = BaseFieldProperties(
                 name="Extra Field",
                 type=BenchlingFieldType.TEXT,
                 required=False,
@@ -181,7 +184,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has a required field and the model field is nullable (not required)
             benchling_switched_required_field = copy.deepcopy(mock_benchling_schema)
-            benchling_switched_required_field[0][1]["enum_field"].required = True
+            benchling_switched_required_field[0][2]["enum_field"].required = True
             mock_get_benchling_entity_schemas.return_value = (
                 benchling_switched_required_field
             )
@@ -198,7 +201,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has a non required field and the model field is not nullable (required)
             benchling_switched_required_field = copy.deepcopy(mock_benchling_schema)
-            benchling_switched_required_field[0][1]["string_field_req"].required = False
+            benchling_switched_required_field[0][2]["string_field_req"].required = False
             mock_get_benchling_entity_schemas.return_value = (
                 benchling_switched_required_field
             )
@@ -215,7 +218,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has a non multi field and the model field is a list
             benchling_switched_multi_field = copy.deepcopy(mock_benchling_schema)
-            benchling_switched_multi_field[0][1]["list_dropdown_field"].is_multi = False
+            benchling_switched_multi_field[0][2]["list_dropdown_field"].is_multi = False
             mock_get_benchling_entity_schemas.return_value = (
                 benchling_switched_multi_field
             )
@@ -232,7 +235,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has a multi field and the model field is not a list
             benchling_switched_multi_field = copy.deepcopy(mock_benchling_schema)
-            benchling_switched_multi_field[0][1]["enum_field"].is_multi = True
+            benchling_switched_multi_field[0][2]["enum_field"].is_multi = True
             mock_get_benchling_entity_schemas.return_value = (
                 benchling_switched_multi_field
             )
@@ -249,7 +252,7 @@ class TestCompareEntitySchemas:
 
             # Test when the multi field in the Benchling schema has a different entity type than the model field
             benchling_false_entity_type = copy.deepcopy(mock_benchling_schema)
-            benchling_false_entity_type[0][1][
+            benchling_false_entity_type[0][2][
                 "list_dropdown_field"
             ].type = BenchlingFieldType.INTEGER
             mock_get_benchling_entity_schemas.return_value = benchling_false_entity_type
@@ -266,7 +269,7 @@ class TestCompareEntitySchemas:
 
             # Test when enum field in the Benchling schema has a different enum than the model field
             benchling_false_enum = copy.deepcopy(mock_benchling_schema)
-            benchling_false_enum[0][1][
+            benchling_false_enum[0][2][
                 "enum_field"
             ].dropdown_link = mock_false_benchling_dropdown.__benchling_name__
             mock_get_benchling_entity_schemas.return_value = benchling_false_enum
@@ -299,7 +302,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema has an archived field that is in the model
             create_existing_field_schema = copy.deepcopy(mock_benchling_schema)
-            create_existing_field_schema[0][1]["string_field_req"].set_archived(True)
+            create_existing_field_schema[0][2]["string_field_req"].set_archived(True)
             mock_get_benchling_entity_schemas.return_value = (
                 create_existing_field_schema
             )
@@ -311,7 +314,7 @@ class TestCompareEntitySchemas:
 
             # Test when Benchling schema fields are out of order
             benchling_unordered_fields_schema = copy.deepcopy(mock_benchling_schema)
-            fields = benchling_unordered_fields_schema[0][1]
+            fields = benchling_unordered_fields_schema[0][2]
             keys = list(fields.keys())
             idx1, idx2 = (
                 keys.index("string_field_req"),
@@ -320,7 +323,7 @@ class TestCompareEntitySchemas:
             keys[idx1], keys[idx2] = keys[idx2], keys[idx1]
             new_fields = {k: fields[k] for k in keys}
             new_benchling_unordered_fields_schema = [
-                (benchling_unordered_fields_schema[0][0], new_fields)
+                (benchling_unordered_fields_schema[0][0], NameTemplate(), new_fields)
             ]
             mock_get_benchling_entity_schemas.return_value = (
                 new_benchling_unordered_fields_schema
@@ -333,7 +336,7 @@ class TestCompareEntitySchemas:
 
             # Test when the Benchling schema archived field becomes unarchived
             benchling_rearchived_field = copy.deepcopy(mock_benchling_schema)
-            benchling_rearchived_field[0][1]["archived_field"].set_archived(False)
+            benchling_rearchived_field[0][2]["archived_field"].set_archived(False)
             mock_get_benchling_entity_schemas.return_value = benchling_rearchived_field
             invalid_models = compare_entity_schemas(mock_benchling_sdk)
             assert len(invalid_models["mock_entity"]) == 1
@@ -372,3 +375,18 @@ class TestCompareEntitySchemas:
             assert invalid_models["mock_entity"][
                 0
             ].op.update_props.use_registry_id_as_label
+
+            # Test when the Benchling schema has a name template and the schema defined in code does not
+            benchling_mismatch_display_fields = copy.deepcopy(mock_benchling_schema)
+            benchling_mismatch_display_fields[0][1].parts = [
+                TextPart(value="name_template_text")
+            ]
+            mock_get_benchling_entity_schemas.return_value = (
+                benchling_mismatch_display_fields
+            )
+            invalid_models = compare_entity_schemas(mock_benchling_sdk)
+            assert len(invalid_models["mock_entity"]) == 1
+            assert isinstance(
+                invalid_models["mock_entity"][0].op, UpdateEntitySchemaNameTemplate
+            )
+            assert invalid_models["mock_entity"][0].op.update_name_template.parts == []

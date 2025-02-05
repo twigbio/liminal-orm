@@ -2,12 +2,14 @@ from typing import Any, ClassVar
 
 from liminal.base.base_operation import BaseOperation
 from liminal.base.properties.base_field_properties import BaseFieldProperties
+from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdown_id_name_map
 from liminal.entity_schemas.api import (
     archive_tag_schemas,
     create_entity_schema,
+    set_tag_schema_name_template,
     unarchive_tag_schemas,
     update_tag_schema,
 )
@@ -21,7 +23,7 @@ from liminal.entity_schemas.utils import (
     convert_tag_schema_field_to_field_properties,
     convert_tag_schema_to_internal_schema,
 )
-from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
+from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.utils import to_snake_case
 
@@ -121,7 +123,7 @@ class CreateEntitySchema(BaseOperation):
                 f"Entity schema {self._validated_schema_properties.warehouse_name} is already active in Benchling."
             )
         dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
-        benchling_schema_props, benchling_fields_props = (
+        benchling_schema_props, _, benchling_fields_props = (
             convert_tag_schema_to_internal_schema(schema, dropdowns_map)
         )
         if (
@@ -135,7 +137,7 @@ class CreateEntitySchema(BaseOperation):
 
 
 class ArchiveEntitySchema(BaseOperation):
-    order: ClassVar[int] = 160
+    order: ClassVar[int] = 170
 
     def __init__(self, wh_schema_name: str) -> None:
         self.wh_schema_name = wh_schema_name
@@ -245,16 +247,39 @@ class UpdateEntitySchema(BaseOperation):
             raise ValueError(
                 f"Entity schema prefix {self.update_props.prefix} already exists in Benchling."
             )
-        if (
-            self.update_props.naming_strategies
-            and not BenchlingNamingStrategy.is_valid_set(
-                self.update_props.naming_strategies, bool(tag_schema.nameTemplateParts)
-            )
-        ):
-            raise ValueError(
-                "Invalid naming strategies for schema. The name template must be set on the schema through the UI when using template-based naming strategies."
-            )
         return tag_schema
+
+
+class UpdateEntitySchemaNameTemplate(BaseOperation):
+    order: ClassVar[int] = 150
+
+    def __init__(
+        self,
+        wh_schema_name: str,
+        update_name_template: BaseNameTemplate,
+    ) -> None:
+        self.wh_schema_name = wh_schema_name
+        self.update_name_template = update_name_template
+
+    def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
+        tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)
+        updated_schema = tag_schema.update_name_template(self.update_name_template)
+        return set_tag_schema_name_template(
+            benchling_service,
+            tag_schema.id,
+            {
+                "nameTemplateParts": [
+                    part.model_dump() for part in updated_schema.nameTemplateParts
+                ],
+                "shouldOrderNamePartsBySequence": updated_schema.shouldOrderNamePartsBySequence,
+            },
+        )
+
+    def describe_operation(self) -> str:
+        return f"{self.wh_schema_name}: Updating name template to {str(self.update_name_template)}."
+
+    def describe(self) -> str:
+        return f"{self.wh_schema_name}: Name template is different in code versus Benchling."
 
 
 class CreateEntitySchemaField(BaseOperation):
@@ -514,7 +539,7 @@ class UpdateEntitySchemaField(BaseOperation):
 
 
 class ReorderEntitySchemaFields(BaseOperation):
-    order: ClassVar[int] = 150
+    order: ClassVar[int] = 160
 
     def __init__(self, wh_schema_name: str, new_order: list[str]) -> None:
         self.wh_schema_name = wh_schema_name
