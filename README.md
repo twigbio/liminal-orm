@@ -15,7 +15,7 @@ Liminal provides an ORM framework using [SQLAlchemy](https://github.com/sqlalche
 - CI/CD integration with GitHub Actions to ensure that your Benchling schemas and code are always in sync.
 - And more based on community contributions/feedback :)
 
-If you are a Benchling user, try out Liminal by following the [quickstart guide](https://dynotx.github.io/liminal-orm/getting-started/prerequisites/)! Reach out in the [Slack community](https://join.slack.com/t/liminalorm/shared_invite/zt-2ujrp07s3-bctook4e~cAjn1LgOLVY~Q) (preferred method) with any questions or to simply introduce yourself! If there is something blocking you from using Liminal or you're having trouble setting Liminal up, please share in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly (info below).
+If you are a Benchling user, try out Liminal by following the [**Quick Start Guide**](https://dynotx.github.io/liminal-orm/getting-started/prerequisites/)! Reach out in the [Slack community](https://join.slack.com/t/liminalorm/shared_invite/zt-2ujrp07s3-bctook4e~cAjn1LgOLVY~Q) (preferred method) with any questions or to simply introduce yourself! If there is something blocking you from using Liminal or you're having trouble setting Liminal up, please share in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly (info below).
 
 Benchling is an industry standard cloud platform for life sciences R&D. Liminal builds on top of Benchling's platform and assumes that you already have a Benchling tenant set up and have (or have access to) an admin user account. If not, learn more about getting started with Benchling [here](https://www.benchling.com/explore-benchling)!
 
