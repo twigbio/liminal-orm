@@ -2,7 +2,7 @@ For full release notes, please visit the [GitHub Releases page](https://github.c
 
 ## v2.0.0
 
-[![github](https://img.shields.io/badge/github-release-blue)](https://github.com/dynotx/liminal-orm/releases/tag/2.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm.svg)](https://pypi.org/project/liminal-orm/2.0.0/)
+[![github](https://img.shields.io/badge/github-v2.0.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/2.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/2.0.0.svg)](https://pypi.org/project/liminal-orm/2.0.0/)
 
 ### Upgrade Steps
 
@@ -15,7 +15,7 @@ For full release notes, please visit the [GitHub Releases page](https://github.c
 
 ## v1.1.0
 
-[![github](https://img.shields.io/badge/github-release-blue)](https://github.com/dynotx/liminal-orm/releases/tag/1.1.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm.svg)](https://pypi.org/project/liminal-orm/1.1.0/)
+[![github](https://img.shields.io/badge/github-v1.1.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/1.1.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/1.1.0.svg)](https://pypi.org/project/liminal-orm/1.1.0/)
 
 ### Upgrade Steps
 
