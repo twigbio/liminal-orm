@@ -16,21 +16,23 @@ Everyone in the community has the ability to influence the roadmap of Liminal, n
 
 If you are interested in contributing to Liminal, please follow the steps below to setup the Liminal repository locally.
 
-1. Fork the Liminal repository and sync to upstream. Instructions here: [Fork a repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+1. Fork the Liminal repository by clicking the "Fork" button on the top right corner of the repository page. Follow the instructions here: [Fork a repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo). After forking, sync your fork with the upstream repository to keep it up-to-date.
 
-2. Install Poetry
+2. Ensure your Python environment is setup correctly. We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage python versions.
+
+3. Install Poetry
 
    Use the [Poetry Installation guide](https://python-poetry.org/docs/#installing-with-pipx)
 
-3. Install Liminal dependencies
+4. Install Liminal dependencies
 
     `poetry install --all-extras`
 
-4. Ensure python version matches Liminal's supported version
+5. Ensure python version matches Liminal's supported version
 
     Supported python versions of Liminal can be found in pyproject.toml. We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage python versions.
 
-5. Start developing :)
+6. Start developing :)
 
 ## Development cycle
 
@@ -38,8 +40,8 @@ Liminal uses [`pre-commit`](https://pre-commit.com/) hooks for enforcing formatt
 
 Please include tests when adding new functionality. Liminal uses [`pytest`](https://docs.pytest.org/en/stable/) for testing. Run this using `pytest liminal/` to run all tests. All tests must pass in order to merge in a Pull Request.
 
-If making changes to the documentation (which is created using [`MKDocs-material`](https://squidfunk.github.io/mkdocs-material/)). Host and get a live preview of website using `mkdocs serve`.
+If making changes to the documentation (which is created using [`MKDocs-material`](https://squidfunk.github.io/mkdocs-material/)). Locally host and get a live preview of the website using `mkdocs serve`.
 
 ## Making a Pull Request
 
-Contributions to the codebase must be made by submitting a [Pull Request](https://github.com/dynotx/liminal-orm/pulls)
+Contributions to the codebase must be made by submitting a [Pull Request](https://github.com/dynotx/liminal-orm/pulls) through your forked repository.

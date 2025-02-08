@@ -17,8 +17,8 @@ nav:
       - reference/validation.md
       - reference/revision-file.md
       - reference/operations.md
-  - Case Studies:
-      - DynoTx Recommended SOP: case-studies/dynotx-recommended-sop.md
+  - Blog:
+      - DynoTx Recommended SOP: blog/dynotx-recommended-sop.md
   - Contributing:
       - contributing.md
   - Future Direction:

@@ -3,7 +3,7 @@
 2. In your CLI in Liminal's root directory (that contains the `liminal/` path), run the following command:
 
     ```bash
-    liminal downgrade <benchling_tenant> <downgrade_descriptor>
+    liminal downgrade <benchling_tenant_name> <downgrade_descriptor>
     ```
 
     !!! note "The downgrade descriptor"

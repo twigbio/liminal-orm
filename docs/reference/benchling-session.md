@@ -2,8 +2,6 @@
 
 The BenchlingService class takes in a BenchlingConnection object and is used to directly interact with Benchling's SDK, internal API, and Postgres warehouse. This class is surfaced for users so that there is one standard interface for interacting with Benchling around your codebase. Liminal's BenchlingService handles all session management and is a subclass of Benchling's SDK, so all functionality of Benchling's SDK is available.
 
-BenchlingService can be used to build on top of Liminal's ORM. Below is an example of how to use the BenchlingService class.
-
 ```python
 from liminal.connection import BenchlingConnection
 from liminal.connection import BenchlingService
@@ -23,18 +21,18 @@ with benchling_service() as session:
 
 ### Parameters
 
-**connection: BenchlingConnection**
+- **connection: BenchlingConnection**
 
-> The connection object that contains the credentials for the Benchling tenant.
+    The connection object that contains the credentials for the Benchling tenant.
 
-**use_api: bool**
+- **use_api: bool**
 
-> Whether to connect to the Benchling SDK. Defaults to True. (See Benchling SDK documentation [here](https://docs.benchling.com/docs/getting-started-with-the-sdk))
+    Whether to connect to the Benchling SDK. Defaults to True. (See Benchling SDK documentation [here](https://docs.benchling.com/docs/getting-started-with-the-sdk))
 
-**use_internal_api: bool**
+- **use_internal_api: bool**
 
-> Whether to connect to the Benchling internal API. Defaults to False.
+    Whether to connect to the Benchling internal API. Defaults to False.
 
-**use_warehouse: bool**
+- **use_warehouse: bool**
 
-> Whether to connect to the Benchling Postgres warehouse. Defaults to False. See SQLAlchemy documentation [here](https://www.sqlalchemy.org/) for more information.
+    Whether to connect to the Benchling Postgres warehouse. Defaults to False. See SQLAlchemy documentation [here](https://www.sqlalchemy.org/) for more information.
