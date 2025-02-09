@@ -112,7 +112,9 @@ def liminal_validator(
             The name of the validator. Defaults to the pascalized name of the function.
     """
 
-    def decorator(func: Callable[[type["BenchlingBaseModel"]], None]) -> Callable:
+    def decorator(
+        func: Callable[[type["BenchlingBaseModel"]], BenchlingValidatorReport | None],
+    ) -> Callable:
         """Decorator that validates a function that takes a Benchling entity as an argument and returns None."""
         sig = inspect.signature(func)
         params = list(sig.parameters.values())
@@ -120,9 +122,6 @@ def liminal_validator(
             raise TypeError(
                 "Validator must defined in a schema class, where the only argument to this validator must be 'self'."
             )
-
-        if sig.return_annotation is not None:
-            raise TypeError("The return type must be None.")
 
         nonlocal validator_name
         if validator_name is None:
@@ -132,7 +131,9 @@ def liminal_validator(
         def wrapper(self: type["BenchlingBaseModel"]) -> BenchlingValidatorReport:
             """Wrapper that runs the validator function and returns a BenchlingValidatorReport."""
             try:
-                func(self)
+                ret_val = func(self)
+                if type(ret_val) is BenchlingValidatorReport:
+                    return ret_val
             except Exception as e:
                 return BenchlingValidatorReport.create_validation_report(
                     valid=False,
