@@ -1,7 +1,7 @@
 import inspect
 from datetime import datetime
 from functools import wraps
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
@@ -67,6 +67,7 @@ class BenchlingValidatorReport(BaseModel):
         entity: type["BenchlingBaseModel"],
         validator_name: str,
         message: str | None = None,
+        **kwargs: Any,
     ) -> "BenchlingValidatorReport":
         """Creates a BenchlingValidatorReport with the given parameters.
 
@@ -96,6 +97,7 @@ class BenchlingValidatorReport(BaseModel):
             creator_email=entity.creator.email if entity.creator else None,
             updated_date=entity.modified_at,
             message=message,
+            **kwargs,
         )
 
 
