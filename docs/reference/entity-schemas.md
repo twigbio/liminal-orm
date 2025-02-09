@@ -11,7 +11,7 @@ detected by Liminal's migration service, which is run using the `liminal autogen
 Below, we will go through the different components of defining an entity schema class.
 
 ```python
-from liminal.base.name_template_parts import RegistryIdentifierNumberPart, TextPart
+from liminal.orm.name_template_parts import RegistryIdentifierNumberPart, TextPart
 from liminal.orm.relationship import single_relationship
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.orm.column import Column
@@ -169,6 +169,20 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 - **_warehouse_name: str | None = None**
 
     Private attribute used to set the warehouse name of the column. This is useful when the variable name is not the same as the warehouse name.
+
+## Name Template: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/name_template.py)
+
+The name template is used to generate the name of entity schema entities. It is comprised of a list of name template parts. The name template parts are defined in the [name_template_parts](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/name_template_parts.py) module.
+
+### Parameters
+
+- **parts: list[NameTemplateParts]**
+
+    The list of name template parts that make up the name template (order matters).
+
+- **order_name_parts_by_sequence: bool = False**
+
+    Whether to order the name parts by sequence. This can only be set to True for sequence enity types. If one or many part link fields are included in the name template, list parts in the order they appear on the sequence map, sorted by start position and then end position.
 
 ## Relationships: [module](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/relationship.py)
 
