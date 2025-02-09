@@ -4,8 +4,8 @@ from typing import Any
 
 from pydantic import ConfigDict, field_validator
 
-from liminal.base.name_template_parts import NameTemplateParts, SeparatorPart
 from liminal.base.properties.base_name_template import BaseNameTemplate
+from liminal.orm.name_template_parts import NameTemplateParts, SeparatorPart
 
 
 class NameTemplate(BaseNameTemplate):

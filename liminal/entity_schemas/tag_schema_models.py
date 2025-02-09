@@ -5,9 +5,6 @@ from typing import Any
 import requests
 from pydantic import BaseModel
 
-from liminal.base.name_template_parts import (
-    NameTemplatePart,
-)
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
@@ -23,6 +20,9 @@ from liminal.enums.name_template_part_type import NameTemplatePartType
 from liminal.mappers import (
     convert_entity_type_to_api_entity_type,
     convert_field_type_to_api_field_type,
+)
+from liminal.orm.name_template_parts import (
+    NameTemplatePart,
 )
 from liminal.orm.schema_properties import MixtureSchemaConfig
 
