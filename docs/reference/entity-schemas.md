@@ -4,7 +4,7 @@
 Below is an example of a custom entity schema defined in code. All Liminal entity schema classes inherit from Liminal's [BaseModel](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/base_model.py) and uses [SQLAlchemy](https://www.sqlalchemy.org/) behind the scenes to create an ORM. Liminal provides base classes and clear abstractions to provide a standardized way to define entity schemas in code. However, you are still able to use raw SQLAlchemy to interact with the schemas when necessary.
 
 The properties defined in the `SchemaProperties` object and `Column` objects
-align with the properties shown on the Benchling website. This is how Liminal defines your Benchling entity schema in code. Any of these properties
+correspond with the properties shown on the Benchling website. This is how Liminal defines your Benchling entity schema in code. Any of these properties
 can be manipulated to change the definition of the entity schema. Updates to the schema or the addition/archival of schemas are automatically
 detected by Liminal's migration service, which is run using the `liminal autogenerate ...` command. Refer to the [First Migration](../getting-started/first-migration.md) page to run your first migration.
 
@@ -122,6 +122,9 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     When schemas (and fields) are archived, they still existing the Benchling warehouse. Using _archived is useful when you need to access archived data.
 
 ## Column: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/column.py)
+
+!!! tip
+    Liminal also detects the ordering of your fields. Define columns on different lines in your schema class to change the ordering of the fields on the Benchling entity schema.
 
 !!! warning
     If warehouse access is not enabled on your tenant, you will be unable to update the warehouse name for fields.
