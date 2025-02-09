@@ -32,9 +32,9 @@
 
     !!! tip
 
-        If you have multiple Benchling tenants you'd like to synchronize, you can define multiple Benchling connections in the `env.py` file by creating multiple `BenchlingConnection` objects and respective `CURRENT_REVISION_ID` variables. Use the optional `current_revision_id_var_name` parameter to link the variable to the `BenchlingConnection` object.
+        If you have multiple Benchling tenants you'd like to synchronize, you can define multiple Benchling connections in the `env.py` file by creating multiple `BenchlingConnection` objects and respective `CURRENT_REVISION_ID` variables.
 
-4. If your Benchling tenant has pre-existing schemas, run `liminal generate-files <benchling_tenant> [<write_path>]` to populate the root directory with your schema files from the given Benchling tenant. Your file structure should now look like this:
+4. If your Benchling tenant has pre-existing schemas, run `liminal generate-files <benchling_tenant_name> [<write_path>]` to populate the root directory with your schema files from the given Benchling tenant. Your file structure should now look like this:
 
         pizzahouse/
             liminal/

@@ -15,6 +15,9 @@ def generate_random_id(length: int = 8) -> str:
 
 
 def pascalize(input_string: str) -> str:
+    """
+    Convert a string to PascalCase.
+    """
     return "".join(
         re.sub(r"[\[\]{}():]", "", word).capitalize()
         for word in re.split(r"[ /_\-]", input_string)
@@ -22,6 +25,9 @@ def pascalize(input_string: str) -> str:
 
 
 def to_snake_case(input_string: str | None) -> str:
+    """
+    Convert a string to snake_case.
+    """
     if input_string is None:
         return ""
     return "_".join(
@@ -31,6 +37,9 @@ def to_snake_case(input_string: str | None) -> str:
 
 
 def to_string_val(input_val: Any) -> str:
+    """
+    Convert a value to a string.
+    """
     if isinstance(input_val, list) or isinstance(input_val, set):
         return f'[{", ".join(input_val)}]'
     return str(input_val)

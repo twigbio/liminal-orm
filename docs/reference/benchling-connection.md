@@ -23,36 +23,36 @@ connection = BenchlingConnection(
 
 ### Parameters
 
-**tenant_name: str**
+- **tenant_name: str**
 
-> The name of the tenant. ex: {tenant_name}.benchling.com
+    The name of the tenant. ex: {tenant_name}.benchling.com
 
-**tenant_alias: Optional[str] = None**
+- **tenant_alias: Optional[str] = None**
 
-> The alias of the tenant name. This is optional and is used as an alternate value when using the Liminal CLI
+    The alias of the tenant name. This is optional and is used as an alternate value when using the Liminal CLI
 
-**current_revision_id_var_name: str = ""**
+- **current_revision_id_var_name: str = ""**
 
-> The name of the variable that contains the current revision id.
-> If not provided, a derived name will be generated based on the tenant name/alias.
-> Ex: {tenant_alias}_CURRENT_REVISION_ID or {tenant_name}_CURRENT_REVISION_ID if alias is not provided.
+    The name of the variable that contains the current revision id.
+    If not provided, a derived name will be generated based on the tenant name/alias.
+    Ex: {tenant_alias}_CURRENT_REVISION_ID or {tenant_name}_CURRENT_REVISION_ID if alias is not provided.
 
-**api_client_id: Optional[str] = None**
+- **api_client_id: Optional[str] = None**
 
-> The id of the API client.
+    The id of the API client.
 
-**api_client_secret: Optional[str] = None**
+- **api_client_secret: Optional[str] = None**
 
-> The secret of the API client.
+    The secret of the API client.
 
-**warehouse_connection_string: Optional[str] = None**
+- **warehouse_connection_string: Optional[str] = None**
 
-> The connection string for the warehouse.
+    The connection string for the warehouse.
 
-**internal_api_admin_email: Optional[str] = None**
+- **internal_api_admin_email: Optional[str] = None**
 
-> The email of the internal API admin.
+    The email of the internal API admin.
 
-**internal_api_admin_password: Optional[str] = None**
+- **internal_api_admin_password: Optional[str] = None**
 
-> The password of the internal API admin.
+    The password of the internal API admin.

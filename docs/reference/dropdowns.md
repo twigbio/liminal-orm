@@ -14,10 +14,10 @@ class Toppings(BaseDropdown):
 
 ### Parameters
 
-**benchling_name: str**
+- **benchling_name: str**
 
-> The name of the dropdown in Benchling. There can be no duplicate dropdown names in Benchling.
+    The name of the dropdown in Benchling. There can be no duplicate dropdown names in Benchling.
 
-**allowed_values: list[str]**
+- **allowed_values: list[str]**
 
-> The list of values for the dropdown. Order matters and reflects the order of the dropdown in Benchling. Values must be unique.
+    The list of values for the dropdown. Order matters and reflects the order of the dropdown in Benchling. Values must be unique.

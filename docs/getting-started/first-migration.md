@@ -6,7 +6,7 @@
 2. In your CLI in Liminal's root directory (that contains the `liminal/` path), run the following command:
 
     ```bash
-    liminal upgrade <benchling_tenant> <upgrade_descriptor>
+    liminal upgrade <benchling_tenant_name> <upgrade_descriptor>
     ```
 
     Example: `liminal upgrade prod "remove dough column from pizza schema"`.

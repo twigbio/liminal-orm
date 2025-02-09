@@ -10,13 +10,12 @@ Liminal ORM<sup>1</sup> is an open-source Python package that builds on [Benchli
 Liminal provides an ORM framework using [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) along with a schema migration service inspired by [Alembic](https://alembic.sqlalchemy.org/en/latest/). This allows you to define your Benchling schemas in code and create a *single source of truth* that synchronizes between your upstream Benchling tenant(s) and downstream dependencies. By creating a standard interface and through using one-line CLI<sup>3</sup> commands, Liminal enables a code-first approach for managing Benchling tenants and accessing Benchling data. With the schemas defined in code, you can also take advantage of the additional capabilities that the Liminal toolkit provides. This includes:
 
 - The ability to run migrations to your Benchling tenant(s) through an easy to use CLI.
-- One source of truth defined in code for your Benchling schema model that your many Benchling tenants can stay in sync with.
 - Easy to implement validation rules to reflect business logic for all of your Benchling entities.
 - Strongly typed queries for all your Benchling entities.
 - CI/CD integration with GitHub Actions to ensure that your Benchling schemas and code are always in sync.
 - And more based on community contributions/feedback :)
 
-If you are a Benchling user, try out Liminal by following the [**Quick Start Guide**](https://dynotx.github.io/liminal-orm/getting-started/prerequisites/)! Reach out in the [Discussions](https://github.com/dynotx/liminal-orm/discussions) forum with any questions or to simply introduce yourself! If there is something blocking you from using Liminal or you're having trouble setting Liminal up, please share in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly (contact information below). You can expect responses within 48 hours :)
+If you are a Benchling user, try out Liminal by following the [**Quick Start Guide**](https://dynotx.github.io/liminal-orm/getting-started/prerequisites/)! Reach out in the [Slack community](https://join.slack.com/t/liminalorm/shared_invite/zt-2ujrp07s3-bctook4e~cAjn1LgOLVY~Q) (preferred method) with any questions or to simply introduce yourself! If there is something blocking you from using Liminal or you're having trouble setting Liminal up, please share in [Issues](https://github.com/dynotx/liminal-orm/issues) or reach out directly (info below).
 
 Benchling is an industry standard cloud platform for life sciences R&D. Liminal builds on top of Benchling's platform and assumes that you already have a Benchling tenant set up and have (or have access to) an admin user account. If not, learn more about getting started with Benchling [here](https://www.benchling.com/explore-benchling)!
 
@@ -36,6 +35,7 @@ If you or your organization use Liminal, please consider adding yourself or your
 - [Community](#community)
 - [Contributing](#contributing)
 - [License](#license)
+- [Direct Contact](#direct-contact)
 - [Acknowledgements](#acknowledgements)
 - [Footnotes](#footnotes)
 
@@ -101,6 +101,7 @@ Liminal ORM is distributed under the [Apache License, Version 2.0](./LICENSE.md)
 
 ## [Direct Contact](#direct-contact)
 
+- Liminal Community Slack group: [Join here](https://join.slack.com/t/liminalorm/shared_invite/zt-2ujrp07s3-bctook4e~cAjn1LgOLVY~Q)
 - Email: <opensource@dynotx.com>
 - LinkedIn: [Nirmit Damania](https://www.linkedin.com/in/nirmit-damania/)
 
