@@ -1,14 +1,5 @@
 # flake8: noqa: F401
 from liminal.base.base_operation import BaseOperation
-from liminal.base.name_template_parts import (
-    CreationDatePart,
-    CreationYearPart,
-    FieldPart,
-    ProjectPart,
-    RegistryIdentifierNumberPart,
-    SeparatorPart,
-    TextPart,
-)
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.base.properties.base_name_template import BaseNameTemplate
 from liminal.base.properties.base_schema_properties import BaseSchemaProperties
@@ -41,4 +32,13 @@ from liminal.enums import (
     BenchlingFolderItemType,
     BenchlingNamingStrategy,
     BenchlingSequenceType,
+)
+from liminal.orm.name_template_parts import (
+    CreationDatePart,
+    CreationYearPart,
+    FieldPart,
+    ProjectPart,
+    RegistryIdentifierNumberPart,
+    SeparatorPart,
+    TextPart,
 )

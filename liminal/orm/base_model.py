@@ -12,11 +12,11 @@ from sqlalchemy.orm import Query, RelationshipProperty, Session, relationship
 from sqlalchemy.orm.decl_api import declared_attr
 
 from liminal.base.base_validation_filters import BaseValidatorFilters
-from liminal.base.name_template_parts import FieldPart
 from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
 from liminal.orm.name_template import NameTemplate
+from liminal.orm.name_template_parts import FieldPart
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.validation import BenchlingValidatorReport
 

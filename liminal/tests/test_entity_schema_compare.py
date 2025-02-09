@@ -1,7 +1,6 @@
 import copy
 from unittest.mock import Mock, patch
 
-from liminal.base.name_template_parts import TextPart
 from liminal.base.properties.base_field_properties import BaseFieldProperties
 from liminal.entity_schemas.compare import compare_entity_schemas
 from liminal.entity_schemas.operations import (
@@ -18,6 +17,7 @@ from liminal.entity_schemas.operations import (
 )
 from liminal.enums import BenchlingFieldType
 from liminal.orm.name_template import NameTemplate
+from liminal.orm.name_template_parts import TextPart
 
 
 class TestCompareEntitySchemas:

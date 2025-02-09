@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from liminal.base.name_template_parts import NameTemplateParts
+from liminal.orm.name_template_parts import NameTemplateParts
 
 
 class BaseNameTemplate(BaseModel):

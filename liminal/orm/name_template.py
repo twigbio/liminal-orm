@@ -4,8 +4,8 @@ from typing import Any
 
 from pydantic import ConfigDict, field_validator
 
-from liminal.base.name_template_parts import NameTemplateParts, SeparatorPart
 from liminal.base.properties.base_name_template import BaseNameTemplate
+from liminal.orm.name_template_parts import NameTemplateParts, SeparatorPart
 
 
 class NameTemplate(BaseNameTemplate):
@@ -19,7 +19,7 @@ class NameTemplate(BaseNameTemplate):
         The list of name template parts that make up the name template (order matters). Defaults to no parts, an empty list.
     order_name_parts_by_sequence : bool = False
         Whether to order the name parts by sequence. This can only be set to True for sequence enity types. If one or many part link fields are included in the name template,
-        list parts in the order they appear on the sequence map, sorted by start position and then end position.Defaults to False.
+        list parts in the order they appear on the sequence map, sorted by start position and then end position. Defaults to False.
     """
 
     parts: list[NameTemplateParts] = []
