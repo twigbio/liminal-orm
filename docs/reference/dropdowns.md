@@ -12,6 +12,9 @@ class Toppings(BaseDropdown):
     __allowed_values__ = ["Pepperoni", "Mushroom", "Onion", "Sausage", "Bacon"]
 ```
 
+!!! tip
+    Liminal automatically detects the order of your dropdown values. To change the order of how the values appear in Benchling, define the dropdown values in the desired sequence.
+
 ### Parameters
 
 - **benchling_name: str**
