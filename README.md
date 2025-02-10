@@ -57,7 +57,7 @@ With your schemas defined in code, you can now take advantage of the additional 
     class Pizza(BaseModel, CustomEntityMixin):
         ...
 
-        @liminal_validator(ValidationSeverity.MED)
+        @liminal_validator
         def cook_time_and_temp_validator(self) -> None:
             if self.cook_time is not None and self.cook_temp is None:
                 raise ValueError("Cook temp is required if cook time is set")
