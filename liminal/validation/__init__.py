@@ -1,7 +1,7 @@
 import inspect
 from datetime import datetime
-from functools import wraps
-from typing import TYPE_CHECKING, Callable
+from functools import partial, wraps
+from typing import TYPE_CHECKING, Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
@@ -67,6 +67,7 @@ class BenchlingValidatorReport(BaseModel):
         entity: type["BenchlingBaseModel"],
         validator_name: str,
         message: str | None = None,
+        **kwargs: Any,
     ) -> "BenchlingValidatorReport":
         """Creates a BenchlingValidatorReport with the given parameters.
 
@@ -96,59 +97,68 @@ class BenchlingValidatorReport(BaseModel):
             creator_email=entity.creator.email if entity.creator else None,
             updated_date=entity.modified_at,
             message=message,
+            **kwargs,
         )
+
+
+def _liminal_decorator(
+    func: Callable[[type["BenchlingBaseModel"]], BenchlingValidatorReport | None],
+    validator_level: ValidationSeverity,
+    validator_name: str | None,
+) -> Callable:
+    """Core decorator logic for liminal_validator."""
+    sig = inspect.signature(func)
+    params = list(sig.parameters.values())
+    if not params or params[0].name != "self" or len(params) > 1:
+        raise TypeError(
+            "Validator must be defined in a schema class, where the only argument to this validator must be 'self'."
+        )
+
+    if validator_name is None:
+        validator_name = pascalize(func.__name__)
+
+    @wraps(func)
+    def wrapper(self: type["BenchlingBaseModel"]) -> BenchlingValidatorReport:
+        """Wrapper that runs the validator function and returns a BenchlingValidatorReport."""
+        try:
+            ret_val = func(self)
+            if type(ret_val) is BenchlingValidatorReport:
+                return ret_val
+        except Exception as e:
+            return BenchlingValidatorReport.create_validation_report(
+                valid=False,
+                level=validator_level,
+                entity=self,
+                validator_name=validator_name,
+                message=str(e),
+            )
+        return BenchlingValidatorReport.create_validation_report(
+            valid=True,
+            level=validator_level,
+            entity=self,
+            validator_name=validator_name,
+        )
+
+    setattr(wrapper, "_is_liminal_validator", True)
+    return wrapper
 
 
 def liminal_validator(
     validator_level: ValidationSeverity = ValidationSeverity.LOW,
     validator_name: str | None = None,
 ) -> Callable:
-    """A decorator that validates a function that takes a Benchling entity as an argument and returns None.
+    """A decorator for a function that validates a Benchling entity, defined on a schema class.
+    Wraps around any exceptions raised by the validator function, and returns a BenchlingValidatorReport.
 
-    Parameters:
-        validator_level: ValidationSeverity
-            The level of the validator.
-        validator_name: str | None
-            The name of the validator. Defaults to the pascalized name of the function.
+    Parameters
+    ----------
+    validator_level: ValidationSeverity
+        The severity level of the validation report. Defaults to ValidationSeverity.LOW.
+    validator_name: str | None =
+        The name of the validator. Defaults to the PascalCase version of the function name.
     """
-
-    def decorator(func: Callable[[type["BenchlingBaseModel"]], None]) -> Callable:
-        """Decorator that validates a function that takes a Benchling entity as an argument and returns None."""
-        sig = inspect.signature(func)
-        params = list(sig.parameters.values())
-        if not params or params[0].name != "self" or len(params) > 1:
-            raise TypeError(
-                "Validator must defined in a schema class, where the only argument to this validator must be 'self'."
-            )
-
-        if sig.return_annotation is not None:
-            raise TypeError("The return type must be None.")
-
-        nonlocal validator_name
-        if validator_name is None:
-            validator_name = pascalize(func.__name__)
-
-        @wraps(func)
-        def wrapper(self: type["BenchlingBaseModel"]) -> BenchlingValidatorReport:
-            """Wrapper that runs the validator function and returns a BenchlingValidatorReport."""
-            try:
-                func(self)
-            except Exception as e:
-                return BenchlingValidatorReport.create_validation_report(
-                    valid=False,
-                    level=validator_level,
-                    entity=self,
-                    validator_name=validator_name,
-                    message=str(e),
-                )
-            return BenchlingValidatorReport.create_validation_report(
-                valid=True,
-                level=validator_level,
-                entity=self,
-                validator_name=validator_name,
-            )
-
-        setattr(wrapper, "_is_liminal_validator", True)
-        return wrapper
-
-    return decorator
+    return partial(
+        _liminal_decorator,
+        validator_level=validator_level,
+        validator_name=validator_name,
+    )
