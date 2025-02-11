@@ -11,6 +11,7 @@ class BenchlingNamingStrategy(StrEnum):
     )
     RENAME_WITH_TEMPLATE_WITH_ALIAS = "SET_FROM_NAME_PARTS"  # Generate new registry IDs, rename according to name template, and keep old name as alias
     REPLACE_NAMES_WITH_TEMPLATE = "REPLACE_NAMES_FROM_PARTS"  # Generate new registry IDs, and replace name according to name template
+    KEEP_NAMES = "KEEP_NAMES"  # Keeps the original name
 
     @classmethod
     def is_template_based(cls, strategy: BenchlingNamingStrategy) -> bool:

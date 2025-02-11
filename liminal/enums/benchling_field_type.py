@@ -32,3 +32,7 @@ class BenchlingFieldType(StrEnum):
             cls.DATE,
             cls.DATETIME,
         ]
+
+    @classmethod
+    def get_entity_link_types(cls) -> list[str]:
+        return [cls.ENTITY_LINK, cls.TRANSLATION_LINK]
