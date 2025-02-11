@@ -9,7 +9,7 @@ For full release notes, please visit the [GitHub Releases page](https://github.c
 - PR [#88](https://github.com/dynotx/liminal-orm/pull/88): adds ability to defined name templates for entity schemas
 - PR [#84](https://github.com/dynotx/liminal-orm/pull/84): adds ability to define chip naming for entity schemas
 - PR [#82](https://github.com/dynotx/liminal-orm/pull/82): adds ability to define constraints for entity schemas.
-    - The above PRs brings achieves 100% parity with Entity Schemas in Benchling. The guidance for migrating to v2.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal.
+    - The above PRs brings achieves 100% parity with Entity Schemas in Benchling. The guidance for migrating to v2.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal.
 - PR [#68](https://github.com/dynotx/liminal-orm/pull/68): refactors how validators are done in Liminal using a decorator pattern. Refer to the [validators](https://dynotx.github.io/liminal-orm/reference/validators/) page for full details on implementation.
     - If you don't have validators defined, no action is needed! Otherwise, you will need to manually refactor your validators to use the new pattern.
 
