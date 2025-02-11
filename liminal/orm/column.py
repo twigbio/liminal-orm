@@ -73,10 +73,10 @@ class Column(SqlColumn):
             raise ValueError("Dropdown can only be set if the field type is DROPDOWN.")
         if dropdown is None and type == BenchlingFieldType.DROPDOWN:
             raise ValueError("Dropdown must be set if the field type is DROPDOWN.")
-        if entity_link and type != BenchlingFieldType.ENTITY_LINK:
-            raise ValueError(
-                "Entity link can only be set if the field type is ENTITY_LINK."
-            )
+        # if entity_link and type != BenchlingFieldType.ENTITY_LINK:
+        #     raise ValueError(
+        #         "Entity link can only be set if the field type is ENTITY_LINK."
+        #     )
         if parent_link and type != BenchlingFieldType.ENTITY_LINK:
             raise ValueError(
                 "Parent link can only be set if the field type is ENTITY_LINK."
