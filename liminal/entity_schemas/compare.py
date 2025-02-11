@@ -327,10 +327,10 @@ def compare_entity_schemas(
             new_schema_props = BaseSchemaProperties()
             rollback_schema_props = BaseSchemaProperties()
             if model.__schema_properties__.warehouse_name != benchling_given_wh_name:
-                new_schema_props.warehouse_name = benchling_given_wh_name
-                rollback_schema_props.warehouse_name = (
+                new_schema_props.warehouse_name = (
                     model.__schema_properties__.warehouse_name
                 )
+                rollback_schema_props.warehouse_name = benchling_given_wh_name
             if template_based_naming_strategies:
                 new_schema_props.naming_strategies = template_based_naming_strategies
                 rollback_schema_props.naming_strategies = (
