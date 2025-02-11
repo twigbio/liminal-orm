@@ -5,3 +5,4 @@ from liminal.enums.benchling_field_type import BenchlingFieldType
 from liminal.enums.benchling_folder_item_type import BenchlingFolderItemType
 from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
 from liminal.enums.benchling_sequence_type import BenchlingSequenceType
+from liminal.enums.sequence_constraint import SequenceConstraint

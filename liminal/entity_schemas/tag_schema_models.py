@@ -17,6 +17,7 @@ from liminal.enums import (
     BenchlingSequenceType,
 )
 from liminal.enums.name_template_part_type import NameTemplatePartType
+from liminal.enums.sequence_constraint import SequenceConstraint
 from liminal.mappers import (
     convert_entity_type_to_api_entity_type,
     convert_field_type_to_api_field_type,
@@ -91,16 +92,28 @@ class TagSchemaConstraint(BaseModel):
 
     @classmethod
     def from_constraint_fields(
-        cls, constraint_fields: list[TagSchemaFieldModel], bases: bool
+        cls,
+        constraint_fields: list[TagSchemaFieldModel],
+        sequence_constraint: SequenceConstraint | None = None,
     ) -> TagSchemaConstraint:
         """
         Generates a Constraint object from a set of constraint fields to create a constraint on a schema.
         """
+        uniqueResidues = False
+        areUniqueResiduesCaseSensitive = False
+        match sequence_constraint:
+            case SequenceConstraint.BASES:
+                uniqueResidues = True
+            case SequenceConstraint.AMINO_ACIDS_IGNORE_CASE:
+                uniqueResidues = True
+            case SequenceConstraint.AMINO_ACIDS_EXACT_MATCH:
+                uniqueResidues = True
+                areUniqueResiduesCaseSensitive = True
         return cls(
             fields=constraint_fields,
-            uniqueResidues=bases,
+            uniqueResidues=uniqueResidues,
             uniqueCanonicalSmilers=False,
-            areUniqueResiduesCaseSensitive=False,
+            areUniqueResiduesCaseSensitive=areUniqueResiduesCaseSensitive,
         )
 
 
@@ -440,34 +453,26 @@ class TagSchemaModel(BaseModel):
 
         if "constraint_fields" in update_diff_names:
             if update_props.constraint_fields:
-                has_bases = False
-                if "bases" in update_props.constraint_fields:
-                    has_bases = True
-                    update_props.constraint_fields.discard("bases")
-                constraint_fields = [
-                    f
-                    for f in self.fields
-                    if f.systemName in update_props.constraint_fields
-                ]
-                self.constraint = TagSchemaConstraint.from_constraint_fields(
-                    constraint_fields, has_bases
+                sequence_constraint = next(
+                    (
+                        SequenceConstraint(c)
+                        for c in update_props.constraint_fields
+                        if SequenceConstraint.is_sequence_constraint(c)
+                    ),
+                    None,
                 )
-            else:
-                self.constraint = None
-
-        if "constraint_fields" in update_diff_names:
-            if update_props.constraint_fields:
-                has_bases = False
-                if "bases" in update_props.constraint_fields:
-                    has_bases = True
-                    update_props.constraint_fields.discard("bases")
+                update_props.constraint_fields = {
+                    c
+                    for c in update_props.constraint_fields
+                    if not SequenceConstraint.is_sequence_constraint(c)
+                }
                 constraint_fields = [
                     f
                     for f in self.fields
                     if f.systemName in update_props.constraint_fields
                 ]
                 self.constraint = TagSchemaConstraint.from_constraint_fields(
-                    constraint_fields, has_bases
+                    constraint_fields, sequence_constraint
                 )
             else:
                 self.constraint = None
