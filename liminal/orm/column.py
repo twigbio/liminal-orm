@@ -73,19 +73,19 @@ class Column(SqlColumn):
             raise ValueError("Dropdown can only be set if the field type is DROPDOWN.")
         if dropdown is None and type == BenchlingFieldType.DROPDOWN:
             raise ValueError("Dropdown must be set if the field type is DROPDOWN.")
-        if entity_link and type != BenchlingFieldType.ENTITY_LINK:
+        if entity_link and type not in BenchlingFieldType.get_entity_link_types():
             raise ValueError(
-                "Entity link can only be set if the field type is ENTITY_LINK."
+                "Entity link can only be set if the field type is ENTITY_LINK or TRANSLATION_LINK."
             )
-        if parent_link and type != BenchlingFieldType.ENTITY_LINK:
+        if parent_link and type not in BenchlingFieldType.get_entity_link_types():
             raise ValueError(
-                "Parent link can only be set if the field type is ENTITY_LINK."
+                "Parent link can only be set if the field type is ENTITY_LINK or TRANSLATION_LINK."
             )
         if type in BenchlingFieldType.get_non_multi_select_types() and is_multi is True:
             raise ValueError(f"Field type {type} cannot have multi-value set as True.")
         self.sqlalchemy_type = sqlalchemy_type
         foreign_key = None
-        if type == BenchlingFieldType.ENTITY_LINK and entity_link:
+        if type in BenchlingFieldType.get_entity_link_types() and entity_link:
             foreign_key = ForeignKey(f"{entity_link}$raw.id")
         if _warehouse_name:
             kwargs["name"] = _warehouse_name
