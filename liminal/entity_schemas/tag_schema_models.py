@@ -164,7 +164,7 @@ class CreateTagSchemaFieldModel(BaseModel):
         )
 
         tagSchema = None
-        if new_props.type == BenchlingFieldType.ENTITY_LINK:
+        if new_props.type in BenchlingFieldType.entity_link_types():
             if new_props.entity_link is not None:
                 if benchling_service is None:
                     raise ValueError(
