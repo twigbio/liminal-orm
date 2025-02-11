@@ -18,6 +18,7 @@ from liminal.entity_schemas.operations import (
     UpdateEntitySchemaNameTemplate,
 )
 from liminal.entity_schemas.utils import get_converted_tag_schemas
+from liminal.enums.benchling_naming_strategy import BenchlingNamingStrategy
 from liminal.orm.base_model import BaseModel
 from liminal.orm.column import Column
 from liminal.utils import to_snake_case
@@ -275,6 +276,16 @@ def compare_entity_schemas(
                 col.properties.set_warehouse_name(wh_name)
                 for wh_name, col in model_columns.items()
             ]
+            template_based_naming_strategies = {
+                s
+                for s in model.__schema_properties__.naming_strategies
+                if BenchlingNamingStrategy.is_template_based(s)
+            }
+            model.__schema_properties__.naming_strategies = {
+                s
+                for s in model.__schema_properties__.naming_strategies
+                if not BenchlingNamingStrategy.is_template_based(s)
+            }
             ops.append(
                 CompareOperation(
                     op=CreateEntitySchema(
@@ -288,28 +299,10 @@ def compare_entity_schemas(
                     ),
                 )
             )
-            benchling_given_wh_name = to_snake_case(model.__schema_properties__.name)
-            if model.__schema_properties__.warehouse_name != benchling_given_wh_name:
-                ops.append(
-                    CompareOperation(
-                        op=UpdateEntitySchema(
-                            benchling_given_wh_name,
-                            BaseSchemaProperties(
-                                warehouse_name=model.__schema_properties__.warehouse_name
-                            ),
-                        ),
-                        reverse_op=UpdateEntitySchema(
-                            model.__schema_properties__.warehouse_name,
-                            BaseSchemaProperties(
-                                warehouse_name=benchling_given_wh_name
-                            ),
-                        ),
-                    )
-                )
             benchling_given_name_template = BaseNameTemplate(
                 parts=[], order_name_parts_by_sequence=False
             )
-            if benchling_name_template != model.__name_template__:
+            if benchling_given_name_template != model.__name_template__:
                 ops.append(
                     CompareOperation(
                         op=UpdateEntitySchemaNameTemplate(
@@ -323,10 +316,36 @@ def compare_entity_schemas(
                         reverse_op=UpdateEntitySchemaNameTemplate(
                             model.__schema_properties__.warehouse_name,
                             BaseNameTemplate(
-                                **benchling_given_name_template.merge(
-                                    model.__name_template__
+                                **model.__name_template__.merge(
+                                    benchling_given_name_template
                                 )
                             ),
+                        ),
+                    )
+                )
+            benchling_given_wh_name = to_snake_case(model.__schema_properties__.name)
+            new_schema_props = BaseSchemaProperties()
+            rollback_schema_props = BaseSchemaProperties()
+            if model.__schema_properties__.warehouse_name != benchling_given_wh_name:
+                new_schema_props.warehouse_name = benchling_given_wh_name
+                rollback_schema_props.warehouse_name = (
+                    model.__schema_properties__.warehouse_name
+                )
+            if template_based_naming_strategies:
+                new_schema_props.naming_strategies = template_based_naming_strategies
+                rollback_schema_props.naming_strategies = (
+                    model.__schema_properties__.naming_strategies
+                )
+            if new_schema_props.model_dump(exclude_unset=True) != {}:
+                ops.append(
+                    CompareOperation(
+                        op=UpdateEntitySchema(
+                            benchling_given_wh_name,
+                            new_schema_props,
+                        ),
+                        reverse_op=UpdateEntitySchema(
+                            model.__schema_properties__.warehouse_name,
+                            rollback_schema_props,
                         ),
                     )
                 )
