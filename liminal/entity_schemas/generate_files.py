@@ -105,7 +105,7 @@ def generate_all_entity_schema_files(
                 if not has_date:
                     import_strings.append("from datetime import datetime")
             if (
-                col.type == BenchlingFieldType.get_entity_link_types()
+                col.type in BenchlingFieldType.get_entity_link_types()
                 and col.entity_link is not None
             ):
                 if not col.is_multi:
