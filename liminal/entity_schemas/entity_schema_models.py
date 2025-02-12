@@ -9,6 +9,7 @@ from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdown_summary_by_name
 from liminal.entity_schemas.tag_schema_models import TagSchemaModel
 from liminal.enums import BenchlingEntityType
+from liminal.enums.sequence_constraint import SequenceConstraint
 from liminal.mappers import convert_field_type_to_api_field_type
 from liminal.orm.schema_properties import MixtureSchemaConfig, SchemaProperties
 
@@ -26,28 +27,44 @@ class EntitySchemaConstraint(BaseModel):
     """
 
     areUniqueResiduesCaseSensitive: bool | None = None
-    fields: dict[str, Any] | None = None
-    hasUniqueCanonicalSmilers: bool | None = None
+    fields: list[dict[str, Any]] | None = None
+    hasUniqueCanonicalSmiles: bool | None = None
     hasUniqueResidues: bool | None = None
 
     @classmethod
     def from_constraint_fields(
-        cls, constraint_fields: set[str]
+        cls,
+        constraint_fields: set[str],
+        benchling_service: BenchlingService | None = None,
     ) -> EntitySchemaConstraint:
         """
         Generates a Constraint object from a set of constraint fields to create a constraint on a schema.
         """
-        if constraint_fields is None:
-            return None
         hasUniqueResidues = False
-        if "bases" in constraint_fields:
-            constraint_fields.discard("bases")
+        areUniqueResiduesCaseSensitive = False
+        if SequenceConstraint.BASES in constraint_fields:
+            constraint_fields.discard(SequenceConstraint.BASES)
             hasUniqueResidues = True
+        elif SequenceConstraint.AMINO_ACIDS_IGNORE_CASE in constraint_fields:
+            constraint_fields.discard(SequenceConstraint.AMINO_ACIDS_IGNORE_CASE)
+            hasUniqueResidues = True
+        elif SequenceConstraint.AMINO_ACIDS_EXACT_MATCH in constraint_fields:
+            constraint_fields.discard(SequenceConstraint.AMINO_ACIDS_EXACT_MATCH)
+            hasUniqueResidues = True
+            areUniqueResiduesCaseSensitive = True
+        fields = []
+        for field_name in constraint_fields:
+            if benchling_service is None:
+                raise ValueError(
+                    "Benchling SDK must be provided to update constraint fields."
+                )
+            field = TagSchemaModel.get_one(benchling_service, field_name)
+            fields.append({"name": field.name, "id": field.id})
         return cls(
-            fields=[{"name": f} for f in constraint_fields],
+            fields=fields,
             hasUniqueResidues=hasUniqueResidues,
-            hasUniqueCanonicalSmilers=False,
-            areUniqueResiduesCaseSensitive=False,
+            hasUniqueCanonicalSmiles=False,
+            areUniqueResiduesCaseSensitive=areUniqueResiduesCaseSensitive,
         )
 
 
@@ -170,9 +187,7 @@ class CreateEntitySchemaModel(BaseModel):
             labelingStrategies=[s.value for s in benchling_props.naming_strategies],
             constraint=EntitySchemaConstraint.from_constraint_fields(
                 benchling_props.constraint_fields
-            )
-            if benchling_props.constraint_fields
-            else None,
+            ),
             fields=[
                 CreateEntitySchemaFieldModel.from_benchling_props(
                     field_props, benchling_service

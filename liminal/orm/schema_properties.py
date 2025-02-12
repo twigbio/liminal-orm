@@ -35,9 +35,12 @@ class SchemaProperties(BaseSchemaProperties):
         Flag for configuring the chip label for entities. Determines if the chip will use the Registry ID as the main label for items.
     include_registry_id_in_chips : bool | None = None
         Flag for configuring the chip label for entities. Determines if the chip will include the Registry ID in the chip label.
-    constraint_fields : set[str] | None
-        Set of constraints for field values for the schema. Must be a set of column names that specify that their values must be a unique combination within an entity.
-        If the entity type is a Sequence, "bases" can be a constraint field.
+    constraint_fields : set[str]
+        Set of constraints for field values for the schema. Must be a set of warehouse column names. This specifies that their entity field values must be a unique combination within an entity.
+        The following sequence constraints are also supported:
+        - bases: only supported for nucleotide sequence entity types. hasUniqueResidues=True
+        - amino_acids_ignore_case: only supported for amino acid sequence entity types. hasUniqueResidues=True
+        - amino_acids_exact_match: only supported for amino acid sequence entity types. hasUniqueResidues=True, areUniqueResiduesCaseSensitive=True
     _archived : bool | None
         Whether the schema is archived in Benchling.
     """
@@ -50,7 +53,7 @@ class SchemaProperties(BaseSchemaProperties):
     use_registry_id_as_label: bool | None = False
     include_registry_id_in_chips: bool | None = False
     mixture_schema_config: MixtureSchemaConfig | None = None
-    constraint_fields: set[str] | None = None
+    constraint_fields: set[str] = set()
     _archived: bool = False
 
     def __init__(self, **data: Any):

@@ -5,6 +5,8 @@ from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdown_id_name_map
 from liminal.entity_schemas.tag_schema_models import TagSchemaFieldModel, TagSchemaModel
 from liminal.enums import BenchlingAPIFieldType, BenchlingNamingStrategy
+from liminal.enums.benchling_entity_type import BenchlingEntityType
+from liminal.enums.sequence_constraint import SequenceConstraint
 from liminal.mappers import (
     convert_api_entity_type_to_entity_type,
     convert_api_field_type_to_field_type,
@@ -45,19 +47,32 @@ def convert_tag_schema_to_internal_schema(
     all_fields = tag_schema.allFields
     if not include_archived_fields:
         all_fields = [f for f in all_fields if not f.archiveRecord]
-    constraint_fields: set[str] | None = None
+    constraint_fields: set[str] = set()
+    entity_type = convert_api_entity_type_to_entity_type(
+        tag_schema.folderItemType, tag_schema.sequenceType
+    )
     if tag_schema.constraint:
-        constraint_fields = set([f.systemName for f in tag_schema.constraint.fields])
+        constraint_fields = constraint_fields.union(
+            [f.systemName for f in tag_schema.constraint.fields]
+        )
         if tag_schema.constraint.uniqueResidues:
-            constraint_fields.add("bases")
+            if entity_type.is_nt_sequence():
+                constraint_fields.add(SequenceConstraint.BASES.value)
+            elif entity_type == BenchlingEntityType.AA_SEQUENCE:
+                if tag_schema.constraint.areUniqueResiduesCaseSensitive:
+                    constraint_fields.add(
+                        SequenceConstraint.AMINO_ACIDS_EXACT_MATCH.value
+                    )
+                else:
+                    constraint_fields.add(
+                        SequenceConstraint.AMINO_ACIDS_IGNORE_CASE.value
+                    )
     return (
         SchemaProperties(
             name=tag_schema.name,
             prefix=tag_schema.prefix,
             warehouse_name=tag_schema.sqlIdentifier,
-            entity_type=convert_api_entity_type_to_entity_type(
-                tag_schema.folderItemType, tag_schema.sequenceType
-            ),
+            entity_type=entity_type,
             mixture_schema_config=MixtureSchemaConfig(
                 allowMeasuredIngredients=tag_schema.mixtureSchemaConfig.allowMeasuredIngredients,
                 componentLotStorageEnabled=tag_schema.mixtureSchemaConfig.componentLotStorageEnabled,

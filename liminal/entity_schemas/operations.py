@@ -39,7 +39,7 @@ class CreateEntitySchema(BaseOperation):
         self.schema_properties = schema_properties
         self.fields = fields
         self._validated_schema_properties = SchemaProperties(
-            **schema_properties.model_dump()
+            **schema_properties.model_dump(exclude_unset=True)
         )
 
     def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:

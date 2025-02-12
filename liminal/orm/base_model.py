@@ -13,6 +13,8 @@ from sqlalchemy.orm.decl_api import declared_attr
 
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.enums import BenchlingNamingStrategy
+from liminal.enums.benchling_entity_type import BenchlingEntityType
+from liminal.enums.sequence_constraint import SequenceConstraint
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
 from liminal.orm.name_template import NameTemplate
@@ -63,16 +65,49 @@ class BaseModel(Generic[T], Base):
             c[0] for c in cls.__dict__.items() if isinstance(c[1], SqlColumn)
         ]
         # Validate constraints
-        if cls.__schema_properties__.constraint_fields:
-            invalid_constraints = [
-                c
-                for c in cls.__schema_properties__.constraint_fields
-                if c not in (set(column_wh_names) | {"bases"})
-            ]
-            if invalid_constraints:
-                raise ValueError(
-                    f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
-                )
+        invalid_constraints = [
+            c
+            for c in cls.__schema_properties__.constraint_fields
+            if c
+            not in set(column_wh_names)
+            | set(SequenceConstraint._value2member_map_.keys())
+        ]
+        if invalid_constraints:
+            raise ValueError(
+                f"Constraints {', '.join(invalid_constraints)} are not fields on schema {cls.__schema_properties__.name}."
+            )
+        sequence_constraints = [
+            SequenceConstraint(c)
+            for c in cls.__schema_properties__.constraint_fields
+            if SequenceConstraint.is_sequence_constraint(c)
+        ]
+        if len(sequence_constraints) > 1:
+            raise ValueError(
+                "Only one sequenceconstraint field can be set for a schema."
+            )
+        sequence_constraint = sequence_constraints[0] if sequence_constraints else None
+        match sequence_constraint:
+            case SequenceConstraint.BASES:
+                if not cls.__schema_properties__.entity_type.is_nt_sequence():
+                    raise ValueError(
+                        "`bases` constraint is only supported for nucleotide sequence entities."
+                    )
+            case SequenceConstraint.AMINO_ACIDS_IGNORE_CASE:
+                if (
+                    cls.__schema_properties__.entity_type
+                    != BenchlingEntityType.AA_SEQUENCE
+                ):
+                    raise ValueError(
+                        "`amino_acids_ignore_case` constraint is only supported for aa_sequence entities."
+                    )
+            case SequenceConstraint.AMINO_ACIDS_EXACT_MATCH:
+                if (
+                    cls.__schema_properties__.entity_type
+                    != BenchlingEntityType.AA_SEQUENCE
+                ):
+                    raise ValueError(
+                        "`amino_acids_exact_match` constraint is only supported for aa_sequence entities."
+                    )
         # Validate naming strategies
         if any(
             BenchlingNamingStrategy.is_template_based(strategy)
@@ -84,7 +119,7 @@ class BaseModel(Generic[T], Base):
                 )
         # Validate name template
         if cls.__name_template__:
-            if not cls.__schema_properties__.entity_type.is_sequence():
+            if not cls.__schema_properties__.entity_type.is_nt_sequence():
                 if cls.__name_template__.order_name_parts_by_sequence is True:
                     raise ValueError(
                         "order_name_parts_by_sequence is only supported for sequence entities. Must be set to False if entity type is not a sequence."
