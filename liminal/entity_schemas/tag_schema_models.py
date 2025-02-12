@@ -230,6 +230,8 @@ class TagSchemaFieldModel(BaseModel):
     strictSelector: bool | None
     systemName: str
     tooltipText: str | None
+    unitApiIdentifier: str | None
+    unitSymbol: str | None = None
 
     def update_from_props(
         self,
