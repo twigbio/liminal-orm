@@ -112,7 +112,11 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 
 - **constraint_fields: set[str] | None**
 
-    Set of constraints for field values for the schema. Must be a set of column names that specify that their values must be a unique combination within an entity. If the entity type is a Sequence, "bases" can be a constraint field.
+    Set of constraints for field values for the schema. Must be a set of warehouse column names. This specifies that their entity field values must be a unique combination within an entity.
+    The following sequence constraints are also supported:
+    - `'bases'`: only supported for nucleotide sequence entity types. hasUniqueResidues=True
+    - `'amino_acids_ignore_case'`: only supported for amino acid sequence entity types. hasUniqueResidues=True
+    - `'amino_acids_exact_match'`: only supported for amino acid sequence entity types. hasUniqueResidues=True, areUniqueResiduesCaseSensitive=True
 
 - **_archived: bool | None = None**
 
