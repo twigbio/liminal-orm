@@ -83,7 +83,7 @@ class BaseModel(Generic[T], Base):
         ]
         if len(sequence_constraints) > 1:
             raise ValueError(
-                "Only one sequenceconstraint field can be set for a schema."
+                "Only one sequence constraint field can be set for a schema."
             )
         sequence_constraint = sequence_constraints[0] if sequence_constraints else None
         match sequence_constraint:
