@@ -162,6 +162,7 @@ class CreateEntitySchemaModel(BaseModel):
     useOrganizationCollectionAliasForDisplayLabel: bool | None = None
     labelingStrategies: list[str] | None = None
     constraint: EntitySchemaConstraint | None = None
+    showResidues: bool | None = None
 
     @classmethod
     def from_benchling_props(
@@ -195,6 +196,7 @@ class CreateEntitySchemaModel(BaseModel):
             includeRegistryIdInChips=benchling_props.include_registry_id_in_chips,
             useOrganizationCollectionAliasForDisplayLabel=benchling_props.use_registry_id_as_label,
             labelingStrategies=[s.value for s in benchling_props.naming_strategies],
+            showResidues=benchling_props.show_bases_in_expanded_view,
             constraint=EntitySchemaConstraint.from_constraint_fields(
                 benchling_props.constraint_fields
             ),

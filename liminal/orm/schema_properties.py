@@ -41,6 +41,8 @@ class SchemaProperties(BaseSchemaProperties):
         - bases: only supported for nucleotide sequence entity types. hasUniqueResidues=True
         - amino_acids_ignore_case: only supported for amino acid sequence entity types. hasUniqueResidues=True
         - amino_acids_exact_match: only supported for amino acid sequence entity types. hasUniqueResidues=True, areUniqueResiduesCaseSensitive=True
+    show_bases_in_expanded_view : bool | None = None
+        Whether the bases should be shown in the expanded view of the entity.
     _archived : bool | None
         Whether the schema is archived in Benchling.
     """
@@ -54,6 +56,7 @@ class SchemaProperties(BaseSchemaProperties):
     include_registry_id_in_chips: bool | None = False
     mixture_schema_config: MixtureSchemaConfig | None = None
     constraint_fields: set[str] = set()
+    show_bases_in_expanded_view: bool | None = False
     _archived: bool = False
 
     def __init__(self, **data: Any):
@@ -76,7 +79,10 @@ class SchemaProperties(BaseSchemaProperties):
             raise ValueError(
                 "The entity type is not a Mixture. Remove the mixture schema config."
             )
-
+        if not self.entity_type.is_sequence() and self.show_bases_in_expanded_view:
+            raise ValueError(
+                "show_bases_in_expanded_view can only be set for sequence entities."
+            )
         if self.naming_strategies and len(self.naming_strategies) == 0:
             raise ValueError(
                 "Schema must have at least 1 registry naming option enabled"
