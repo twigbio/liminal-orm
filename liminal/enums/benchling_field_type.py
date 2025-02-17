@@ -35,4 +35,4 @@ class BenchlingFieldType(StrEnum):
 
     @classmethod
     def get_entity_link_types(cls) -> list[str]:
-        return [cls.ENTITY_LINK, cls.TRANSLATION_LINK]
+        return [cls.ENTITY_LINK, cls.TRANSLATION_LINK, cls.PART_LINK]
