@@ -91,13 +91,10 @@ def convert_field_type_to_api_field_type(
             BenchlingAPIFieldType.FILE_LINK,
             BenchlingFolderItemType.SEQUENCE,
         ),
-        BenchlingFieldType.PART_LINK: (
-            BenchlingAPIFieldType.PART_LINK,
-            BenchlingFolderItemType.SEQUENCE,
-        ),
+        BenchlingFieldType.PART_LINK: (BenchlingAPIFieldType.PART_LINK, None),
         BenchlingFieldType.TRANSLATION_LINK: (
             BenchlingAPIFieldType.TRANSLATION_LINK,
-            BenchlingFolderItemType.SEQUENCE,
+            None,
         ),
         BenchlingFieldType.ENTITY_LINK: (BenchlingAPIFieldType.FILE_LINK, None),
         BenchlingFieldType.DECIMAL: (BenchlingAPIFieldType.FLOAT, None),
@@ -138,10 +135,7 @@ def convert_api_field_type_to_field_type(
             BenchlingAPIFieldType.FILE_LINK,
             BenchlingFolderItemType.PROTEIN,
         ): BenchlingFieldType.AA_SEQUENCE_LINK,
-        (
-            BenchlingAPIFieldType.PART_LINK,
-            BenchlingFolderItemType.SEQUENCE,
-        ): BenchlingFieldType.PART_LINK,
+        (BenchlingAPIFieldType.PART_LINK, None): BenchlingFieldType.PART_LINK,
         (
             BenchlingAPIFieldType.TRANSLATION_LINK,
             None,
