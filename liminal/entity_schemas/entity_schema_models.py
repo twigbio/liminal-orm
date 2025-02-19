@@ -12,6 +12,7 @@ from liminal.enums import BenchlingEntityType
 from liminal.enums.sequence_constraint import SequenceConstraint
 from liminal.mappers import convert_field_type_to_api_field_type
 from liminal.orm.schema_properties import MixtureSchemaConfig, SchemaProperties
+from liminal.unit_dictionary.utils import get_unit_id_from_name
 
 
 class FieldLinkShortModel(BaseModel):
@@ -80,6 +81,8 @@ class CreateEntitySchemaFieldModel(BaseModel):
     isParentLink: bool = False
     dropdownId: str | None = None
     link: FieldLinkShortModel | None = None
+    unitId: str | None = None
+    decimalPrecision: int | None = None
 
     @classmethod
     def from_benchling_props(
@@ -124,6 +127,11 @@ class CreateEntitySchemaFieldModel(BaseModel):
             dropdown_summary_id = get_benchling_dropdown_summary_by_name(
                 benchling_service, field_props.dropdown_link
             ).id
+        unit_id = None
+        if field_props.unit_name is not None:
+            if benchling_service is None:
+                raise ValueError("Benchling SDK must be provided to update unit field.")
+            unit_id = get_unit_id_from_name(benchling_service, field_props.unit_name)
         return CreateEntitySchemaFieldModel(
             name=field_props.name,
             systemName=field_props.warehouse_name,
@@ -135,6 +143,8 @@ class CreateEntitySchemaFieldModel(BaseModel):
             link=FieldLinkShortModel(
                 tagSchema=tag_schema, folderItemType=folder_item_type
             ),
+            unitId=unit_id,
+            decimalPrecision=field_props.decimal_places,
         )
 
 

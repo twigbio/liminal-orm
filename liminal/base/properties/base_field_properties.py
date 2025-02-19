@@ -49,6 +49,8 @@ class BaseFieldProperties(BaseModel):
     dropdown_link: str | None = None
     entity_link: str | None = None
     tooltip: str | None = None
+    decimal_places: int | None = None
+    unit_name: str | None = None
     _archived: bool | None = PrivateAttr(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -122,4 +124,4 @@ class BaseFieldProperties(BaseModel):
 
     def __repr__(self) -> str:
         """Generates a string representation of the class so that it can be executed."""
-        return f"{self.__class__.__name__}({', '.join([f'{k}={v.__repr__()}' for k, v in self.model_dump(exclude_unset=True, exclude_defaults=True).items()])})"
+        return f"{self.__class__.__name__}({', '.join([f'{k}={v.__repr__()}' for k, v in self.model_dump(exclude_unset=True).items()])})"
