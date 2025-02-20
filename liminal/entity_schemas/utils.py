@@ -88,6 +88,7 @@ def convert_tag_schema_to_internal_schema(
             _archived=tag_schema.archiveRecord is not None,
             use_registry_id_as_label=tag_schema.useOrganizationCollectionAliasForDisplayLabel,
             include_registry_id_in_chips=tag_schema.includeRegistryIdInChips,
+            show_bases_in_expanded_view=tag_schema.showResidues,
         ),
         NameTemplate(
             parts=tag_schema.get_internal_name_template_parts(),

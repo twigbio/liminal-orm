@@ -21,3 +21,12 @@ class BenchlingEntityType(StrEnum):
             self.DNA_OLIGO,
             self.RNA_OLIGO,
         ]
+
+    def is_sequence(self) -> bool:
+        return self in [
+            self.DNA_SEQUENCE,
+            self.RNA_SEQUENCE,
+            self.DNA_OLIGO,
+            self.RNA_OLIGO,
+            self.AA_SEQUENCE,
+        ]

@@ -452,6 +452,8 @@ class TagSchemaModel(BaseModel):
             )
         if "include_registry_id_in_chips" in update_diff_names:
             self.includeRegistryIdInChips = update_props.include_registry_id_in_chips
+        if "show_bases_in_expanded_view" in update_diff_names:
+            self.showResidues = update_props.show_bases_in_expanded_view
 
         if "constraint_fields" in update_diff_names:
             if update_props.constraint_fields:
