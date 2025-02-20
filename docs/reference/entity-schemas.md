@@ -40,7 +40,7 @@ class Pizza(BaseModel, CustomEntityMixin):
 
     dough = Column(name="dough", type=BenchlingFieldType.ENTITY_LINK, required=True, entity_link="dough")
     cook_temp = Column(name="cook_temp", type=BenchlingFieldType.INTEGER, required=False)
-    cook_time = Column(name="cook_time", type=BenchlingFieldType.INTEGER, required=False)
+    cook_time = Column(name="cook_time", type=BenchlingFieldType.INTEGER, required=False, unit_name"second")
     toppings = Column(name="toppings", type=BenchlingFieldType.DROPDOWN, required=False, dropdown=Toppings)
     customer_review = Column(name="customer_review", type=BenchlingFieldType.INTEGER, required=False)
     slices = Column(name="slices", type=BenchlingFieldType.ENTITY_LINK, required=False, is_multi=True, entity_link="slice")
@@ -118,6 +118,10 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     - `'amino_acids_ignore_case'`: only supported for amino acid sequence entity types. hasUniqueResidues=True
     - `'amino_acids_exact_match'`: only supported for amino acid sequence entity types. hasUniqueResidues=True, areUniqueResiduesCaseSensitive=True
 
+- **show_bases_in_expanded_view: bool | None = None**
+
+    Whether the bases should be shown in the expanded view of the entity.
+
 - **_archived: bool | None = None**
 
     Private attribute used to set the archived status of the schema.
@@ -168,6 +172,17 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 - **entity_link: str | None = None**
 
     The entity link for the field. The entity link must be the `warehouse_name` as a string of the entity schema that the field is linking to. The type of the Column must be `BenchlingFieldType.ENTITY_LINK` in order to be valid. Defaults to None.
+
+- **unit_name: str | None = None**
+
+    The unit name for the field. Defaults to None.
+
+    !!! warning
+        Once the unit is set on a field, it CANNOT be changed. Benchling's recommendation is to archive the field and create a new one if you need to change the unit.
+
+- **decimal_places: int | None = None**
+
+    The number of decimal places for the field. Must be an integer between 0 and 15. Defaults to None.
 
 - **_archived: bool = False**
 

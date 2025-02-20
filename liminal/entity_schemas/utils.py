@@ -13,6 +13,7 @@ from liminal.mappers import (
 )
 from liminal.orm.name_template import NameTemplate
 from liminal.orm.schema_properties import MixtureSchemaConfig, SchemaProperties
+from liminal.unit_dictionary.utils import get_unit_id_to_name_map
 
 
 def get_converted_tag_schemas(
@@ -26,6 +27,7 @@ def get_converted_tag_schemas(
     """
     all_schemas = TagSchemaModel.get_all(benchling_service, wh_schema_names)
     dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
+    unit_id_to_name_map = get_unit_id_to_name_map(benchling_service)
     all_schemas = (
         all_schemas
         if include_archived
@@ -33,7 +35,7 @@ def get_converted_tag_schemas(
     )
     return [
         convert_tag_schema_to_internal_schema(
-            tag_schema, dropdowns_map, include_archived
+            tag_schema, dropdowns_map, unit_id_to_name_map, include_archived
         )
         for tag_schema in all_schemas
     ]
@@ -42,6 +44,7 @@ def get_converted_tag_schemas(
 def convert_tag_schema_to_internal_schema(
     tag_schema: TagSchemaModel,
     dropdowns_map: dict[str, str],
+    unit_id_to_name_map: dict[str, str],
     include_archived_fields: bool = False,
 ) -> tuple[SchemaProperties, NameTemplate, dict[str, BaseFieldProperties]]:
     all_fields = tag_schema.allFields
@@ -95,14 +98,18 @@ def convert_tag_schema_to_internal_schema(
             order_name_parts_by_sequence=tag_schema.shouldOrderNamePartsBySequence,
         ),
         {
-            f.systemName: convert_tag_schema_field_to_field_properties(f, dropdowns_map)
+            f.systemName: convert_tag_schema_field_to_field_properties(
+                f, dropdowns_map, unit_id_to_name_map
+            )
             for f in all_fields
         },
     )
 
 
 def convert_tag_schema_field_to_field_properties(
-    field: TagSchemaFieldModel, dropdowns_map: dict[str, str]
+    field: TagSchemaFieldModel,
+    dropdowns_map: dict[str, str],
+    unit_id_to_name_map: dict[str, str],
 ) -> BaseFieldProperties:
     return BaseFieldProperties(
         name=field.name,
@@ -121,6 +128,10 @@ def convert_tag_schema_field_to_field_properties(
         else None,
         tooltip=field.tooltipText,
         _archived=field.archiveRecord is not None,
+        unit_name=unit_id_to_name_map.get(field.unitApiIdentifier)
+        if field.unitApiIdentifier
+        else None,
+        decimal_places=field.decimalPrecision,
     )
 
 

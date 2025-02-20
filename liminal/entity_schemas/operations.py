@@ -1,3 +1,4 @@
+import logging
 from typing import Any, ClassVar
 
 from liminal.base.base_operation import BaseOperation
@@ -25,7 +26,13 @@ from liminal.entity_schemas.utils import (
 )
 from liminal.enums import BenchlingNamingStrategy
 from liminal.orm.schema_properties import SchemaProperties
+from liminal.unit_dictionary.utils import (
+    get_unit_id_to_name_map,
+    get_unit_name_to_id_map,
+)
 from liminal.utils import to_snake_case
+
+LOGGER = logging.getLogger(__name__)
 
 
 class CreateEntitySchema(BaseOperation):
@@ -83,6 +90,15 @@ class CreateEntitySchema(BaseOperation):
                 Either set warehouse_access to True in BenchlingConnection or set the schema warehouse_name to the given Benchling warehouse name: {to_snake_case(self._validated_schema_properties.name)}. \
                 Reach out to Benchling support if you need help setting up warehouse access."
             )
+        for field in self.fields:
+            if (
+                field.unit_name
+                and field.unit_name
+                not in get_unit_name_to_id_map(benchling_service).keys()
+            ):
+                raise ValueError(
+                    f"{self._validated_schema_properties.warehouse_name}: On field {field.warehouse_name}, unit {field.unit_name} not found in Benchling Unit Dictionary as a valid unit. Please check the field definition or your Unit Dictionary."
+                )
 
     def _validate_create(self, benchling_service: BenchlingService) -> None:
         all_schemas = TagSchemaModel.get_all_json(benchling_service)
@@ -123,8 +139,11 @@ class CreateEntitySchema(BaseOperation):
                 f"Entity schema {self._validated_schema_properties.warehouse_name} is already active in Benchling."
             )
         dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
+        unit_id_to_name_map = get_unit_id_to_name_map(benchling_service)
         benchling_schema_props, _, benchling_fields_props = (
-            convert_tag_schema_to_internal_schema(schema, dropdowns_map)
+            convert_tag_schema_to_internal_schema(
+                schema, dropdowns_map, unit_id_to_name_map
+            )
         )
         if (
             self._validated_schema_properties != benchling_schema_props
@@ -316,13 +335,20 @@ class CreateEntitySchemaField(BaseOperation):
                     f"Field {self._wh_field_name} is already active on entity schema {self.wh_schema_name}."
                 )
             dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
+            unit_id_to_name_map = get_unit_id_to_name_map(benchling_service)
             if self.field_props == convert_tag_schema_field_to_field_properties(
-                field, dropdowns_map
-            ):
+                field, dropdowns_map, unit_id_to_name_map
+            ).set_warehouse_name(self._wh_field_name):
                 return UnarchiveEntitySchemaField(
                     self.wh_schema_name, self._wh_field_name, self.index
                 ).execute(benchling_service)
             else:
+                print(self.field_props)
+                print(
+                    convert_tag_schema_field_to_field_properties(
+                        field, dropdowns_map, unit_id_to_name_map
+                    )
+                )
                 raise ValueError(
                     f"Field {self._wh_field_name} on entity schema {self.wh_schema_name} is different in code versus Benchling."
                 )
@@ -366,6 +392,14 @@ class CreateEntitySchemaField(BaseOperation):
                 f"Warehouse access is required to set a custom field warehouse name. \
                 Either set warehouse_access to True in BenchlingConnection or set the column variable name to the given Benchling field warehouse name: {to_snake_case(self.field_props.name)}. \
                 Reach out to Benchling support if you need help setting up warehouse access."
+            )
+        if (
+            self.field_props.unit_name
+            and self.field_props.unit_name
+            not in get_unit_name_to_id_map(benchling_service).keys()
+        ):
+            raise ValueError(
+                f"{self.wh_schema_name}: On field {self._wh_field_name}, unit {self.field_props.unit_name} not found in Benchling Unit Dictionary as a valid unit. Please check the field definition or your Unit Dictionary."
             )
 
 
@@ -500,6 +534,9 @@ class UpdateEntitySchemaField(BaseOperation):
         return f"{self.wh_schema_name}: Entity schema field '{self.wh_field_name}' in Benchling is different than in code: {str(self.update_props)}."
 
     def validate(self, benchling_service: BenchlingService) -> None:
+        tag_schema = TagSchemaModel.get_one_cached(
+            benchling_service, self.wh_schema_name
+        )
         if (
             not benchling_service.connection.warehouse_access
             and self.update_props.warehouse_name is not None
@@ -509,6 +546,19 @@ class UpdateEntitySchemaField(BaseOperation):
                 Either set warehouse_access to True in BenchlingConnection or do not change the warehouse name. \
                 Reach out to Benchling support if you need help setting up warehouse access."
             )
+        if "unit_name" in self.update_props.model_dump(exclude_unset=True):
+            no_change_message = f"{self.wh_schema_name}: On field {self.wh_field_name}, updating unit name to {self.update_props.unit_name}. The unit of this field CANNOT be changed once it's been set."
+            if tag_schema.get_field(self.wh_field_name).unitApiIdentifier:
+                raise ValueError(no_change_message)
+            else:
+                LOGGER.warning(no_change_message)
+            if (
+                self.update_props.unit_name
+                not in get_unit_name_to_id_map(benchling_service).keys()
+            ):
+                raise ValueError(
+                    f"{self.wh_schema_name}: On field {self.wh_field_name}, unit {self.update_props.unit_name} not found in Benchling Unit Dictionary as a valid unit. Please check the field definition or your Unit Dictionary."
+                )
 
     def _validate(self, benchling_service: BenchlingService) -> TagSchemaModel:
         tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)

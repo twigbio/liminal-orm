@@ -32,6 +32,10 @@ class Column(SqlColumn):
         The dropdown for the field.
     entity_link : str | None = None
         The warehouse name of the entity the field links to.
+    unit : str | None = None
+        The unit of the field. Searches for the unit warehouse name in the Unit Dictionary.
+    decimal_places : int | None = None
+        The number of decimal places for the field. Must be (0-15).
     _warehouse_name : str | None = None
         The warehouse name of the column. Necessary when the variable name is not the same as the warehouse name.
     _archived : bool = False
@@ -48,6 +52,8 @@ class Column(SqlColumn):
         tooltip: str | None = None,
         dropdown: Type[BaseDropdown] | None = None,  # noqa: UP006
         entity_link: str | None = None,
+        unit_name: str | None = None,
+        decimal_places: int | None = None,
         _warehouse_name: str | None = None,
         _archived: bool = False,
         **kwargs: Any,
@@ -64,6 +70,8 @@ class Column(SqlColumn):
             entity_link=entity_link,
             tooltip=tooltip,
             _archived=_archived,
+            unit_name=unit_name,
+            decimal_places=decimal_places,
         )
         self.properties = properties
 
@@ -73,6 +81,16 @@ class Column(SqlColumn):
             raise ValueError("Dropdown can only be set if the field type is DROPDOWN.")
         if dropdown is None and type == BenchlingFieldType.DROPDOWN:
             raise ValueError("Dropdown must be set if the field type is DROPDOWN.")
+        if unit_name and type not in BenchlingFieldType.get_number_field_types():
+            raise ValueError(
+                f"Unit can only be set if the field type is one of {BenchlingFieldType.get_number_field_types()}."
+            )
+        if decimal_places and type not in BenchlingFieldType.DECIMAL:
+            raise ValueError(
+                "Decimal places can only be set if the field type is DECIMAL."
+            )
+        if decimal_places and (decimal_places < 0 or decimal_places > 15):
+            raise ValueError("Decimal places must be between 0 and 15.")
         if entity_link and type not in BenchlingFieldType.get_entity_link_types():
             raise ValueError(
                 f"Entity link can only be set if the field type is one of {BenchlingFieldType.get_entity_link_types()}."

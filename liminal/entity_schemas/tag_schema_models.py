@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
 import requests
@@ -26,6 +27,7 @@ from liminal.orm.name_template_parts import (
     NameTemplatePart,
 )
 from liminal.orm.schema_properties import MixtureSchemaConfig
+from liminal.unit_dictionary.utils import get_unit_id_from_name
 
 
 class FieldRequiredLinkShortModel(BaseModel):
@@ -148,6 +150,8 @@ class CreateTagSchemaFieldModel(BaseModel):
     name: str
     requiredLink: FieldRequiredLinkShortModel | None = None
     tooltipText: str | None = None
+    decimalPrecision: int | None = None
+    unitApiIdentifier: str | None = None
 
     @classmethod
     def from_props(
@@ -197,6 +201,13 @@ class CreateTagSchemaFieldModel(BaseModel):
             dropdown_summary_id = get_benchling_dropdown_summary_by_name(
                 benchling_service, new_props.dropdown_link
             ).id
+        unit_api_identifier = None
+        if new_props.unit_name:
+            if benchling_service is None:
+                raise ValueError("Benchling SDK must be provided to update unit field.")
+            unit_api_identifier = get_unit_id_from_name(
+                benchling_service, new_props.unit_name
+            )
         return cls(
             name=new_props.name,
             systemName=new_props.warehouse_name,
@@ -210,6 +221,8 @@ class CreateTagSchemaFieldModel(BaseModel):
                 tagSchema=tagSchema,
             ),
             tooltipText=new_props.tooltip,
+            unitApiIdentifier=unit_api_identifier,
+            decimalPrecision=new_props.decimal_places,
         )
 
 
@@ -322,6 +335,22 @@ class TagSchemaFieldModel(BaseModel):
                 benchling_service, update_props.dropdown_link
             ).id
             self.schemaFieldSelectorId = dropdown_summary_id
+        self.decimalPrecision = (
+            update_props.decimal_places
+            if "decimal_places" in update_diff_names
+            else self.decimalPrecision
+        )
+        if "unit_name" in update_diff_names:
+            if update_props.unit_name is None:
+                self.unitApiIdentifier = None
+            else:
+                if benchling_service is None:
+                    raise ValueError(
+                        "Benchling SDK must be provided to update unit field."
+                    )
+                self.unitApiIdentifier = get_unit_id_from_name(
+                    benchling_service, update_props.unit_name
+                )
         return self
 
 
@@ -419,6 +448,15 @@ class TagSchemaModel(BaseModel):
                 f"Schema {wh_schema_name} not found in Benchling {benchling_service.benchling_tenant}."
             )
         return cls.model_validate(schema)
+
+    @classmethod
+    @lru_cache(maxsize=100)
+    def get_one_cached(
+        cls,
+        benchling_service: BenchlingService,
+        wh_schema_name: str,
+    ) -> TagSchemaModel:
+        return cls.get_one(benchling_service, wh_schema_name)
 
     def get_field(self, wh_field_name: str) -> TagSchemaFieldModel:
         """Returns a field from the tag schema by its warehouse field name."""
