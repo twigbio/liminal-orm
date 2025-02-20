@@ -1,17 +1,70 @@
 For full release notes, please visit the [GitHub Releases page](https://github.com/dynotx/liminal-orm/releases). Release versions follow [semantic versioning](https://semver.org/). This page will document migration steps needed for major and minor version changes.
 
+## v3.0.0
+
+[![github](https://img.shields.io/badge/github-v3.0.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.0.0.svg)](https://pypi.org/project/liminal-orm/3.0.0/)
+
+### 🗒️ Summary
+
+v3.0.0 release brings Liminal's coverage of entity schemas to 100% parity with Benchling, a big milestone in Liminal's roadmap!! Any property that can defined on Entity Schemas in Benchling can now be defined and migrated through Liminal. With this release, user's will now be able to define unit aware fields and "Show bases in expanded view" in their Liminal models defined in code.
+
+- `show_bases_in_expanded_view` has been added to the `SchemaProperties` parameters
+<img width="968" alt="Screenshot 2025-02-20 at 8 26 34 AM" src="https://github.com/user-attachments/assets/b01fe696-6d6b-4f9e-9349-f577de3f6b29" />
+
+***
+
+- `unit_name` and `decimal_places` has been added to the `Column` parameters.
+<img width="587" alt="Screenshot 2025-02-20 at 8 25 30 AM" src="https://github.com/user-attachments/assets/a4f6fe8c-652c-4fa0-89b0-abe45fa6d7a3" />
+
+Next up are results schemas 🚀
+
+### Upgrade Steps
+
+- PR [#114](https://github.com/dynotx/liminal-orm/pull/114): adds ability to define unit aware fields for entity schema fields.
+- PR [#113](https://github.com/dynotx/liminal-orm/pull/113): adds ability to define `show_bases_in_expanded_view` for entity schema fields.
+
+1. **Upgrade step**: The guidance for migrating to v3.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal. If you do not have many enitty schemas, it may be easier to manually update your schema files with the new properties.
+
 ## v2.0.0
 
-[![github](https://img.shields.io/badge/github-v2.0.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/2.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/2.0.0.svg)](https://pypi.org/project/liminal-orm/2.0.0/)
+### 🗒️ Summary
+
+v2.0.0 brings Liminal closer to reaching 100% parity with Benchling Entity Schemas. This release introduces the ability to define namesets, chip naming properties, and constraints on your Liminal entity schema models. Validation has also gone through a major change making it MUCH easier to define custom business logic as validation rules for entities. Now, users can use the `@liminal_validator` decorator to define validation functions within Liminal models. When TestSchema.validate() is run, these decorated functions are run on all queried entity rows from the Benchling warehouse, catching any `Exceptions` raised and returned a `BenchlingValidatorReport`.
+
+- `constraint_fields`, `include_registry_id_in_chips`, `use_registry_id_as_label` added to SchemaProperties parameters. `__name_template__` can now be defined on Liminal models
+<img width="1193" alt="Screenshot 2025-02-05 at 10 30 40 AM" src="https://github.com/user-attachments/assets/59d03096-8d95-46a5-b4d0-c18c01331363" />
+
+***
+
+- New pattern for defining validation rules
+
+```python
+from liminal.validation import ValidationSeverity, liminal_validator
+
+class Pizza(BaseModel, CustomEntityMixin):
+    ...
+
+    @liminal_validator
+    def cook_time_and_temp_validator(self) -> None:
+        if self.cook_time is not None and self.cook_temp is None:
+            raise ValueError("Cook temp is required if cook time is set")
+        if self.cook_time is None and self.cook_temp is not None:
+            raise ValueError("Cook time is required if cook temp is set")
+```
+
+Next release will aim to finish off coverage for Entity Schemas!
 
 ### Upgrade Steps
 
 - PR [#88](https://github.com/dynotx/liminal-orm/pull/88): adds ability to defined name templates for entity schemas
 - PR [#84](https://github.com/dynotx/liminal-orm/pull/84): adds ability to define chip naming for entity schemas
 - PR [#82](https://github.com/dynotx/liminal-orm/pull/82): adds ability to define constraints for entity schemas.
-    - The above PRs brings achieves 100% parity with Entity Schemas in Benchling. The guidance for migrating to v2.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal.
+
+1. **Upgrade step**: The guidance for migrating to v2.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal. If you do not have many enitty schemas, it may be easier to manually update your schema files with the new properties.
+
 - PR [#68](https://github.com/dynotx/liminal-orm/pull/68): refactors how validators are done in Liminal using a decorator pattern. Refer to the [validators](https://dynotx.github.io/liminal-orm/reference/validators/) page for full details on implementation.
-    - If you don't have validators defined, no action is needed! Otherwise, you will need to manually refactor your validators to use the new pattern.
+
+2. **Upgrade step**: If you don't have validators defined, no action is needed! Otherwise, you will need to manually refactor your validators to use the new pattern.
 
 ## v1.1.0
 
