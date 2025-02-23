@@ -6,7 +6,7 @@ For full release notes, please visit the [GitHub Releases page](https://github.c
 
 ### 🗒️ Summary
 
-v3.0.0 release brings Liminal's coverage of entity schemas to 100% parity with Benchling, a big milestone in Liminal's roadmap!! Any property that can defined on Entity Schemas in Benchling can now be defined and migrated through Liminal. With this release, user's will now be able to define unit aware fields and "Show bases in expanded view" in their Liminal models defined in code.
+v3.0.0 release brings Liminal's coverage of entity schemas to 100% parity with Benchling, a big milestone in Liminal's roadmap!! Any property that can be defined on Entity Schemas in Benchling can now be defined and migrated through Liminal. With this release, user's will now be able to define unit aware fields and "Show bases in expanded view" in their Liminal models defined in code.
 
 - `show_bases_in_expanded_view` has been added to the `SchemaProperties` parameters
 <img width="968" alt="Screenshot 2025-02-20 at 8 26 34 AM" src="https://github.com/user-attachments/assets/b01fe696-6d6b-4f9e-9349-f577de3f6b29" />
