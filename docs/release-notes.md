@@ -23,7 +23,7 @@ Next up are results schemas 🚀
 - PR [#114](https://github.com/dynotx/liminal-orm/pull/114): adds ability to define unit aware fields for entity schema fields.
 - PR [#113](https://github.com/dynotx/liminal-orm/pull/113): adds ability to define `show_bases_in_expanded_view` for entity schema fields.
 
-1. **Upgrade step**: The guidance for migrating to v3.0.0 is to regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will recreate your dropdown/schema files, this time with the new properties covered by Liminal. If you do not have many enitty schemas, it may be easier to manually update your schema files with the new properties.
+1. **Upgrade step**: The guidance for migrating to v3.0.0 is after you've upgraded your liminal package to the latest version, regenerate your schemas defined in code using `liminal generate-files <benchling_tenant> -p [<write_path>]`. This will write your dropdown/schema files based on your Benchling tenant to a specified path, this time with the new properties that are now covered by Liminal. If you do not have many enitty schemas, it may be easier to manually update your schema files with the new properties. Note, you may have to comment out the schema/dropdown imports in your `env.py` file before generating the files since there may be some breaking changes to your current schema/dropdown files.
 
 ## v2.0.0
 
