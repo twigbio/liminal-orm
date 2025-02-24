@@ -4,22 +4,50 @@ from pathlib import Path
 from liminal.connection.benchling_connection import BenchlingConnection
 
 
-def _check_env_file(env_file_path: Path) -> None:
-    """Raises an exception if the env.py file does not exist at the given path."""
-    if not env_file_path.exists():
+def _check_liminal_directory_initialized(liminal_dir_path: Path) -> None:
+    """Raises an exception if the liminal directory does not exist at the given path."""
+    if not liminal_dir_path.exists() or not liminal_dir_path.is_dir():
         raise Exception(
-            f"No {env_file_path} file found. Run `liminal init` or check your current working directory for liminal/env.py."
+            "Liminal directory not found at current working directory. Run `liminal init` or check your current working directory."
         )
+    else:
+        if not (liminal_dir_path / "env.py").exists():
+            raise Exception(
+                "No liminal/env.py file found. Run `liminal init` or check your current working directory for liminal/env.py."
+            )
 
 
-def read_local_env_file(
+def read_local_liminal_dir(
+    liminal_dir_path: Path, benchling_tenant: str
+) -> tuple[str, BenchlingConnection]:
+    """Imports the env.py file from /liminal/env.py and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
+    The env.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
+    The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
+    """
+    _check_liminal_directory_initialized(liminal_dir_path)
+    env_file_path = liminal_dir_path / "env.py"
+    current_revision_id, benchling_connection = _read_local_env_file(
+        env_file_path, benchling_tenant
+    )
+    return current_revision_id, benchling_connection
+
+
+def _read_local_config_flags_file(
+    config_flags_file_path: Path, benchling_tenant: str
+) -> None:
+    """Imports the config_flags.py file from /liminal/config_flags.py and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
+    The config_flags.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
+    The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
+    """
+
+
+def _read_local_env_file(
     env_file_path: Path, benchling_tenant: str
 ) -> tuple[str, BenchlingConnection]:
     """Imports the env.py file from the current working directory and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
     The env.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
     The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
     """
-    _check_env_file(env_file_path)
     module_path = Path.cwd() / env_file_path
     spec = importlib.util.spec_from_file_location(env_file_path.stem, module_path)
     if spec is None or spec.loader is None:
