@@ -66,6 +66,9 @@ connection = BenchlingConnection(
 
     Set of config flags that are configured on the tenant level, that defines specific features of the tenant. These can be updated on Benchling's end by contacting their support team.
 
+    !!! note
+        The `config_flags` parameter can be set as a dictionary of config flags or as a TenantConfigFlags object. The dictionary will be converted to a TenantConfigFlags object by Pydantic.
+
 ### TenantConfigFlags
 
 Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
