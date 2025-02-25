@@ -4,7 +4,7 @@ The `BenchlingConnection` class is used to define the connection information for
 
 ```python
 # Example BenchlingConnection definition
-from liminal.connection import BenchlingConnection
+from liminal.connection import BenchlingConnection, TenantConfigFlags
 
 PROD_CURRENT_REVISION_ID = "12b31776a755b"
 
@@ -18,7 +18,7 @@ connection = BenchlingConnection(
     warehouse_connection_string="my-warehouse-connection-string",
     internal_api_admin_email="my-secret-internal-api-admin-email",
     internal_api_admin_password="my-secret-internal-api-admin-password",
-    config_flags={...}
+    config_flags=TenantConfigFlags()
 )
 ```
 
@@ -74,9 +74,9 @@ connection = BenchlingConnection(
 Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
 Ask Benchling support to give you the full export of these flags.
 
-- **schemas_enable_change_warehouse_name: bool | None = None**
+- **schemas_enable_change_warehouse_name: bool = False**
 
-    If set to True, allows renaming schema and field warehouse names for all schema admins. If set to False, operations will raise an error at the validation step if the warehouse name is tried to be updated. Default value is False for Benchling.
+    If set to False (default behavior), operations will raise an error at the validation step if the warehouse name is tried to be updated. If set to True, allows renaming schema and field warehouse names for all schema admins.
 
     !!! note
         Liminal assumes the Benchling generated warehouse names to be `to_snake_case(name)`.

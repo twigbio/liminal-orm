@@ -10,11 +10,11 @@ class TenantConfigFlags(BaseModel):
 
     Parameters
     ----------
-    schemas_enable_change_warehouse_name: bool | None = None
+    schemas_enable_change_warehouse_name: bool = False
         If enabled, allows renaming schema and field warehouse names for all schema admins. Default value is False for Benchling
     """
 
-    schemas_enable_change_warehouse_name: bool | None = None
+    schemas_enable_change_warehouse_name: bool = False
 
 
 class BenchlingConnection(BaseModel):
@@ -42,7 +42,7 @@ class BenchlingConnection(BaseModel):
         The password of the internal API admin.
     fieldsets: bool = False
         Whether your Benchling tenant has access to fieldsets.
-    config_flags: TenantConfigFlags | None = None
+    config_flags: TenantConfigFlags = TenantConfigFlags()
         Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
     """
 
@@ -55,11 +55,19 @@ class BenchlingConnection(BaseModel):
     internal_api_admin_email: str | None = None
     internal_api_admin_password: str | None = None
     fieldsets: bool = False
-    config_flags: TenantConfigFlags | None = None
+    config_flags: TenantConfigFlags = TenantConfigFlags()
 
     @model_validator(mode="before")
     @classmethod
     def set_current_revision_id_var_name(cls, values: dict) -> dict:
+        if (
+            values.get("warehouse_connection_string")
+            and not values.get("config_flags").schemas_enable_change_warehouse_name
+        ):
+            raise ValueError(
+                "Warehouse connection string provided but `schemas_enable_change_warehouse_name` config flag is set to False on your tenant. \
+                Please set the flag to True to allow manipulating warehouse names."
+            )
         if not values.get("current_revision_id_var_name"):
             tenant_alias = values.get("tenant_alias")
             tenant_name = values.get("tenant_name")
