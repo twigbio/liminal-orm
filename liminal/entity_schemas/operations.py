@@ -87,9 +87,7 @@ class CreateEntitySchema(BaseOperation):
             != to_snake_case(self._validated_schema_properties.name)
         ):
             raise ValueError(
-                f"{self._validated_schema_properties.name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom schema warehouse name. \
-                Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. \
-                Otherwise, define the schema warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self._validated_schema_properties.name)}."
+                f"{self._validated_schema_properties.name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom schema warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the schema warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self._validated_schema_properties.name)}."
             )
         for field in self.fields:
             if (
@@ -238,8 +236,7 @@ class UpdateEntitySchema(BaseOperation):
             and self.update_props.warehouse_name is not None
         ):
             raise ValueError(
-                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the schema warehouse_name to a custom name. \
-                Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the schema warehouse_name to a custom name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
             )
 
     def _validate(self, benchling_service: BenchlingService) -> TagSchemaModel:
@@ -391,9 +388,7 @@ class CreateEntitySchemaField(BaseOperation):
             and self.field_props.warehouse_name != to_snake_case(self.field_props.name)
         ):
             raise ValueError(
-                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom field warehouse name. \
-                Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. \
-                Otherwise, define the field warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self.field_props.name)}."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom field warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the field warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self.field_props.name)}."
             )
         if (
             self.field_props.unit_name
@@ -545,8 +540,7 @@ class UpdateEntitySchemaField(BaseOperation):
             and self.update_props.warehouse_name is not None
         ):
             raise ValueError(
-                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the field warehouse_name to a custom name. \
-                Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the field warehouse_name to a custom name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
             )
         if "unit_name" in self.update_props.model_dump(exclude_unset=True):
             no_change_message = f"{self.wh_schema_name}: On field {self.wh_field_name}, updating unit name to {self.update_props.unit_name}. The unit of this field CANNOT be changed once it's been set."

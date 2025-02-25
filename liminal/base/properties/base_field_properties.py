@@ -77,18 +77,18 @@ class BaseFieldProperties(BaseModel):
                 for s in BenchlingBaseModel.get_all_subclasses()
             ]:
                 raise ValueError(
-                    f"Could not find {self.entity_link} as a warehouse name for any currently defined schemas."
+                    f"Field {wh_name}: could not find entity link {self.entity_link} as a warehouse name for any currently defined schemas."
                 )
         if self.dropdown_link:
             if self.dropdown_link not in [
                 d.__benchling_name__ for d in BaseDropdown.get_all_subclasses()
             ]:
                 raise ValueError(
-                    f"Could not find {self.dropdown_link} as a name to any defined dropdowns."
+                    f"Field {wh_name}: could not find dropdown link {self.dropdown_link} as a name to any defined dropdowns."
                 )
         if not is_valid_wh_name(wh_name):
             raise ValueError(
-                f"Invalid warehouse name '{wh_name}'. It should only contain alphanumeric characters and underscores."
+                f"Field {wh_name}: invalid warehouse name '{wh_name}'. It should only contain alphanumeric characters and underscores."
             )
         return True
 

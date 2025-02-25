@@ -131,7 +131,7 @@ class BaseModel(Generic[T], Base):
                 for field_part in field_parts:
                     if field_part.wh_field_name not in column_wh_names:
                         raise ValueError(
-                            f"Field part {field_part.wh_field_name} is not a column on schema {cls.__schema_properties__.name}."
+                            f"{cls.__schema_properties__.warehouse_name}: Field name template part {field_part.wh_field_name} is not a column on field warehouse name on schema."
                         )
         cls._existing_schema_warehouse_names.add(warehouse_name)
         cls._existing_schema_names.add(cls.__schema_properties__.name)
