@@ -34,9 +34,12 @@ from liminal.enums import (
     BenchlingSequenceType,
 )
 from liminal.orm.name_template_parts import (
+    ComplexPolymerComponentPart,
     CreationDatePart,
     CreationYearPart,
     FieldPart,
+    ParentLotNumberPart,
+    ParentRegistryIdPart,
     ProjectPart,
     RegistryIdentifierNumberPart,
     SeparatorPart,
