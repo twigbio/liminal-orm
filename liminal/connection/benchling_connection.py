@@ -60,14 +60,6 @@ class BenchlingConnection(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_current_revision_id_var_name(cls, values: dict) -> dict:
-        if (
-            values.get("warehouse_connection_string")
-            and not values.get("config_flags").schemas_enable_change_warehouse_name
-        ):
-            raise ValueError(
-                "Warehouse connection string provided but `schemas_enable_change_warehouse_name` config flag is set to False on your tenant. \
-                Please set the flag to True to allow manipulating warehouse names."
-            )
         if not values.get("current_revision_id_var_name"):
             tenant_alias = values.get("tenant_alias")
             tenant_name = values.get("tenant_name")
