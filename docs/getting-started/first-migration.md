@@ -19,9 +19,8 @@
 
 3. Review the generated revision file and set of operations to ensure that it is accurate.
 
-   ### Example Revision File
-
     ```python
+    # EXAMPLE REVISION FILE
     import liminal.external as b
 
     # revision identifiers, used by Liminal.
