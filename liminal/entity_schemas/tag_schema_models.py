@@ -58,8 +58,12 @@ class NameTemplatePartModel(BaseModel):
             field = next((f for f in fields if f.systemName == wh_field_name), None)
             if field is None:
                 raise ValueError(f"Field {wh_field_name} not found in fields")
-            field_id = field.id
-            if part.component_type == NameTemplatePartType.CHILD_ENTITY_LOT_NUMBER:
+            field_id = field.apiId
+            if (
+                part.component_type == NameTemplatePartType.CHILD_ENTITY_LOT_NUMBER
+                or part.component_type
+                == NameTemplatePartType.LINKED_BIOENTITY_REGISTRY_IDENTIFIER
+            ):
                 if not field.isParentLink:
                     raise ValueError(
                         f"Field {wh_field_name} is not a parent link field. The field for type {part.component_type} must be a parent link field."

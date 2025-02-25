@@ -74,6 +74,13 @@ class ParentLotNumberPart(NameTemplatePart):
     wh_field_name: str
 
 
+class ParentRegistryIdPart(NameTemplatePart):
+    component_type: ClassVar[NameTemplatePartType] = (
+        NameTemplatePartType.LINKED_BIOENTITY_REGISTRY_IDENTIFIER
+    )
+    wh_field_name: str
+
+
 class RegistryIdentifierNumberPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = (
         NameTemplatePartType.REGISTRY_IDENTIFIER_NUMBER
@@ -82,6 +89,12 @@ class RegistryIdentifierNumberPart(NameTemplatePart):
 
 class ProjectPart(NameTemplatePart):
     component_type: ClassVar[NameTemplatePartType] = NameTemplatePartType.PROJECT
+
+
+class ComplexPolymerComponentPart(NameTemplatePart):
+    component_type: ClassVar[NameTemplatePartType] = (
+        NameTemplatePartType.COMPLEX_POLYMER_COMPONENT
+    )
 
 
 NameTemplateParts = (
@@ -93,4 +106,6 @@ NameTemplateParts = (
     | RegistryIdentifierNumberPart
     | ProjectPart
     | ParentLotNumberPart
+    | ParentRegistryIdPart
+    | ComplexPolymerComponentPart
 )
