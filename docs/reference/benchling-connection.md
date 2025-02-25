@@ -18,6 +18,7 @@ connection = BenchlingConnection(
     warehouse_connection_string="my-warehouse-connection-string",
     internal_api_admin_email="my-secret-internal-api-admin-email",
     internal_api_admin_password="my-secret-internal-api-admin-password",
+    config_flags={...}
 )
 ```
 
@@ -56,3 +57,23 @@ connection = BenchlingConnection(
 - **internal_api_admin_password: Optional[str] = None**
 
     The password of the internal API admin.
+
+- **fieldsets: bool = False**
+
+    Whether your Benchling tenant has access to fieldsets.
+
+- **config_flags: Optional[TenantConfigFlags] = None**
+
+    Set of config flags that are configured on the tenant level, that defines specific features of the tenant. These can be updated on Benchling's end by contacting their support team.
+
+### TenantConfigFlags
+
+Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
+Ask Benchling support to give you the full export of these flags.
+
+- **schemas_enable_change_warehouse_name: bool | None = None**
+
+    If set to True, allows renaming schema and field warehouse names for all schema admins. If set to False, operations will raise an error at the validation step if the warehouse name is tried to be updated. Default value is False for Benchling.
+
+    !!! note
+        Liminal assumes the Benchling generated warehouse names to be `to_snake_case(name)`.
