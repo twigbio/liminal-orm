@@ -32,15 +32,6 @@ def read_local_liminal_dir(
     return current_revision_id, benchling_connection
 
 
-def _read_local_config_flags_file(
-    config_flags_file_path: Path, benchling_tenant: str
-) -> None:
-    """Imports the config_flags.py file from /liminal/config_flags.py and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
-    The config_flags.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
-    The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
-    """
-
-
 def _read_local_env_file(
     env_file_path: Path, benchling_tenant: str
 ) -> tuple[str, BenchlingConnection]:
