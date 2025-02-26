@@ -1,5 +1,19 @@
 For full release notes, please visit the [GitHub Releases page](https://github.com/dynotx/liminal-orm/releases). Release versions follow [semantic versioning](https://semver.org/). This page will document migration steps needed for major and minor version changes.
 
+## v3.1.0
+
+[![github](https://img.shields.io/badge/github-v3.1.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.1.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.1.0.svg)](https://pypi.org/project/liminal-orm/3.1.0/)
+
+### 🗒️ Summary
+
+This release adds the ability to define tenant-specific configuration flags for entity schemas. The goal of this is to reflect Benchling's tenant level configuration flags and propagate the logic across Liminal. We have started with the `schemas_enable_change_warehouse_name` flag. When set to `True`, this flag allows users to change the warehouse name of entity schemas and fields and migrate the changes to your tenants.
+
+### Upgrade Steps
+
+- PR [#120](https://github.com/dynotx/liminal-orm/pull/120): adds ability to define tenant-specific configuration flags for entity schemas.
+
+1. **Upgrade step**: Remove the `warehouse_access` parameter from the `BenchlingConnection` object. Set the `config_flags` parameter on your `BenchlingConnection` object(s) to a `TenantConfigFlags` object. See documentation for [BenchlingConnection](../reference/benchling-connection.md) for full details.
+
 ## v3.0.0
 
 [![github](https://img.shields.io/badge/github-v3.0.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.0.0.svg)](https://pypi.org/project/liminal-orm/3.0.0/)
