@@ -82,7 +82,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     The warehouse names are used as keys across liminal and are used as entity_link values in Columns.
 
 !!! warning
-    If warehouse access is not enabled on your tenant, you will be unable to update the warehouse name.
+    If the `schemas_enable_change_warehouse_name` config flag is not set on your tenant BenchlingConnection, you will be unable to update the warehouse name.
 
     Liminal assumes the Benchling generated warehouse name to be `to_snake_case(name)`.
 
@@ -135,7 +135,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     Liminal also detects the ordering of your fields. Define columns on different lines in your schema class to change the ordering of the fields on the Benchling entity schema.
 
 !!! warning
-    If warehouse access is not enabled on your tenant, you will be unable to update the warehouse name for fields.
+    If the `schemas_enable_change_warehouse_name` config flag is not set on your tenant BenchlingConnection, you will be unable to update the warehouse name for fields.
 
     Liminal will enforce that the column variable name (which represents the warehouse name) matches the Benchling generated warehouse name, which Liminal assumes to be `to_snake_case(name)`.
 

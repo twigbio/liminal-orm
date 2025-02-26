@@ -4,6 +4,19 @@ import re
 from pydantic import BaseModel, model_validator
 
 
+class TenantConfigFlags(BaseModel):
+    """Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
+    Ask Benchling support to give you the full export of these flags.
+
+    Parameters
+    ----------
+    schemas_enable_change_warehouse_name: bool = False
+        If enabled, allows renaming schema and field warehouse names for all schema admins. Default value is False for Benchling
+    """
+
+    schemas_enable_change_warehouse_name: bool = False
+
+
 class BenchlingConnection(BaseModel):
     """Class that contains the connection information for a Benchling tenant.
 
@@ -27,11 +40,10 @@ class BenchlingConnection(BaseModel):
         The email of the internal API admin.
     internal_api_admin_password: str | None = None
         The password of the internal API admin.
-    warehouse_access: bool = False
-        Whether your Benchling tenant has access to the warehouse. If warehouse_connection_string is provided, this will default to True.
-        warehouse_access is required to set a custom warehouse names on entity schemas and their fields.
     fieldsets: bool = False
         Whether your Benchling tenant has access to fieldsets.
+    config_flags: TenantConfigFlags = TenantConfigFlags()
+        Set of config flags that are configured on the tenant level. These can be updated on Benchling's end by contacting their support team.
     """
 
     tenant_name: str
@@ -42,14 +54,12 @@ class BenchlingConnection(BaseModel):
     warehouse_connection_string: str | None = None
     internal_api_admin_email: str | None = None
     internal_api_admin_password: str | None = None
-    warehouse_access: bool = False
     fieldsets: bool = False
+    config_flags: TenantConfigFlags = TenantConfigFlags()
 
     @model_validator(mode="before")
     @classmethod
     def set_current_revision_id_var_name(cls, values: dict) -> dict:
-        if values.get("warehouse_connection_string"):
-            values["warehouse_access"] = True
         if not values.get("current_revision_id_var_name"):
             tenant_alias = values.get("tenant_alias")
             tenant_name = values.get("tenant_name")
