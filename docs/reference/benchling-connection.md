@@ -62,7 +62,7 @@ connection = BenchlingConnection(
 
     Whether your Benchling tenant has access to fieldsets.
 
-- **config_flags: Optional[TenantConfigFlags] = None**
+- **config_flags: TenantConfigFlags = TenantConfigFlags()**
 
     Set of config flags that are configured on the tenant level, that defines specific features of the tenant. These can be updated on Benchling's end by contacting their support team.
 
