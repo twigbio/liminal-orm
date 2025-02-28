@@ -8,7 +8,7 @@ from liminal.entity_schemas.utils import get_converted_tag_schemas
 from liminal.enums import BenchlingEntityType, BenchlingFieldType
 from liminal.mappers import convert_benchling_type_to_python_type
 from liminal.orm.name_template import NameTemplate
-from liminal.utils import pascalize, to_snake_case
+from liminal.utils import to_pascal_case, to_snake_case
 
 
 def get_entity_mixin(entity_type: BenchlingEntityType) -> str:
@@ -59,18 +59,18 @@ def generate_all_entity_schema_files(
     subdirectory_map: dict[str, list[tuple[str, str]]] = {}
     benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
     dropdown_name_to_classname_map: dict[str, str] = {
-        dropdown_name: pascalize(dropdown_name)
+        dropdown_name: to_pascal_case(dropdown_name)
         for dropdown_name in benchling_dropdowns.keys()
     }
     wh_name_to_classname: dict[str, str] = {
-        sp.warehouse_name: pascalize(sp.name) for sp, _, _ in models
+        sp.warehouse_name: to_pascal_case(sp.name) for sp, _, _ in models
     }
 
     for schema_properties, name_template, columns in models:
-        classname = pascalize(schema_properties.name)
+        classname = to_pascal_case(schema_properties.name)
 
     for schema_properties, name_template, columns in models:
-        classname = pascalize(schema_properties.name)
+        classname = to_pascal_case(schema_properties.name)
         filename = to_snake_case(schema_properties.name) + ".py"
         columns = {key: columns[key] for key in columns}
         import_strings = [

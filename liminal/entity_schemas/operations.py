@@ -313,10 +313,15 @@ class CreateEntitySchemaField(BaseOperation):
         self.index = index
 
         self._wh_field_name: str
+        self._field_name: str
         if field_props.warehouse_name:
             self._wh_field_name = field_props.warehouse_name
         else:
             raise ValueError("Field warehouse name is required.")
+        if field_props.name:
+            self._field_name = field_props.name
+        else:
+            raise ValueError("Field name is required.")
 
     def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
         try:
@@ -385,10 +390,10 @@ class CreateEntitySchemaField(BaseOperation):
         if (
             benchling_service.connection.config_flags.schemas_enable_change_warehouse_name
             is False
-            and self.field_props.warehouse_name != to_snake_case(self.field_props.name)
+            and self.field_props.warehouse_name != to_snake_case(self._field_name)
         ):
             raise ValueError(
-                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom field warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the field warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self.field_props.name)}."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom field warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the field warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self._field_name)}."
             )
         if (
             self.field_props.unit_name
