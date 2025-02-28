@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from pydantic import BaseModel, ConfigDict
 
-from liminal.utils import pascalize
+from liminal.utils import to_pascal_case
 from liminal.validation.validation_severity import ValidationSeverity
 
 if TYPE_CHECKING:
@@ -137,14 +137,14 @@ def liminal_validator(
                 valid=False,
                 level=validator_level,
                 entity=self,
-                validator_name=validator_name or pascalize(func.__name__),
+                validator_name=validator_name or to_pascal_case(func.__name__),
                 message=str(e),
             )
         return BenchlingValidatorReport.create_validation_report(
             valid=True,
             level=validator_level,
             entity=self,
-            validator_name=validator_name or pascalize(func.__name__),
+            validator_name=validator_name or to_pascal_case(func.__name__),
         )
 
     setattr(wrapper, "_is_liminal_validator", True)

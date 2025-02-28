@@ -10,30 +10,25 @@ from liminal.connection.benchling_service import BenchlingService
 
 
 def generate_random_id(length: int = 8) -> str:
-    """Generate a random ID with only lowercase letters."""
+    """Generate a pseudo-random ID with only lowercase letters."""
     return "".join(random.choices(string.ascii_lowercase, k=length))
 
 
-def pascalize(input_string: str) -> str:
+def to_pascal_case(input_string: str) -> str:
     """
-    Convert a string to PascalCase.
+    Convert a string to PascalCase. Filters out any non-alphanumeric characters.
     """
-    return "".join(
-        re.sub(r"[\[\]{}():]", "", word).capitalize()
-        for word in re.split(r"[ /_\-]", input_string)
-    )
+    words = re.split(r"[ /_\-]", input_string)
+    # Then remove any non-alphanumeric characters and capitalize each word
+    return "".join(re.sub(r"[^a-zA-Z0-9]", "", word).capitalize() for word in words)
 
 
-def to_snake_case(input_string: str | None) -> str:
+def to_snake_case(input_string: str) -> str:
     """
-    Convert a string to snake_case.
+    Convert a string to snake_case. Filters out any non-alphanumeric characters.
     """
-    if input_string is None:
-        return ""
-    return "_".join(
-        re.sub(r"[\[\]{}():]", "", word).lower()
-        for word in re.split(r"[ /_\-]", input_string)
-    )
+    words = re.split(r"[ /_\-]", input_string)
+    return "_".join(re.sub(r"[^a-zA-Z0-9]", "", word).lower() for word in words)
 
 
 def to_string_val(input_val: Any) -> str:
