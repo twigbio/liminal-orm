@@ -128,7 +128,7 @@ def current(
     name="revision",
     help="Generates a revision file with a list of operations to bring the given Benchling tenant up to date with the locally defined schemas. Writes revision file to liminal/versions/.",
 )
-def autogenerate(
+def revision(
     benchling_tenant: str = typer.Argument(
         ..., help="Benchling tenant (or alias) to connect to."
     ),
@@ -153,7 +153,23 @@ def autogenerate(
         current_revision_id,
         autogenerate,
     )
-
+    
+@app.command(
+    name="autogenerate",
+    hidden=True,
+)
+def autogenerate(
+    benchling_tenant: str = typer.Argument(
+        ..., help="Benchling tenant (or alias) to connect to."
+    ),
+    description: str = typer.Argument(
+        ...,
+        help="A description of the revision being generated. This will also be included in the file name.",
+    ),
+) -> None:
+    raise DeprecationWarning(
+        "CLI command `liminal autogenerate ...` is deprecated. Please use `liminal revision ...` instead."
+    )
 
 @app.command(
     name="upgrade",
