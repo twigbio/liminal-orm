@@ -153,7 +153,8 @@ def revision(
         current_revision_id,
         autogenerate,
     )
-    
+
+
 @app.command(
     name="autogenerate",
     hidden=True,
@@ -170,6 +171,7 @@ def autogenerate(
     raise DeprecationWarning(
         "CLI command `liminal autogenerate ...` is deprecated. Please use `liminal revision ...` instead."
     )
+
 
 @app.command(
     name="upgrade",
