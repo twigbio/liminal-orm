@@ -175,7 +175,7 @@ class BaseModel(Generic[T], Base):
         if len(models.keys()) != len(set(names)):
             missing_models = set(names) - set(models.keys())
             raise ValueError(
-                f"No model subclass found for the following class names or warehouse names: {', '.join(missing_models)}"
+                f"No model subclass found for the following class names or warehouse names: {', '.join(missing_models)}. Please ensure the entity schema model(s) are imported or defined."
             )
         return list(models.values())
 
