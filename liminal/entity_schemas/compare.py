@@ -230,6 +230,25 @@ def compare_entity_schemas(
                             ),
                         )
                     )
+                    if model_columns[column_name].properties.tooltip:
+                        ops.append(
+                            CompareOperation(
+                                op=UpdateEntitySchemaField(
+                                    model_wh_name,
+                                    column_name,
+                                    BaseFieldProperties(
+                                        tooltip=model_columns[
+                                            column_name
+                                        ].properties.tooltip
+                                    ),
+                                ),
+                                reverse_op=UpdateEntitySchemaField(
+                                    model_wh_name,
+                                    column_name,
+                                    BaseFieldProperties(tooltip=None),
+                                ),
+                            )
+                        )
             if benchling_schema_props != model.__schema_properties__:
                 ops.append(
                     CompareOperation(
