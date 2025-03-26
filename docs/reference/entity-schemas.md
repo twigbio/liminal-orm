@@ -6,7 +6,7 @@ Below is an example of a custom entity schema defined in code. All Liminal entit
 The properties defined in the `SchemaProperties` object and `Column` objects
 correspond with the properties shown on the Benchling website. This is how Liminal defines your Benchling entity schema in code. Any of these properties
 can be manipulated to change the definition of the entity schema. Updates to the schema or the addition/archival of schemas are automatically
-detected by Liminal's migration service, which is run using the `liminal autogenerate ...` command. Refer to the [First Migration](../getting-started/first-migration.md) page to run your first migration.
+detected by Liminal's migration service, which is run using the `liminal revision ...` command. Refer to the [First Migration](../getting-started/first-migration.md) page to run your first migration.
 
 Below, we will go through the different components of defining an entity schema class.
 
@@ -82,7 +82,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     The warehouse names are used as keys across liminal and are used as entity_link values in Columns.
 
 !!! warning
-    If warehouse access is not enabled on your tenant, you will be unable to update the warehouse name.
+    If the `schemas_enable_change_warehouse_name` config flag is not set on your tenant BenchlingConnection, you will be unable to update the warehouse name.
 
     Liminal assumes the Benchling generated warehouse name to be `to_snake_case(name)`.
 
@@ -135,7 +135,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
     Liminal also detects the ordering of your fields. Define columns on different lines in your schema class to change the ordering of the fields on the Benchling entity schema.
 
 !!! warning
-    If warehouse access is not enabled on your tenant, you will be unable to update the warehouse name for fields.
+    If the `schemas_enable_change_warehouse_name` config flag is not set on your tenant BenchlingConnection, you will be unable to update the warehouse name for fields.
 
     Liminal will enforce that the column variable name (which represents the warehouse name) matches the Benchling generated warehouse name, which Liminal assumes to be `to_snake_case(name)`.
 

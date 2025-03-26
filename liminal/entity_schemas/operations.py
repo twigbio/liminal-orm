@@ -81,14 +81,13 @@ class CreateEntitySchema(BaseOperation):
 
     def validate(self, benchling_service: BenchlingService) -> None:
         if (
-            not benchling_service.connection.warehouse_access
+            benchling_service.connection.config_flags.schemas_enable_change_warehouse_name
+            is False
             and self._validated_schema_properties.warehouse_name
             != to_snake_case(self._validated_schema_properties.name)
         ):
             raise ValueError(
-                f"Warehouse access is required to set a custom field warehouse name. \
-                Either set warehouse_access to True in BenchlingConnection or set the schema warehouse_name to the given Benchling warehouse name: {to_snake_case(self._validated_schema_properties.name)}. \
-                Reach out to Benchling support if you need help setting up warehouse access."
+                f"{self._validated_schema_properties.name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom schema warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the schema warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self._validated_schema_properties.name)}."
             )
         for field in self.fields:
             if (
@@ -225,20 +224,19 @@ class UpdateEntitySchema(BaseOperation):
         return update_tag_schema(benchling_service, tag_schema.id, update.model_dump())
 
     def describe_operation(self) -> str:
-        return f"Updating properties for entity schema {self.wh_schema_name}: {str(self.update_props)}."
+        return f"{self.wh_schema_name}: Updating schema properties to: {str(self.update_props)}."
 
     def describe(self) -> str:
-        return f"Schema properties for {self.wh_schema_name} are different in code versus Benchling: {str(self.update_props)}."
+        return f"{self.wh_schema_name}: Schema properties are different in code versus Benchling: {str(self.update_props)}."
 
     def validate(self, benchling_service: BenchlingService) -> None:
         if (
-            benchling_service.connection.warehouse_access
+            benchling_service.connection.config_flags.schemas_enable_change_warehouse_name
+            is False
             and self.update_props.warehouse_name is not None
         ):
             raise ValueError(
-                "Warehouse access is required to change the schema warehouse name. \
-                Either set warehouse_access to True in BenchlingConnection or do not change the warehouse name. \
-                Reach out to Benchling support if you need help setting up warehouse access."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the schema warehouse_name to a custom name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
             )
 
     def _validate(self, benchling_service: BenchlingService) -> TagSchemaModel:
@@ -315,10 +313,15 @@ class CreateEntitySchemaField(BaseOperation):
         self.index = index
 
         self._wh_field_name: str
+        self._field_name: str
         if field_props.warehouse_name:
             self._wh_field_name = field_props.warehouse_name
         else:
             raise ValueError("Field warehouse name is required.")
+        if field_props.name:
+            self._field_name = field_props.name
+        else:
+            raise ValueError("Field name is required.")
 
     def execute(self, benchling_service: BenchlingService) -> dict[str, Any]:
         try:
@@ -385,13 +388,12 @@ class CreateEntitySchemaField(BaseOperation):
 
     def validate(self, benchling_service: BenchlingService) -> None:
         if (
-            not benchling_service.connection.warehouse_access
-            and self.field_props.warehouse_name != to_snake_case(self.field_props.name)
+            benchling_service.connection.config_flags.schemas_enable_change_warehouse_name
+            is False
+            and self.field_props.warehouse_name != to_snake_case(self._field_name)
         ):
             raise ValueError(
-                f"Warehouse access is required to set a custom field warehouse name. \
-                Either set warehouse_access to True in BenchlingConnection or set the column variable name to the given Benchling field warehouse name: {to_snake_case(self.field_props.name)}. \
-                Reach out to Benchling support if you need help setting up warehouse access."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to set a custom field warehouse name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags. Otherwise, define the field warehouse_name in code to be the given Benchling warehouse name: {to_snake_case(self._field_name)}."
             )
         if (
             self.field_props.unit_name
@@ -538,13 +540,12 @@ class UpdateEntitySchemaField(BaseOperation):
             benchling_service, self.wh_schema_name
         )
         if (
-            not benchling_service.connection.warehouse_access
+            benchling_service.connection.config_flags.schemas_enable_change_warehouse_name
+            is False
             and self.update_props.warehouse_name is not None
         ):
             raise ValueError(
-                "Warehouse access is required to change the field warehouse name. \
-                Either set warehouse_access to True in BenchlingConnection or do not change the warehouse name. \
-                Reach out to Benchling support if you need help setting up warehouse access."
+                f"{self.wh_schema_name}: Tenant config flag SCHEMAS_ENABLE_CHANGE_WAREHOUSE_NAME is required to update the field warehouse_name to a custom name. Reach out to Benchling support to turn this config flag to True and then set the flag to True in BenchlingConnection.config_flags."
             )
         if "unit_name" in self.update_props.model_dump(exclude_unset=True):
             no_change_message = f"{self.wh_schema_name}: On field {self.wh_field_name}, updating unit name to {self.update_props.unit_name}. The unit of this field CANNOT be changed once it's been set."

@@ -1,5 +1,9 @@
-from sqlalchemy.orm import RelationshipProperty, relationship
+import warnings
+from typing import Any
 
+from sqlalchemy.orm import RelationshipProperty, object_session, relationship
+
+from liminal.orm.base_model import BaseModel
 from liminal.orm.column import Column
 
 
@@ -31,8 +35,56 @@ def single_relationship(
     )
 
 
-def multi_relationship(
+def multi_relationship(*args: Any, **kwargs: Any) -> RelationshipProperty:
+    """Wrapper for generating a multi-relationship. Supporting the usage of a deprecated signature until v4 release."""
+    if len(args) == 2 and isinstance(args[1], Column):
+        return multi_relationship_v2(*args, **kwargs)
+    else:
+        return multi_relationship_deprecated(*args, **kwargs)
+
+
+def multi_relationship_deprecated(
     target_class_name: str, current_class_name: str, entity_link_field_name: str
+) -> RelationshipProperty:
+    """
+    DEPRECATED: USE THE FUNCTION BELOW INSTEAD.
+    Wrapper for SQLAlchemy's relationship function. Liminal's recommendation for defining a relationship from
+    a class to a linked entity field that has is_multi=True. This means the representation of that field is a list of entity_ids.
+    Parameters
+    ----------
+    target_class_name : str
+        Class name of the entity schema class that is being linked.
+    current_class_name : str
+        Name of the current class that is linking to the target class. This is not used.
+    entity_link_field_name : str
+        Name of the column on the current class that links to the target class.
+
+    Returns
+    -------
+    SQLAlchemy RelationshipProperty
+    """
+    warnings.warn(
+        "This version of multi_relationship is deprecated. New function signature is multi_relationship(target_class_name: str, entity_link_field: Column). Support for this signature will be removed in v4.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    def getter(self: Any) -> list[Any]:
+        target_table = BaseModel.get_all_subclasses(names={target_class_name})[0]
+        session = object_session(self)
+
+        linked_entities = (
+            session.query(target_table)
+            .filter(target_table.id.in_(getattr(self, entity_link_field_name)))
+            .all()
+        )
+        return linked_entities
+
+    return property(getter)
+
+
+def multi_relationship_v2(
+    target_class_name: str, entity_link_field: Column
 ) -> RelationshipProperty:
     """Wrapper for SQLAlchemy's relationship function. Liminal's recommendation for defining a relationship from
     a class to a linked entity field that has is_multi=True. This means the representation of that field is a list of entity_ids.
@@ -40,23 +92,23 @@ def multi_relationship(
     ----------
     target_class_name : str
         Class name of the entity schema class that is being linked.
-    current_class_name : str
-        Class name of the current class that this relationship is being defined on.
-    entity_link_field_name : str
+    entity_link_field : Column
         Column on the current class that links to the target class.
 
     Returns
     -------
     SQLAlchemy RelationshipProperty
     """
-    if target_class_name == current_class_name:
-        return relationship(
-            target_class_name,
-            primaryjoin=f"remote({target_class_name}.id) == any_(foreign({current_class_name}.{entity_link_field_name}))",
-            uselist=True,
+
+    def getter(self: Any) -> list[Any]:
+        target_table = BaseModel.get_all_subclasses(names={target_class_name})[0]
+        session = object_session(self)
+
+        linked_entities = (
+            session.query(target_table)
+            .filter(target_table.id.in_(getattr(self, entity_link_field.name)))
+            .all()
         )
-    return relationship(
-        target_class_name,
-        primaryjoin=f"{target_class_name}.id == any_(foreign({current_class_name}.{entity_link_field_name}))",
-        uselist=True,
-    )
+        return linked_entities
+
+    return property(getter)

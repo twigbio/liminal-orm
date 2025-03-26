@@ -16,9 +16,9 @@ from liminal.cli.live_test_dropdown_migration import mock_dropdown_full_migratio
 from liminal.cli.live_test_entity_schema_migration import (
     mock_entity_schema_full_migration,
 )
+from liminal.cli.utils import read_local_liminal_dir, update_env_revision_id
 from liminal.connection.benchling_service import BenchlingService
 from liminal.migrate.revisions_timeline import RevisionsTimeline
-from liminal.migrate.utils import read_local_env_file, update_env_revision_id
 
 
 class OrderCommands(TyperGroup):
@@ -34,8 +34,9 @@ app = typer.Typer(
     help="The Liminal CLI allows you to run revisions against different Benchling tenants and keep tenants in sync with dropdowns and schemas defined in code.",
 )
 
-ENV_FILE_PATH = Path("liminal/env.py")
-VERSIONS_DIR_PATH = Path("liminal/versions")
+LIMINAL_DIR_PATH = Path("liminal")
+ENV_FILE_PATH = LIMINAL_DIR_PATH / "env.py"
+VERSIONS_DIR_PATH = LIMINAL_DIR_PATH / "versions"
 
 
 @app.command(
@@ -44,8 +45,8 @@ VERSIONS_DIR_PATH = Path("liminal/versions")
 )
 def init() -> None:
     try:
-        Path("liminal").mkdir()
-        Path("liminal/versions").mkdir()
+        LIMINAL_DIR_PATH.mkdir()
+        VERSIONS_DIR_PATH.mkdir()
     except Exception:
         raise Exception(
             "Liminal CLI already initialized. liminal/ already exists. Please delete it before running init."
@@ -59,9 +60,20 @@ def init() -> None:
 # Instantiate the BenchlingConnection(s) with the correct parameters for your tenant(s).
 # There must be a revision_id variable defined for each BenchlingConnection instance. The variable name should match the `current_revision_id_var_name` variable passed into the BenchlingConnection instance.
 # The revision_id variable name can also match the format `<tenant_name>_CURRENT_REVISION_ID` / `<tenant_alias>_CURRENT_REVISION_ID`.
-from liminal.connection import BenchlingConnection
+from liminal.connection import BenchlingConnection, TenantConfigFlags
 
-CURRENT_REVISION_ID = "{revision_id}"
+PROD_CURRENT_REVISION_ID = "{revision_id}"
+connection = BenchlingConnection(
+    tenant_name="pizzahouse-prod",
+    tenant_alias="prod",
+    current_revision_id_var_name="PROD_CURRENT_REVISION_ID",
+    api_client_id="my-secret-api-client-id",
+    api_client_secret="my-secret-api-client-secret",
+    warehouse_connection_string="...",
+    internal_api_admin_email="my-secret-internal-api-admin-email",
+    internal_api_admin_password="my-secret-internal-api-admin-password",
+    config_flags=TenantConfigFlags(...)
+)
 """
     with open(ENV_FILE_PATH, "w") as file:
         file.write(env_file)
@@ -85,8 +97,8 @@ def generate_files(
         help="The path to write the generated files to.",
     ),
 ) -> None:
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     if not write_path.exists():
@@ -104,8 +116,8 @@ def current(
         ..., help="Benchling tenant (or alias) to connect to."
     ),
 ) -> None:
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
     )
     print(
         f"[blue]{benchling_connection.current_revision_id_var_name}: {current_revision_id}[/blue]"
@@ -113,8 +125,39 @@ def current(
 
 
 @app.command(
-    name="autogenerate",
+    name="revision",
     help="Generates a revision file with a list of operations to bring the given Benchling tenant up to date with the locally defined schemas. Writes revision file to liminal/versions/.",
+)
+def revision(
+    benchling_tenant: str = typer.Argument(
+        ..., help="Benchling tenant (or alias) to connect to."
+    ),
+    description: str = typer.Argument(
+        ...,
+        help="A description of the revision being generated. This will also be included in the file name.",
+    ),
+    autogenerate: bool = typer.Option(
+        True,
+        "--autogenerate",
+        help="Automatically generate the revision file based on comparisons.",
+    ),
+) -> None:
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
+    )
+    benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
+    autogenerate_revision_file(
+        benchling_service,
+        VERSIONS_DIR_PATH,
+        description,
+        current_revision_id,
+        autogenerate,
+    )
+
+
+@app.command(
+    name="autogenerate",
+    hidden=True,
 )
 def autogenerate(
     benchling_tenant: str = typer.Argument(
@@ -125,12 +168,8 @@ def autogenerate(
         help="A description of the revision being generated. This will also be included in the file name.",
     ),
 ) -> None:
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
-    )
-    benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
-    autogenerate_revision_file(
-        benchling_service, VERSIONS_DIR_PATH, description, current_revision_id
+    raise DeprecationWarning(
+        "CLI command `liminal autogenerate ...` is deprecated. Please use `liminal revision ...` instead."
     )
 
 
@@ -148,8 +187,8 @@ def upgrade(
         help="Determines the revision files that get run. Pass in the 'revision_id' to upgrade to that revision. Pass in 'head' to upgrade to the latest revision. Pass in '+n' to make a relative revision based on the current revision id.",
     ),
 ) -> None:
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     upgrade_revision_id = upgrade_benchling_tenant(
@@ -176,8 +215,8 @@ def downgrade(
         help="Determines the revision files that get run. Pass in the 'revision_id' to downgrade to that revision. Pass in '-n' to make a relative revision based on the current revision id.",
     ),
 ) -> None:
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     downgrade_revision_id = downgrade_benchling_tenant(
@@ -216,8 +255,8 @@ def live_test(
         raise ValueError(
             "Only one of --entity-schema-migration or --dropdown-migration can be set."
         )
-    current_revision_id, benchling_connection = read_local_env_file(
-        ENV_FILE_PATH, benchling_tenant
+    current_revision_id, benchling_connection = read_local_liminal_dir(
+        LIMINAL_DIR_PATH, benchling_tenant
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     if test_entity_schema_migration:

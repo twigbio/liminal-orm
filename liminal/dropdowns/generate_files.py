@@ -4,7 +4,7 @@ from rich import print
 
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdowns_dict
-from liminal.utils import pascalize, to_snake_case
+from liminal.utils import to_pascal_case, to_snake_case
 
 
 def generate_all_dropdown_files(
@@ -24,7 +24,7 @@ def generate_all_dropdown_files(
     for dropdown_name, dropdown_options in dropdowns.items():
         dropdown_values = [option.name for option in dropdown_options.options]
         options_list = str(dropdown_values).replace("'", '"')
-        classname = pascalize(dropdown_name)
+        classname = to_pascal_case(dropdown_name)
         dropdown_content = f"""
 from liminal.base.base_dropdown import BaseDropdown
 

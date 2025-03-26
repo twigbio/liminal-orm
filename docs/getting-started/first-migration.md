@@ -1,6 +1,6 @@
 1. You have changes you need to make to your Benchling schema model. Manipulate your schema classes defined in code and make changes where needed. When you are finished, you are ready to run your first migration!
 
-    !!! info "Manipulating schemas"
+    !!! note "Manipulating schemas"
         For an overview of what is covered by Liminal and can be defined in code, please see the [Reference](../reference/entity-schemas.md) section to get detailed documentation on the different class properties. When making changes, anything that Liminal covers should be manipulated in code. Otherwise, your schemas defined in code will become out of sync with your Benchling tenant. Any properties that Liminal does not cover should be manipulated through the Benchling UI, as Liminal cannot track changes to these properties.
 
 2. In your CLI in Liminal's root directory (that contains the `liminal/` path), run the following command:
@@ -19,9 +19,8 @@
 
 3. Review the generated revision file and set of operations to ensure that it is accurate.
 
-   ### Example Revision File
-
     ```python
+    # EXAMPLE REVISION FILE
     import liminal.external as b
 
     # revision identifiers, used by Liminal.
