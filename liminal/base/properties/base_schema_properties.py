@@ -91,7 +91,7 @@ class BaseSchemaProperties(BaseModel):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-        self._archived = data.get("_archived", None)
+        self._archived = data.get("_archived", None)  # TODO: WHY??
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
