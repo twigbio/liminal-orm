@@ -38,6 +38,7 @@ def get_converted_tag_schemas(
             tag_schema, dropdowns_map, unit_id_to_name_map, include_archived
         )
         for tag_schema in all_schemas
+        if tag_schema.sqlIdentifier != "_liminal_remote"
     ]
 
 

@@ -5,8 +5,6 @@ import requests
 from benchling_sdk.auth.client_credentials_oauth2 import ClientCredentialsOAuth2
 from benchling_sdk.benchling import Benchling
 from benchling_sdk.helpers.retry_helpers import RetryStrategy
-from benchling_sdk.helpers.serialization_helpers import fields as benchling_fields
-from benchling_sdk.models import CustomEntity, CustomEntityCreate, CustomEntityUpdate
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -29,8 +27,9 @@ from liminal.enums import (
 
 logger = logging.getLogger(__name__)
 
-REMOTE_LIMINAL_ENTITY_NAME = "_LIMINAL_REVISION_STATE"
-LIMINAL_SCHEMA_NAME = "_LIMINAL"
+REMOTE_LIMINAL_SCHEMA_NAME = "_liminal_remote"
+REMOTE_REVISION_ID_FIELD_SUFFIX = "revision_id="
+REMOTE_REVISION_ID_FIELD_WH_NAME = "revision_id"
 
 
 class BenchlingService(Benchling):
@@ -152,34 +151,41 @@ class BenchlingService(Benchling):
 
     def get_remote_revision_id(self) -> str:
         """
-        Uses Benchling SDK to search for the liminal entity stored in Benchling tenant.
-        This contains the remote revision_id, or the revision_id that your tenant is currently on.
+        Uses internal API to to search for the _liminal_remote schema, where the revision_id is stored.
+        This schema contains the remote revision_id in the name of the revision_id field using the format revision_id={remote_revision_id}.
 
         Returns the remote revision_id stored on the entity.
         """
-        revision_id_entities = [
-            e
-            for es in list(self.custom_entities.list(name=REMOTE_LIMINAL_ENTITY_NAME))
-            for e in es
-        ]
-        if len(revision_id_entities) == 1:
-            revision_id_value = revision_id_entities[0].fields["revision_id"].value
-            assert type(revision_id_value) is str
-            return revision_id_value
-        elif len(revision_id_entities) == 0:
+        from liminal.entity_schemas.tag_schema_models import TagSchemaModel
+
+        try:
+            liminal_schema = TagSchemaModel.get_one(self, REMOTE_LIMINAL_SCHEMA_NAME)
+        except Exception:
             raise ValueError(
-                f"Did not find any entity with name '{REMOTE_LIMINAL_ENTITY_NAME}' in registry {self.registry_id}. Run a liminal migration to populate your registry with the Liminal entity that stores the remote revision_id."
+                f"Did not find any schema name '{REMOTE_LIMINAL_SCHEMA_NAME}'. Run a liminal migration to populate your registry with the Liminal entity that stores the remote revision_id."
             )
+        revision_id_fields = [
+            f
+            for f in liminal_schema.fields
+            if f.systemName == REMOTE_REVISION_ID_FIELD_WH_NAME
+        ]
+        if len(revision_id_fields) == 1:
+            revision_id_field_name = revision_id_fields[0].name
+            revision_id = revision_id_field_name.removeprefix(
+                REMOTE_REVISION_ID_FIELD_SUFFIX
+            )
+            print("HEI", revision_id)
+            return revision_id
         else:
             raise ValueError(
-                f"Found multiple entities with name '{REMOTE_LIMINAL_ENTITY_NAME}'. Archive all but one for Liminal to use. Ids found: {[e.id for e in revision_id_entities]}"
+                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} with suffix revision_id=. Check schema fields to ensure this field exists and is defined according to documentation."
             )
 
-    def upsert_remote_revision_id(self, revision_id: str) -> CustomEntity:
-        """Updates or inserts a remote Liminal entity into your tenant with the given revision_id.
-        If correct remote liminal entity is found, updates the enitity. If no entity is found, create the _LIMINAL entity schema if that doesn't exist,
-        then create the remote liminal entity with the _LIMINAL schema. Upsert is needed to migrate users from using the CURRENT_REVISION_ID stored in the env.py
-        file smoothly to storing in Benchling itself.
+    def upsert_remote_revision_id(self, revision_id: str) -> None:
+        """Updates or inserts a remote Liminal schema into your tenant with the given revision_id stored in the name of a field.
+        If the '_liminal_remote' schema is found, check and make sure a field with warehouse_name 'revision_id' is present. If both are present, update the revision_id stored within the name.
+        If no schema is found, create the _liminal_remote entity schema.
+        Upsert is needed to migrate users from using the CURRENT_REVISION_ID stored in the env.py file smoothly to storing in Benchling itself.
 
         Parameters
         ----------
@@ -191,67 +197,52 @@ class BenchlingService(Benchling):
         CustomEntity
             remote liminal entity with updated revision_id field.
         """
-        revision_id_entities = [
-            e
-            for es in list(self.custom_entities.list(name=REMOTE_LIMINAL_ENTITY_NAME))
-            for e in es
-        ]
-        if len(revision_id_entities) == 1:
-            # Update _LIMINAL_REVISION_STATE entity with given revision_id.
-            liminal_entity = revision_id_entities[0]
-            self.custom_entities.update(
-                liminal_entity.id,
-                CustomEntityUpdate(
-                    fields=benchling_fields({"revision_id": {"value": revision_id}})
-                ),
-            )
-            return liminal_entity
-        elif len(revision_id_entities) == 0:
-            # No _LIMINAL_REVISION_STATE entity found.
-            schemas = [s for ss in list(self.schemas.list_entity_schemas()) for s in ss]
-            if len([s for s in schemas if s.name == {LIMINAL_SCHEMA_NAME}]) == 0:
-                # No _LIMINAL schema found. Create schema.
-                from liminal.entity_schemas.operations import CreateEntitySchema
+        from liminal.entity_schemas.tag_schema_models import TagSchemaModel
 
-                CreateEntitySchema(
-                    schema_properties=BaseSchemaProperties(
-                        name={LIMINAL_SCHEMA_NAME},
-                        warehouse_name={LIMINAL_SCHEMA_NAME.lower()},
-                        prefix={LIMINAL_SCHEMA_NAME},
-                        entity_type=BenchlingEntityType.CUSTOM_ENTITY,
-                        naming_strategies={BenchlingNamingStrategy.NEW_IDS},
-                    ),
-                    fields=[
-                        BaseFieldProperties(
-                            name="revision_id",
-                            warehouse_name="warehouse_name",
-                            type=BenchlingFieldType.TEXT,
-                            parent_link=False,
-                            is_multi=False,
-                            required=True,
-                        )
-                    ],
-                ).execute(self)
-                schemas = [
-                    s for ss in list(self.schemas.list_entity_schemas()) for s in ss
-                ]
-            # Create new _LIMINAL_REVISION_STATE entity with given revision_id.
-            liminal_schemas = [s for s in schemas if s.name == "_LIMINAL"]
-            assert len(liminal_schemas) == 1
-            liminal_schema = liminal_schemas[0]
-            liminal_entity = self.custom_entities.create(
-                CustomEntityCreate(
-                    schema_id=liminal_schema.id,
-                    entity_registry_id=self.registry_id,
-                    registry_id=self.registry_id,
-                    name=REMOTE_LIMINAL_ENTITY_NAME,
-                    fields=benchling_fields({"revision_id": {"value": revision_id}}),
-                )
-            )
-            return liminal_entity
+        try:
+            liminal_schema = TagSchemaModel.get_one(self, REMOTE_LIMINAL_SCHEMA_NAME)
+        except Exception:
+            # No _liminal_remote schema found. Create schema.
+            from liminal.entity_schemas.operations import CreateEntitySchema
+
+            CreateEntitySchema(
+                schema_properties=BaseSchemaProperties(
+                    name={REMOTE_LIMINAL_SCHEMA_NAME},
+                    warehouse_name={REMOTE_LIMINAL_SCHEMA_NAME},
+                    prefix={REMOTE_LIMINAL_SCHEMA_NAME},
+                    entity_type=BenchlingEntityType.CUSTOM_ENTITY,
+                    naming_strategies={BenchlingNamingStrategy.NEW_IDS},
+                ),
+                fields=[
+                    BaseFieldProperties(
+                        name={f"{REMOTE_REVISION_ID_FIELD_SUFFIX}{revision_id}"},
+                        warehouse_name=REMOTE_REVISION_ID_FIELD_WH_NAME,
+                        type=BenchlingFieldType.TEXT,
+                        parent_link=False,
+                        is_multi=False,
+                        required=True,
+                    )
+                ],
+            ).execute(self)
+        # _liminal_remote schema found. Check if revision_id field exists on it.
+        revision_id_fields = [
+            f
+            for f in liminal_schema.fields
+            if f.systemName == REMOTE_REVISION_ID_FIELD_WH_NAME
+        ]
+        if len(revision_id_fields) == 1:
+            # _liminal_remote schema found, revision_id field found. Update revision_id field on it with given revision_id.
+            from liminal.entity_schemas.operations import UpdateEntitySchemaField
+
+            revision_id_field = revision_id_fields[0]
+            UpdateEntitySchemaField(
+                liminal_schema.sqlIdentifier,
+                revision_id_field.systemName,
+                BaseFieldProperties(name=f"revision_id={revision_id}"),
+            ).execute(self)
         else:
             raise ValueError(
-                f"Found multiple entities with name '{REMOTE_LIMINAL_ENTITY_NAME}'. Archive all but one for Liminal to use. Ids found: {[e.id for e in revision_id_entities]}"
+                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} with suffix revision_id=. Check schema fields to ensure this field exists and is defined according to documentation."
             )
 
     @classmethod
