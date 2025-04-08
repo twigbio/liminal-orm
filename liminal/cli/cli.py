@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import warnings
 from pathlib import Path
 
 import typer
@@ -117,7 +118,13 @@ def current(
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     try:
-        current_revision_id = benchling_service.get_remote_revision_id()
+        remote_revision_id = benchling_service.get_remote_revision_id()
+        if current_revision_id is not None:
+            warnings.warn(
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_LIMINAL_REVISION_STATE' entity. Support for reading/writing the local revision_id will end with the v4 release.",
+                FutureWarning,
+            )
+        current_revision_id = remote_revision_id
     except Exception:
         pass
     print(f"[blue]Current revision_id: {current_revision_id}.")
@@ -146,7 +153,13 @@ def revision(
     )
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     try:
-        current_revision_id = benchling_service.get_remote_revision_id()
+        remote_revision_id = benchling_service.get_remote_revision_id()
+        if current_revision_id is not None:
+            warnings.warn(
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_LIMINAL_REVISION_STATE' entity. Support for reading/writing the local revision_id will end with the v4 release.",
+                FutureWarning,
+            )
+        current_revision_id = remote_revision_id
     except Exception:
         assert current_revision_id is not None
     autogenerate_revision_file(
@@ -196,7 +209,13 @@ def upgrade(
     local_revision_id_exists = current_revision_id is not None
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     try:
-        current_revision_id = benchling_service.get_remote_revision_id()
+        remote_revision_id = benchling_service.get_remote_revision_id()
+        if current_revision_id is not None:
+            warnings.warn(
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_LIMINAL_REVISION_STATE' entity. Support for reading/writing the local revision_id will end with the v4 release.",
+                FutureWarning,
+            )
+        current_revision_id = remote_revision_id
     except Exception:
         assert current_revision_id is not None
     upgrade_revision_id = upgrade_benchling_tenant(
@@ -206,7 +225,7 @@ def upgrade(
     if local_revision_id_exists:
         update_env_revision_id(ENV_FILE_PATH, benchling_tenant, upgrade_revision_id)
         print(
-            f"[dim red]Set {benchling_tenant}_CURRENT_REVISION_ID to {upgrade_revision_id} in liminal/env.py"
+            f"[dim red]Set local {benchling_tenant}_CURRENT_REVISION_ID to {upgrade_revision_id} in liminal/env.py"
         )
     print(
         f"[dim]Set revision_id to {upgrade_revision_id} in [link={liminal_entity.web_url}]_LIMINAL_REVISION_STATE[/link] entity."
@@ -234,7 +253,13 @@ def downgrade(
     local_revision_id_exists = current_revision_id is not None
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     try:
-        current_revision_id = benchling_service.get_remote_revision_id()
+        remote_revision_id = benchling_service.get_remote_revision_id()
+        if current_revision_id is not None:
+            warnings.warn(
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_LIMINAL_REVISION_STATE' entity. Support for reading/writing the local revision_id will end with the v4 release.",
+                FutureWarning,
+            )
+        current_revision_id = remote_revision_id
     except Exception:
         assert current_revision_id is not None
     downgrade_revision_id = downgrade_benchling_tenant(
@@ -244,7 +269,7 @@ def downgrade(
     if local_revision_id_exists:
         update_env_revision_id(ENV_FILE_PATH, benchling_tenant, downgrade_revision_id)
         print(
-            f"[dim red]Set {benchling_tenant}_CURRENT_REVISION_ID to {downgrade_revision_id} in liminal/env.py"
+            f"[dim red]Set local {benchling_tenant}_CURRENT_REVISION_ID to {downgrade_revision_id} in liminal/env.py"
         )
     print(
         f"[dim]Set revision_id to {downgrade_revision_id} in [link={liminal_entity.web_url}]_LIMINAL_REVISION_STATE[/link] entity."

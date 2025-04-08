@@ -32,10 +32,6 @@ def read_local_liminal_dir(
     current_revision_id, benchling_connection = _read_local_env_file(
         env_file_path, benchling_tenant
     )
-    if current_revision_id is not None:
-        LOGGER.warning(f"""Found revision_id stored in {liminal_dir_path}. Delete the variable set here, 
-                       the revision_id is now stored in Benchling within the '_LIMINAL_REVISION_STATE' entity. 
-                       Support for reading/writing the local revision_id will end with the v4 release.""")
     return current_revision_id, benchling_connection
 
 

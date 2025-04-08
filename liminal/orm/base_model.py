@@ -223,8 +223,9 @@ class BaseModel(Generic[T], Base):
                 if field.entity_link:
                     if field.entity_link not in [
                         s.__schema_properties__.warehouse_name
-                        for s in cls.get_all_subclasses()
+                        for s in cls.__base__.get_all_subclasses()
                     ]:
+                        breakpoint()
                         raise ValueError(
                             f"Field {wh_name}: could not find entity link {field.entity_link} as a warehouse name for any currently defined schemas."
                         )
@@ -242,7 +243,9 @@ class BaseModel(Generic[T], Base):
             except ValueError as e:
                 errors.append(str(e))
         if errors:
-            raise ValueError(f"Invalid field properties: {' '.join(errors)}")
+            raise ValueError(
+                f"Invalid field properties for schema {cls.__tablename__}: {' '.join(errors)}"
+            )
         return True
 
     @classmethod
