@@ -125,7 +125,7 @@ def generate_all_results_schema_files(
         schema_content = f"""{import_string}
 
 
-class {schema_name}(BaseResultsSchemaModel):
+class {schema_name}(BaseResultsModel):
     __schema_properties__ = {schema_properties.__repr__()}
 
 {columns_string}
