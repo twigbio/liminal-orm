@@ -43,7 +43,7 @@ def generate_all_results_schema_files(
         )
         import_strings = [
             "from sqlalchemy import Column as SqlColumn",
-            "from liminal.orm.base_results_schema_model import BaseResultsSchemaModel",
+            "from liminal.orm.base_results_model import BaseResultsModel",
             "from liminal.orm.results_schema_properties import ResultsSchemaProperties",
             "from liminal.orm.column import Column",
             "from liminal.enums import BenchlingFieldType",
@@ -123,7 +123,7 @@ def generate_all_results_schema_files(
             f"\n{TAB}".join(init_strings) if len(field_properties_dict) > 0 else ""
         )
         schema_content = f"""{import_string}
-        
+
 
 class {schema_name}(BaseResultsSchemaModel):
     __schema_properties__ = {schema_properties.__repr__()}
