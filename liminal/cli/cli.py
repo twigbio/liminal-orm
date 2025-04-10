@@ -106,7 +106,7 @@ def generate_files(
 
 @app.command(
     name="current",
-    help="Returns the remote revision_id that your Benchling tenant is currently on. Reads this from the _LIMINAL_REVISION_STATE entity in your registry.",
+    help="Returns the remote revision_id that your Benchling tenant is currently on. Reads this from the name on the '_liminal_remote' schema.",
 )
 def current(
     benchling_tenant: str = typer.Argument(
