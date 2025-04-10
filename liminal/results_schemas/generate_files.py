@@ -140,3 +140,6 @@ class {schema_name}(BaseResultsSchemaModel):
 
     with open(write_path / "__init__.py", "w") as file:
         file.write("\n".join(init_file_imports))
+    print(
+        f"[green]Generated {write_path / '__init__.py'} with {len(results_schemas)} entity schema imports."
+    )
