@@ -19,7 +19,7 @@ T = TypeVar("T")
 logger = logging.getLogger(__name__)
 
 
-class BaseResultsSchemaModel(Generic[T], Base):
+class BaseResultsModel(Generic[T], Base):
     __abstract__ = True
     __schema_properties__: ResultsSchemaProperties
 
