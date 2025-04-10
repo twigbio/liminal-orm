@@ -44,4 +44,5 @@ class BaseResultsSchemaModel(Generic[T], Base):
 
     def __init_subclass__(cls, **kwargs: Any):
         super().__init_subclass__(**kwargs)
-        cls.__tablename__ = cls.__schema_properties__.warehouse_name
+        warehouse_name = cls.__schema_properties__.warehouse_name
+        cls.__tablename__ = warehouse_name + "$raw"

@@ -4,7 +4,6 @@ from rich import print
 
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdowns_dict
-from liminal.entity_schemas.tag_schema_models import TagSchemaModel
 from liminal.enums import BenchlingFieldType
 from liminal.mappers import convert_benchling_type_to_python_type
 from liminal.orm.base_model import BaseModel
@@ -26,41 +25,49 @@ def generate_all_results_schema_files(
     benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
     entity_schema_subclasses = BaseModel.get_all_subclasses()
     entity_schemas_wh_name_to_classname: dict[str, str] = {
-        s.__schema_properties__.warehouse_name: s.__class__.__name__
+        s.__schema_properties__.warehouse_name: s._sa_class_manager.class_.__name__
         for s in entity_schema_subclasses
     }
     dropdown_name_to_classname_map: dict[str, str] = {
         dropdown_name: to_pascal_case(dropdown_name)
         for dropdown_name in benchling_dropdowns.keys()
     }
+    init_file_imports = []
 
     for schema_properties, field_properties_dict in results_schemas:
         has_date = False
-        filename = to_snake_case(schema_properties.warehouse_name) + ".py"
+        file_name = to_snake_case(schema_properties.warehouse_name) + ".py"
         schema_name = to_pascal_case(schema_properties.warehouse_name)
+        init_file_imports.append(
+            f"from .{to_snake_case(schema_properties.warehouse_name)} import {schema_name}"
+        )
         import_strings = [
             "from sqlalchemy import Column as SqlColumn",
-            "from liminal.base.base_results_schema import BaseResultsSchema",
+            "from liminal.orm.base_results_schema_model import BaseResultsSchemaModel",
             "from liminal.orm.results_schema_properties import ResultsSchemaProperties",
             "from liminal.orm.column import Column",
+            "from liminal.enums import BenchlingFieldType",
         ]
         init_strings = [f"{TAB}def __init__(", f"{TAB}self,"]
         column_strings = []
         dropdowns = []
         relationship_strings = []
         for col_name, col in field_properties_dict.items():
+            column_props = col.model_dump(exclude_unset=True, exclude_none=True)
             dropdown_classname = None
             if col.dropdown_link:
                 dropdown_classname = dropdown_name_to_classname_map[col.dropdown_link]
                 dropdowns.append(dropdown_classname)
-            column_string = f"""{TAB}{col_name}: SqlColumn = Column({", ".join(
-            [
-                f"{k}={v.__repr__()}"
-                    for k, v in col.model_dump(
-                        exclude_unset=True, exclude_none=True
-                    ).items()
-                ]
-            )})"""
+                column_props["dropdown_link"] = dropdown_classname
+            column_props_string = ""
+            for k, v in column_props.items():
+                if k == "dropdown_link":
+                    column_props_string += f"""dropdown={v},"""
+                else:
+                    column_props_string += f"""{k}={v.__repr__()},"""
+            column_string = (
+                f"""{TAB}{col_name}: SqlColumn = Column({column_props_string})"""
+            )
             column_strings.append(column_string)
             if col.required and col.type:
                 init_strings.append(
@@ -100,7 +107,7 @@ def generate_all_results_schema_files(
         for col_name in field_properties_dict.keys():
             init_strings.append(f"{TAB}self.{col_name} = {col_name}")
         if len(dropdowns) > 0:
-            import_strings.append(f"from ...dropdowns import {', '.join(dropdowns)}")
+            import_strings.append(f"from ..dropdowns import {', '.join(dropdowns)}")
         for col_name, col in field_properties_dict.items():
             if col.dropdown_link:
                 init_strings.append(
@@ -118,18 +125,18 @@ def generate_all_results_schema_files(
         schema_content = f"""{import_string}
         
 
-class {schema_name}(BaseResultsSchema):
+class {schema_name}(BaseResultsSchemaModel):
     __schema_properties__ = {schema_properties.__repr__()}
 
-    {columns_string}
+{columns_string}
 
-    {relationship_string}
+{relationship_string}
 
-    {init_string}
+{init_string}
 """
 
-        with open(write_path / filename, "w") as file:
+        with open(write_path / file_name, "w") as file:
             file.write(schema_content)
 
     with open(write_path / "__init__.py", "w") as file:
-        file.write("from .results_schemas import *")
+        file.write("\n".join(init_file_imports))
