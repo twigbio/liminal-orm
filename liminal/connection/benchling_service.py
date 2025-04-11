@@ -170,6 +170,7 @@ class BenchlingService(Benchling):
         ]
         if len(revision_id_fields) == 1:
             revision_id = revision_id_fields[0].name
+            assert revision_id is not None, "No revision_id set in field name."
             return revision_id
         else:
             raise ValueError(
