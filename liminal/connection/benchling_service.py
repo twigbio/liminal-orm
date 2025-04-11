@@ -28,7 +28,6 @@ from liminal.enums import (
 logger = logging.getLogger(__name__)
 
 REMOTE_LIMINAL_SCHEMA_NAME = "_liminal_remote"
-REMOTE_REVISION_ID_FIELD_SUFFIX = "revision_id="
 REMOTE_REVISION_ID_FIELD_WH_NAME = "revision_id"
 
 
@@ -152,7 +151,7 @@ class BenchlingService(Benchling):
     def get_remote_revision_id(self) -> str:
         """
         Uses internal API to to search for the _liminal_remote schema, where the revision_id is stored.
-        This schema contains the remote revision_id in the name of the revision_id field using the format revision_id={remote_revision_id}.
+        This schema contains the remote revision_id in the name of the revision_id field.
 
         Returns the remote revision_id stored on the entity.
         """
@@ -170,15 +169,11 @@ class BenchlingService(Benchling):
             if f.systemName == REMOTE_REVISION_ID_FIELD_WH_NAME
         ]
         if len(revision_id_fields) == 1:
-            revision_id_field_name = revision_id_fields[0].name
-            revision_id = revision_id_field_name.removeprefix(
-                REMOTE_REVISION_ID_FIELD_SUFFIX
-            )
-            print("HEI", revision_id)
+            revision_id = revision_id_fields[0].name
             return revision_id
         else:
             raise ValueError(
-                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} with suffix revision_id=. Check schema fields to ensure this field exists and is defined according to documentation."
+                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} schema with warehouse_name {REMOTE_REVISION_ID_FIELD_WH_NAME}. Check schema fields to ensure this field exists and is defined according to documentation."
             )
 
     def upsert_remote_revision_id(self, revision_id: str) -> None:
@@ -215,7 +210,7 @@ class BenchlingService(Benchling):
                 ),
                 fields=[
                     BaseFieldProperties(
-                        name={f"{REMOTE_REVISION_ID_FIELD_SUFFIX}{revision_id}"},
+                        name={revision_id},
                         warehouse_name=REMOTE_REVISION_ID_FIELD_WH_NAME,
                         type=BenchlingFieldType.TEXT,
                         parent_link=False,
@@ -238,11 +233,11 @@ class BenchlingService(Benchling):
             UpdateEntitySchemaField(
                 liminal_schema.sqlIdentifier,
                 revision_id_field.systemName,
-                BaseFieldProperties(name=f"revision_id={revision_id}"),
+                BaseFieldProperties(name=revision_id),
             ).execute(self)
         else:
             raise ValueError(
-                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} with suffix revision_id=. Check schema fields to ensure this field exists and is defined according to documentation."
+                f"Error finding field on {REMOTE_LIMINAL_SCHEMA_NAME} schema with warehouse_name {REMOTE_REVISION_ID_FIELD_WH_NAME}. Check schema fields to ensure this field exists and is defined according to documentation."
             )
 
     @classmethod
