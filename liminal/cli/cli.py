@@ -125,6 +125,15 @@ def current(
 
 
 @app.command(
+    name="head",
+    help="Returns the local heads, or the latest revision_id, in your linear revision timeline.",
+)
+def head() -> None:
+    revision_timeline = RevisionsTimeline(VERSIONS_DIR_PATH)
+    print(f"[blue]{revision_timeline.get_latest_revision().id}: (head)[/blue]")
+
+
+@app.command(
     name="revision",
     help="Generates a revision file with a list of operations to bring the given Benchling tenant up to date with the locally defined schemas. Writes revision file to liminal/versions/.",
 )
