@@ -28,6 +28,7 @@ def to_snake_case(input_string: str) -> str:
     Convert a string to snake_case. Filters out any non-alphanumeric characters.
     """
     words = re.split(r"[ /_\-]", input_string)
+    words = [word for word in words if word]
     return "_".join(re.sub(r"[^a-zA-Z0-9]", "", word).lower() for word in words)
 
 
@@ -59,11 +60,14 @@ def is_valid_prefix(prefix: str) -> bool:
     It must be contain only alphanumeric characters and underscores, be less than 33 characters, and end with an alphabetic character.
     """
     valid = (
-        all(c.isalnum() or c == "_" or c == "-" for c in prefix) and len(prefix) <= 32
+        all(c.isalnum() or c == "_" or c == "-" for c in prefix)
+        and len(prefix) <= 32
+        and not prefix[-1].isdigit()
+        and " " not in prefix
     )
     if not valid:
         raise ValueError(
-            f"Invalid prefix '{prefix}'. It should only contain alphabetic characters or underscores."
+            f"Invalid prefix '{prefix}'. The prefix should only contain alphabetic characters or underscores, not end end in a digit, and not contain whitespace."
         )
     return valid
 
