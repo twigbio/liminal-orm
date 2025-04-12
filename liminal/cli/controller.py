@@ -47,9 +47,13 @@ def autogenerate_revision_file(
         A description of the revision being generated. This will also be included in the file name.
     """
     revision_timeline = RevisionsTimeline(write_dir_path)
+    if current_revision_id not in revision_timeline.revisions_map.keys():
+        raise Exception(
+            f"Your target Benchling tenant is currently at revision_id {current_revision_id}. This does not exist within your revision timeline in any of your revision files. Ensure your current revision_id for your tenant is correct. The current local head revision is {revision_timeline.get_latest_revision().id}"
+        )
     if current_revision_id != revision_timeline.get_latest_revision().id:
         raise Exception(
-            f"Your target Benchling tenant is not up to date with the latest revision ({revision_timeline.get_latest_revision().id}). Please upgrade to the latest revision before generating a new revision."
+            f"Your target Benchling tenant is currently at revision_id {current_revision_id}, which is not up to date with the local head revision ({revision_timeline.get_latest_revision().id}). Please upgrade your tenant to the latest revision before generating a new revision."
         )
     if compare:
         compare_ops = get_full_migration_operations(benchling_service)

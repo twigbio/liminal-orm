@@ -1,7 +1,10 @@
 import importlib.util
+from logging import Logger
 from pathlib import Path
 
 from liminal.connection.benchling_connection import BenchlingConnection
+
+LOGGER = Logger(name=__name__)
 
 
 def _check_liminal_directory_initialized(liminal_dir_path: Path) -> None:
@@ -19,7 +22,7 @@ def _check_liminal_directory_initialized(liminal_dir_path: Path) -> None:
 
 def read_local_liminal_dir(
     liminal_dir_path: Path, benchling_tenant: str
-) -> tuple[str, BenchlingConnection]:
+) -> tuple[str | None, BenchlingConnection]:
     """Imports the env.py file from /liminal/env.py and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
     The env.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
     The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
@@ -34,7 +37,7 @@ def read_local_liminal_dir(
 
 def _read_local_env_file(
     env_file_path: Path, benchling_tenant: str
-) -> tuple[str, BenchlingConnection]:
+) -> tuple[str | None, BenchlingConnection]:
     """Imports the env.py file from the current working directory and returns the CURRENT_REVISION_ID variable along with the BenchlingConnection object.
     The env.py file is expected to have the CURRENT_REVISION_ID variable set to the revision id you are currently on.
     The BenchlingConnection object is expected to be defined and have connection information for the Benchling API client and internal API.
@@ -62,8 +65,8 @@ def _read_local_env_file(
                     "internal_api_admin_email and internal_api_admin_password must be provided in BenchlingConnection in liminal/env.py. This is necessary for the migration service."
                 )
             try:
-                current_revision_id: str = getattr(
-                    module, bc.current_revision_id_var_name
+                current_revision_id: str | None = getattr(
+                    module, bc.current_revision_id_var_name, None
                 )
                 return current_revision_id, bc
             except Exception as e:
@@ -78,7 +81,7 @@ def _read_local_env_file(
 def update_env_revision_id(
     env_file_path: Path, benchling_env: str, revision_id: str
 ) -> None:
-    """Updates the CURRENT_REVISION_ID variable in the env.py file to the given revision id."""
+    """Updates the CURRENT_REVISION_ID variable in the env.py file to the given revision id. REMOVE WITH v4 release."""
     env_file_content = env_file_path.read_text().split("\n")
     for i, line in enumerate(env_file_content):
         if f"{benchling_env}_CURRENT_REVISION_ID =" in line:

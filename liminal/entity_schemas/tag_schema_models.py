@@ -388,7 +388,7 @@ class TagSchemaModel(BaseModel):
     shouldCreateAsOligo: bool | None
     shouldOrderNamePartsBySequence: bool | None
     showResidues: bool | None
-    sqlIdentifier: str | None
+    sqlIdentifier: str
     useOrganizationCollectionAliasForDisplayLabel: bool | None
     useRandomOrgAlias: bool | None
 
@@ -526,11 +526,14 @@ class TagSchemaModel(BaseModel):
         self.prefix = (
             update_props.prefix if "prefix" in update_diff_names else self.prefix
         )
-        self.sqlIdentifier = (
+
+        set_sql_identifier = (
             update_props.warehouse_name
             if "warehouse_name" in update_diff_names
             else self.sqlIdentifier
         )
+        assert type(set_sql_identifier) is str
+        self.sqlIdentifier = set_sql_identifier
         self.name = update_props.name if "name" in update_diff_names else self.name
         return self
 

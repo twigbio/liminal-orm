@@ -11,6 +11,7 @@ from sqlalchemy import Column as SqlColumn
 from sqlalchemy.orm import Query, RelationshipProperty, Session, relationship
 from sqlalchemy.orm.decl_api import declared_attr
 
+from liminal.base.base_dropdown import BaseDropdown
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.enums import BenchlingNamingStrategy
 from liminal.enums.benchling_entity_type import BenchlingEntityType
@@ -20,6 +21,7 @@ from liminal.orm.base_tables.user import User
 from liminal.orm.name_template import NameTemplate
 from liminal.orm.name_template_parts import FieldPart
 from liminal.orm.schema_properties import SchemaProperties
+from liminal.utils import is_valid_wh_name
 from liminal.validation import BenchlingValidatorReport
 
 if TYPE_CHECKING:
@@ -218,11 +220,32 @@ class BaseModel(Generic[T], Base):
             )
         for wh_name, field in properties.items():
             try:
-                field.validate_column_definition(wh_name)
+                if field.entity_link:
+                    if field.entity_link not in [
+                        s.__schema_properties__.warehouse_name
+                        for s in cls.__base__.get_all_subclasses()
+                    ]:
+                        breakpoint()
+                        raise ValueError(
+                            f"Field {wh_name}: could not find entity link {field.entity_link} as a warehouse name for any currently defined schemas."
+                        )
+                if field.dropdown_link:
+                    if field.dropdown_link not in [
+                        d.__benchling_name__ for d in BaseDropdown.get_all_subclasses()
+                    ]:
+                        raise ValueError(
+                            f"Field {wh_name}: could not find dropdown link {field.dropdown_link} as a name to any defined dropdowns."
+                        )
+                if not is_valid_wh_name(wh_name):
+                    raise ValueError(
+                        f"Field {wh_name}: invalid warehouse name '{wh_name}'. It should only contain alphanumeric characters and underscores."
+                    )
             except ValueError as e:
                 errors.append(str(e))
         if errors:
-            raise ValueError(f"Invalid field properties: {' '.join(errors)}")
+            raise ValueError(
+                f"Invalid field properties for schema {cls.__tablename__}: {' '.join(errors)}"
+            )
         return True
 
     @classmethod

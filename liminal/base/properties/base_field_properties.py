@@ -4,10 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
-from liminal.base.base_dropdown import BaseDropdown
 from liminal.enums import BenchlingFieldType
-from liminal.orm.base_model import BaseModel as BenchlingBaseModel
-from liminal.utils import is_valid_wh_name
 
 
 class BaseFieldProperties(BaseModel):
@@ -71,25 +68,6 @@ class BaseFieldProperties(BaseModel):
         """If the Field Properties are meant to represent a column in Benchling,
         this will validate the properties and ensure that the entity_link and dropdowns are valid names that exist in our code.
         """
-        if self.entity_link:
-            if self.entity_link not in [
-                s.__schema_properties__.warehouse_name
-                for s in BenchlingBaseModel.get_all_subclasses()
-            ]:
-                raise ValueError(
-                    f"Field {wh_name}: could not find entity link {self.entity_link} as a warehouse name for any currently defined schemas."
-                )
-        if self.dropdown_link:
-            if self.dropdown_link not in [
-                d.__benchling_name__ for d in BaseDropdown.get_all_subclasses()
-            ]:
-                raise ValueError(
-                    f"Field {wh_name}: could not find dropdown link {self.dropdown_link} as a name to any defined dropdowns."
-                )
-        if not is_valid_wh_name(wh_name):
-            raise ValueError(
-                f"Field {wh_name}: invalid warehouse name '{wh_name}'. It should only contain alphanumeric characters and underscores."
-            )
         return True
 
     def merge(self, new_props: BaseFieldProperties) -> dict[str, Any]:

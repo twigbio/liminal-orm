@@ -64,8 +64,8 @@ def multi_relationship_deprecated(
     SQLAlchemy RelationshipProperty
     """
     warnings.warn(
-        "This version of multi_relationship is deprecated. New function signature is multi_relationship(target_class_name: str, entity_link_field: Column). Support for this signature will be removed in v4.",
-        DeprecationWarning,
+        "This version of multi_relationship is deprecated. New function signature is multi_relationship(target_class_name: str, entity_link_field: Column). Support for this signature will end with the v4 release.",
+        FutureWarning,
         stacklevel=2,
     )
 
