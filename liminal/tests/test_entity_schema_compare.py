@@ -50,8 +50,7 @@ class TestCompareEntitySchemas:
                 == "Mock Entity Two"
             )
             assert [
-                f.warehouse_name
-                for f in invalid_models["mock_entity_two"][0].op.fields
+                f.warehouse_name for f in invalid_models["mock_entity_two"][0].op.fields
             ] == ["parent_link_field"]
             assert isinstance(
                 invalid_models["mock_entity_two"][1].op, UpdateEntitySchema
