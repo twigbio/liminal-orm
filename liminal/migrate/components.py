@@ -76,7 +76,9 @@ def execute_operations(
             o.execute(benchling_service)
         except Exception as e:
             traceback.print_exc()
-            print(f"[bold red]Error executing operation {o.__class__.__name__}: {e}]")
+            print(
+                f"[bold red]Error at step {index} executing operation {o.__class__.__name__}: {e}]"
+            )
             return False
         index += 1
     return True
