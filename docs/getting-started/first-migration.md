@@ -6,16 +6,16 @@
 2. In your CLI in Liminal's root directory (that contains the `liminal/` path), run the following command:
 
     ```bash
-    liminal upgrade <benchling_tenant_name> <upgrade_descriptor>
+    liminal revision <benchling_tenant_name> <upgrade_descriptor>
     ```
 
-    Example: `liminal upgrade prod "remove dough column from pizza schema"`.
+    Example: `liminal revision prod "remove dough column from pizza schema"`.
 
     This will automatically generate a new revision file in the `versions/` directory. This revision file defines the set of steps (or "operations") that will be needed to make the targeted Benchling tenant up to date with the changes made in the schema model.
 
-    !!! question "If I have multiple Benchling tenants, do I have to run `autogenerate` for each tenant?"
+    !!! question "If I have multiple Benchling tenants, do I have to run `liminal revision ...` for each tenant?"
 
-        No, Liminal only keeps a single thread of revision history so that each revision file has a linear link. In the case of multiple tenants that need to stay in sync together, we recommend pointing `autogenerate` at your production tenant, or the tenant that acts as the production environment. This will ensure there is a consistent history that your other tenants can follow. When ready, you can then apply the revision to all your tenants.
+        No, Liminal only keeps a single thread of revision history so that each revision file has a linear link. In the case of multiple tenants that need to stay in sync together, we recommend pointing `liminal revision...` at your production tenant, or the tenant that acts as the production environment. This will ensure there is a consistent history that your other tenants can follow. When ready, you can then apply the revision to all your tenants.
 
 3. Review the generated revision file and set of operations to ensure that it is accurate.
 
@@ -62,3 +62,8 @@
 !!! warning
     If the migration fails mid way through, do not attempt to run the full upgrade again. This will re-run the same operations that were already run which is unsafe. Instead, you can comment out the operations
     that have already been run in the `upgrade()` function and run `liminal upgrade` again. This will ensure that only the operations that have not yet been run get applied. Alternatively, you can comment out the mirrored operations not run yet in the `downgrade()` function and run `liminal downgrade` to revert the changes so that you can try again. (More information on downgrades on the next page!)
+
+6. You can see what revision_id your Benchling tenant is on by running `liminal current <benchling_tenant_name>`. This is stored remotely within a generated *_liminal_remote* in Benchling.
+
+    !!! tip
+        You can see the local latest revision_id by running `liminal head <benchling_tenant_name>`.

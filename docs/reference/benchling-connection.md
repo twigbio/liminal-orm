@@ -6,13 +6,10 @@ The `BenchlingConnection` class is used to define the connection information for
 # Example BenchlingConnection definition
 from liminal.connection import BenchlingConnection, TenantConfigFlags
 
-PROD_CURRENT_REVISION_ID = "12b31776a755b"
-
 # It is highly recommended to use a secrets manager to store your credentials.
 connection = BenchlingConnection(
     tenant_name="pizzahouse-prod",
     tenant_alias="prod",
-    current_revision_id_var_name="PROD_CURRENT_REVISION_ID",
     api_client_id="my-secret-api-client-id",
     api_client_secret="my-secret-api-client-secret",
     warehouse_connection_string="my-warehouse-connection-string",
@@ -31,12 +28,6 @@ connection = BenchlingConnection(
 - **tenant_alias: Optional[str] = None**
 
     The alias of the tenant name. This is optional and is used as an alternate value when using the Liminal CLI
-
-- **current_revision_id_var_name: str = ""**
-
-    The name of the variable that contains the current revision id.
-    If not provided, a derived name will be generated based on the tenant name/alias.
-    Ex: {tenant_alias}_CURRENT_REVISION_ID or {tenant_name}_CURRENT_REVISION_ID if alias is not provided.
 
 - **api_client_id: Optional[str] = None**
 

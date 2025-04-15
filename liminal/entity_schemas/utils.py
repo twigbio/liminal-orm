@@ -33,12 +33,12 @@ def get_converted_tag_schemas(
         if include_archived
         else [s for s in all_schemas if not s.archiveRecord]
     )
+    all_schemas = [s for s in all_schemas if s.sqlIdentifier != "_liminal_remote"]
     return [
         convert_tag_schema_to_internal_schema(
             tag_schema, dropdowns_map, unit_id_to_name_map, include_archived
         )
         for tag_schema in all_schemas
-        if tag_schema.sqlIdentifier != "_liminal_remote"
     ]
 
 

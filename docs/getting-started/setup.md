@@ -11,13 +11,10 @@
     ```python
     from liminal.connection import BenchlingConnection, TenantConfigFlags
 
-        PROD_CURRENT_REVISION_ID = "12b31776a755b"
-
         # It is highly recommended to use a secrets manager to store your credentials.
         connection = BenchlingConnection(
             tenant_name="pizzahouse-prod",
             tenant_alias="prod",
-            current_revision_id_var_name="PROD_CURRENT_REVISION_ID",
             api_client_id="my-secret-api-client-id",
             api_client_secret="my-secret-api-client-secret",
             warehouse_connection_string="...",
@@ -33,11 +30,9 @@
     * Optional: The `config_flags` parameter is used to set tenant-specific configuration flags. For more information, see the [BenchlingConnection](../reference/benchling-connection.md) reference.
         * Set `schemas_enable_change_warehouse_name` to `True` if you want to enable changing schema and field warehouse names.
 
-    The `CURRENT_REVISION_ID` variable is used to store the current state of where your Benchling tenant lies on the revision timeline. The id is the `revision_id` of the revision file that has been applied to your Benchling tenant.
-
     !!! tip
 
-        If you have multiple Benchling tenants you'd like to synchronize, you can define multiple Benchling connections in the `env.py` file by creating multiple `BenchlingConnection` objects and respective `CURRENT_REVISION_ID` variables.
+        If you have multiple Benchling tenants you'd like to synchronize, you can define multiple Benchling connections in the `env.py` file by creating multiple `BenchlingConnection` objects.
 
 4. If your Benchling tenant has pre-existing schemas, run `liminal generate-files <benchling_tenant_name> -p [<write_path>]` to populate the root directory with your schema files from the given Benchling tenant. Your file structure should now look like this:
 

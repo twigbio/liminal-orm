@@ -46,7 +46,7 @@ class Pizza(BaseModel, CustomEntityMixin):
     slices = Column(name="slices", type=BenchlingFieldType.ENTITY_LINK, required=False, is_multi=True, entity_link="slice")
 
     dough_entity = single_relationship("Dough", dough)
-    slice_entities = multi_relationship("Slice", "Pizza", "slices")
+    slice_entities = multi_relationship("Slice", slices)
 
     def __init__(
         self,
@@ -217,8 +217,8 @@ from liminal.orm.relationship import single_relationship, multi_relationship
 single_relationship(target_class_name: str, entity_link_field: Column, backref: str | None = None) -> RelationshipProperty
 
 # multi_relationship is used for a multi field where there is a "one-to-many" relationship from the current class to the target class.
-# NOTE: This is not a normal one-to-many relationship. The multi field is represented as a list of entity ids.
-multi_relationship(target_class_name: str, current_class_name: str, entity_link_field_name: str) -> RelationshipProperty
+# NOTE: This is not a normal one-to-many relationship with an associated table. The multi field is represented as a list of entity ids.
+multi_relationship(target_class_name: str, entity_link_field: Column) -> RelationshipProperty
 ```
 
 !!! question "How do I access the joined entity or entities?"

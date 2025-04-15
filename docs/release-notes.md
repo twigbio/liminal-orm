@@ -1,5 +1,31 @@
 For full release notes, please visit the [GitHub Releases page](https://github.com/dynotx/liminal-orm/releases). Release versions follow [semantic versioning](https://semver.org/). This page will document migration steps needed for major and minor version changes.
 
+## v3.2.0
+
+[![github](https://img.shields.io/badge/github-v3.2.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.2.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.2.0.svg)](https://pypi.org/project/liminal-orm/3.2.0/)
+
+### 🗒️ Summary
+
+This release brings Liminal's CLI and logic closer to [Alembic's patterns](https://alembic.sqlalchemy.org/en/latest/api/commands.html), making it more familiar for users. It also fixes a couple bugs in a backwards compatible manner.
+
+- Liminal now saves the tenant's revision_id within Benchling instead of tracking it locally within env.py. When a new migration is run, Liminal will save the 'remote' revision_id within a generated _liminal_remote schema.
+
+- The `liminal current <ENV>` command now returns the revision_id from Benchling instead of the local env.py file. This is now the same pattern as Alembic.
+
+- There is a new `liminal head <ENV>` command that returns the latest revision_id based on your local revision timeline in *versions/*. This is the same pattern as Alembic.
+
+- `liminal autogenerate <ENV> '<message>'` is now `liminal revision <ENV> '<message>'`. This is now the same pattern as Alembic.
+
+- Bug fixes with multi_relationship function and imports.
+
+### Upgrade Steps
+
+There are no upgrade steps for this release, but there are deprecation warnings that need to be resolved by the v4.0.0 release.
+
+- The local `_CURRENT_REVISION_ID` variable is now longer used and should be deleted from your env.py file.
+
+- The multi_relationship function arguments have changed, and should be updated accordingly. See the [multi_relationship](../reference/multi_relationship.md) documentation for full details.
+
 ## v3.1.0
 
 [![github](https://img.shields.io/badge/github-v3.1.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.1.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.1.0.svg)](https://pypi.org/project/liminal-orm/3.1.0/)
