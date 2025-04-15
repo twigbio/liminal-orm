@@ -14,7 +14,7 @@ packages = [{include = "liminal"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4"
-benchling-sdk = ">=1.8.0"
+benchling-sdk = "^1.21.2"
 bs4 = "^0.0.2"
 numpy = "^1.23.5"
 pandas = "^1.5.3"
