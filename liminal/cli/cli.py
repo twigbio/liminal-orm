@@ -200,7 +200,7 @@ def autogenerate(
 
 @app.command(
     name="upgrade",
-    help="Upgrades the Benchling tenant by running revision file(s) based on the CURRENT_REVISION_ID and the passed in parameters. Runs the upgrade operations of each revision file in order.",
+    help="Upgrades the Benchling tenant by running revision file(s) based on the passed in parameters. Uses the remote revision_id in Benchling as the starting point, and upgrades to the given revision by running the operations in the revision file(s).",
     context_settings={"ignore_unknown_options": True},
 )
 def upgrade(
@@ -209,7 +209,7 @@ def upgrade(
     ),
     upgrade_descriptor: str = typer.Argument(
         ...,
-        help="Determines the revision files that get run. Pass in the 'revision_id' to upgrade to that revision. Pass in 'head' to upgrade to the latest revision. Pass in '+n' to make a relative revision based on the current revision id.",
+        help="Determines the revision files that get run. Pass in the 'revision_id' to upgrade to that revision. Pass in 'head' to upgrade to the latest revision. Pass in '+n' to make a relative revision based on the current remote revision id.",
     ),
 ) -> None:
     current_revision_id, benchling_connection = read_local_liminal_dir(
