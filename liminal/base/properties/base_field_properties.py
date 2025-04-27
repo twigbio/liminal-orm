@@ -92,6 +92,18 @@ class BaseFieldProperties(BaseModel):
             )
         return True
 
+    def column_dump(self) -> dict[str, Any]:
+        column_props = self.model_dump(exclude_unset=True, exclude_none=True)
+        to_pop = []
+        for k, v in column_props.items():
+            if k == "is_multi" and v is False:
+                to_pop.append(k)
+            elif k == "parent_link" and v is False:
+                to_pop.append(k)
+        for k in to_pop:
+            column_props.pop(k)
+        return column_props
+
     def merge(self, new_props: BaseFieldProperties) -> dict[str, Any]:
         """Returns a diff of the two given Benchling FieldProperties as a dictionary.
         If the field is different, set it as the new field.

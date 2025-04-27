@@ -88,13 +88,20 @@ def generate_all_entity_schema_files(
         dropdowns = []
         relationship_strings = []
         for col_name, col in columns.items():
+            column_props = col.column_dump()
             dropdown_classname = None
             if col.dropdown_link:
                 dropdown_classname = dropdown_name_to_classname_map[col.dropdown_link]
                 dropdowns.append(dropdown_classname)
-            column_strings.append(
-                f"""{TAB}{col_name}: SqlColumn = Column(name="{col.name}", type={str(col.type)}, required={col.required}{', is_multi=True' if col.is_multi else ''}{', parent_link=True' if col.parent_link else ''}{f', entity_link="{col.entity_link}"' if col.entity_link else ''}{f', dropdown={dropdown_classname}' if dropdown_classname else ''}{f', tooltip="{col.tooltip}"' if col.tooltip else ''}{f', unit_name="{col.unit_name}"' if col.unit_name else ''}{f', decimal_places={col.decimal_places}' if col.decimal_places is not None else ''})"""
-            )
+                column_props["dropdown_link"] = dropdown_classname
+            column_props_string = ""
+            for k, v in column_props.items():
+                if k == "dropdown_link":
+                    column_props_string += f"""dropdown={v},"""
+                else:
+                    column_props_string += f"""{k}={v.__repr__()},"""
+            column_string = f"""{TAB}{col_name}: SqlColumn = Column({column_props_string.rstrip(',')})"""
+            column_strings.append(column_string)
             if col.required and col.type:
                 init_strings.append(
                     f"""{TAB}{col_name}: {convert_benchling_type_to_python_type(col.type).__name__},"""
