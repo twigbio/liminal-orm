@@ -283,8 +283,8 @@ class BaseModel(Generic[T], Base):
 
         Returns
         -------
-        list[T]
-            List of all entities from the database.
+        DataFrame
+            A pandas dataframe of all entities from the database.
         """
         query = cls.query(session)
         return pd.read_sql(query.statement, session.connection())

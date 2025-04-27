@@ -5,8 +5,7 @@ from pydantic import BaseModel
 
 class ResultsSchemaProperties(BaseModel):
     """
-    This class is the validated class that is public facing and inherits from the BaseSchemaProperties class.
-    It has the same fields as the BaseSchemaProperties class, but it is validated to ensure that the fields are valid.
+    This class is the validated class that is public facing, and represents the properties of a results schema properties.
 
     Parameters
     ----------

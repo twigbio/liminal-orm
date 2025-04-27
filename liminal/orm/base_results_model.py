@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseResultsModel(Generic[T], Base):
+    """Base class for all results models. Defines all common columns for results tables in Postgres Benchling warehouse."""
+
     __abstract__ = True
     __schema_properties__: ResultsSchemaProperties
 
@@ -83,7 +85,7 @@ class BaseResultsModel(Generic[T], Base):
 
     @classmethod
     def all(cls, session: Session) -> list[T]:
-        """Uses the get_query method to retrieve all entities from the database.
+        """Uses the get_query method to retrieve all results schema rows from the database.
 
         Parameters
         ----------
@@ -93,13 +95,13 @@ class BaseResultsModel(Generic[T], Base):
         Returns
         -------
         list[T]
-            List of all entities from the database.
+            List of all results schema rows from the database.
         """
         return cls.query(session).all()
 
     @classmethod
     def df(cls, session: Session) -> pd.DataFrame:
-        """Uses the get_query method to retrieve all entities from the database.
+        """Uses the get_query method to retrieve all results schema rows from the database.
 
         Parameters
         ----------
@@ -108,8 +110,8 @@ class BaseResultsModel(Generic[T], Base):
 
         Returns
         -------
-        list[T]
-            List of all entities from the database.
+        pd.DataFrame
+            A pandas dataframe of all results schema rows from the database.
         """
         query = cls.query(session)
         return pd.read_sql(query.statement, session.connection())
@@ -117,7 +119,7 @@ class BaseResultsModel(Generic[T], Base):
     @classmethod
     def query(cls, session: Session) -> Query:
         """Abstract method that users can override to define a specific query
-        to retrieve entities from the database and cover any distinct relationships.
+        to retrieve results schema rows from the database and cover any distinct relationships.
 
         Parameters
         ----------
@@ -127,7 +129,7 @@ class BaseResultsModel(Generic[T], Base):
         Returns
         -------
         Query
-            sqlalchemy query to retrieve entities from the database.
+            sqlalchemy query to retrieve results schema rows from the database.
         """
         return session.query(cls)
 
@@ -147,8 +149,8 @@ class BaseResultsModel(Generic[T], Base):
         base_filters: BaseValidatorFilters | None = None,
         only_invalid: bool = False,
     ) -> list[BenchlingValidatorReport]:
-        """Runs all validators for all entities returned from the query and returns a list of reports.
-        This returns a report for each entity, validator pair, regardless of whether the validation passed or failed.
+        """Runs all validators for all results schema rows returned from the query and returns a list of reports.
+        This returns a report for each results schema row, validator pair, regardless of whether the validation passed or failed.
 
         Parameters
         ----------
@@ -162,13 +164,15 @@ class BaseResultsModel(Generic[T], Base):
         Returns
         -------
         list[BenchlingValidatorReport]
-            List of reports from running all validators on all entities returned from the query.
+            List of reports from running all validators on all results schema rows returned from the query.
         """
         results: list[BenchlingValidatorReport] = []
         table: list[T] = cls.apply_base_filters(
             cls.query(session), base_filters=base_filters
         ).all()
-        logger.info(f"Validating {len(table)} entities for {cls.__name__}...")
+        logger.info(
+            f"Validating {len(table)} results schema rows for {cls.__name__}..."
+        )
         validator_functions = cls.get_validators()
         for entity in table:
             for validator_func in validator_functions:
@@ -197,7 +201,7 @@ class BaseResultsModel(Generic[T], Base):
         Returns
         -------
         pd.Dataframe
-            Dataframe of reports from running all validators on all entities returned from the query.
+            Dataframe of reports from running all validators on all results schema rows returned from the query.
         """
         results = cls.validate(session, base_filters, only_invalid)
         return pd.DataFrame([r.model_dump() for r in results])

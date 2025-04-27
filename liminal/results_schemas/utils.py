@@ -12,6 +12,9 @@ from liminal.unit_dictionary.utils import get_unit_id_to_name_map
 def get_converted_results_schemas(
     benchling_service: BenchlingService,
 ) -> list[tuple[ResultsSchemaProperties, dict[str, BaseFieldProperties]]]:
+    """This functions gets all Results Schema schemas from Benchling and converts them to our internal representation of a schema and its fields.
+    It parses the Results Schema and creates ResultsSchemaProperties and a list of FieldProperties for each field in the schema.
+    """
     results_schemas = ResultsSchemaModel.get_all(benchling_service)
     dropdowns_map = get_benchling_dropdown_id_name_map(benchling_service)
     unit_id_to_name_map = get_unit_id_to_name_map(benchling_service)
@@ -35,6 +38,7 @@ def get_converted_results_schemas(
 def get_results_schemas_dict(
     benchling_service: BenchlingService,
 ) -> dict[str, AssayResultSchema]:
+    """This function gets all Results Schema schemas using the Benchling API and returns a dictionary of the schemas by their system name."""
     flattened_schemas = [
         s
         for schemas in list(benchling_service.schemas.list_assay_result_schemas())

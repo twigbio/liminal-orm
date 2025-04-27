@@ -93,6 +93,8 @@ class BaseFieldProperties(BaseModel):
         return True
 
     def column_dump(self) -> dict[str, Any]:
+        """This function returns a model dump or dictionary of the field properties.
+        However, it removes defaults based on the init in the Column class."""
         column_props = self.model_dump(exclude_unset=True, exclude_none=True)
         to_pop = []
         for k, v in column_props.items():
