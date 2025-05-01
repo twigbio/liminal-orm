@@ -16,10 +16,11 @@ def generate_all_files(
     entity_schemas_flag: bool = True,
     dropdowns_flag: bool = True,
     results_schemas_flag: bool = True,
+    overwrite: bool = False,
 ) -> None:
     """Initializes all the dropdown, entity schema, and results schema files from your Benchling tenant and writes to the given path.
     Creates and writes to the dropdowns/, entity_schemas/, and results_schemas/ directories.
-    Note: This will overwrite any existing dropdowns, entity schemas, or results schemas that exist in the given path.
+    Note: By default, this will overwrite any existing dropdowns, entity schemas, or results schemas that exist in the given path.
 
     Parameters
     ----------
@@ -27,13 +28,21 @@ def generate_all_files(
         The Benchling service object that is connected to a specified Benchling tenant.
     write_path : Path
         The path to write the generated files to.
+    entity_schemas_flag : bool
+        Whether to generate the entity schema files in the entity_schemas/ directory.
+    dropdowns_flag : bool
+        Whether to generate the dropdown files in the dropdowns/ directory.
+    results_schemas_flag : bool
+        Whether to generate the results schema files in the results_schemas/ directory.
+    overwrite : bool
+        Whether to overwrite existing the existing write_path directory.
     """
     if dropdowns_flag:
-        generate_all_dropdown_files(benchling_service, write_path)
+        generate_all_dropdown_files(benchling_service, write_path, overwrite)
     if entity_schemas_flag:
-        generate_all_entity_schema_files(benchling_service, write_path)
+        generate_all_entity_schema_files(benchling_service, write_path, overwrite)
     if results_schemas_flag:
-        generate_all_results_schema_files(benchling_service, write_path)
+        generate_all_results_schema_files(benchling_service, write_path, overwrite)
 
 
 def autogenerate_revision_file(
