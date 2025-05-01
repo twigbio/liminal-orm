@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 from rich import print
@@ -8,13 +9,24 @@ from liminal.utils import to_pascal_case, to_snake_case
 
 
 def generate_all_dropdown_files(
-    benchling_service: BenchlingService, write_path: Path
+    benchling_service: BenchlingService, write_path: Path, overwrite: bool = False
 ) -> None:
     """Generate all dropdown files from your Benchling tenant and writes to the given dropdowns/ path.
     This is used to initialize your code for Liminal and transfer the information from your Benchling tenant to your local codebase.
-    Note: This will overwrite any existing dropdowns that exist in the given path.
+
+    Parameters
+    ----------
+    benchling_service : BenchlingService
+        The Benchling service object that is connected to a specified Benchling tenant.
+    write_path : Path
+        The path to write the generated files to. dropdowns/ directory will be created within this path.
+    overwrite : bool
+        Whether to overwrite existing the existing dropdowns/ directory.
     """
     write_path = write_path / "dropdowns"
+    if write_path.exists() and overwrite:
+        shutil.rmtree(write_path)
+        print(f"[dim]Removed directory: {write_path}")
     if not write_path.exists():
         write_path.mkdir(parents=True, exist_ok=True)
         print(f"[green]Created directory: {write_path}")
