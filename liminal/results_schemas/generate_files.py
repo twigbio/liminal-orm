@@ -2,11 +2,13 @@ from pathlib import Path
 
 from rich import print
 
+from liminal.base.base_dropdown import BaseDropdown
 from liminal.connection import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdowns_dict
 from liminal.entity_schemas.utils import get_converted_tag_schemas
 from liminal.enums import BenchlingFieldType
 from liminal.mappers import convert_benchling_type_to_python_type
+from liminal.orm.base_model import BaseModel
 from liminal.results_schemas.utils import get_converted_results_schemas
 from liminal.utils import to_pascal_case, to_snake_case
 
@@ -22,15 +24,12 @@ def generate_all_results_schema_files(
         print(f"[green]Created directory: {write_path}")
 
     results_schemas = get_converted_results_schemas(benchling_service)
-    benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
-    tag_schemas = get_converted_tag_schemas(benchling_service)
-    entity_schemas_wh_name_to_classname: dict[str, str] = {
-        sp.warehouse_name: to_pascal_case(sp.name) for sp, _, _ in tag_schemas
-    }
-    dropdown_name_to_classname_map: dict[str, str] = {
-        dropdown_name: to_pascal_case(dropdown_name)
-        for dropdown_name in benchling_dropdowns.keys()
-    }
+    entity_schemas_wh_name_to_classname = _get_entity_schemas_wh_name_to_classname(
+        benchling_service
+    )
+    dropdown_name_to_classname_map = _get_dropdown_name_to_classname_map(
+        benchling_service
+    )
     init_file_imports = []
 
     for schema_properties, field_properties_dict in results_schemas:
@@ -140,3 +139,43 @@ class {schema_name}(BaseResultsModel):
     print(
         f"[green]Generated {write_path / '__init__.py'} with {len(results_schemas)} entity schema imports."
     )
+
+
+def _get_dropdown_name_to_classname_map(
+    benchling_service: BenchlingService,
+) -> dict[str, str]:
+    """Gets the dropdown name to classname map.
+    If there are dropdowns imported, use BenchlingDropdown.get_all_subclasses()
+    Otherwise, it will query for Benchling dropdowns and use those.
+    """
+    if len(BaseDropdown.get_all_subclasses()) > 0:
+        return {
+            dropdown.__benchling_name__: dropdown.__name__
+            for dropdown in BaseDropdown.get_all_subclasses()
+        }
+    benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
+    if len(benchling_dropdowns) > 0:
+        raise Exception(
+            "No dropdowns found locally. Please ensure your env.py file imports your dropdown classes or generate dropdowns from your Benchling tenant first."
+        )
+    return {}
+
+
+def _get_entity_schemas_wh_name_to_classname(
+    benchling_service: BenchlingService,
+) -> dict[str, str]:
+    """Gets the entity schema warehouse name to classname map.
+    If there are entity schemas imported, use BenchlingEntitySchema.get_all_subclasses()
+    Otherwise, it will query for Benchling entity schemas and use those.
+    """
+    if len(BaseModel.get_all_subclasses()) > 0:
+        return {
+            s.__schema_properties__.warehouse_name: s._sa_class_manager.class_.__name__
+            for s in BaseModel.get_all_subclasses()
+        }
+    tag_schemas = get_converted_tag_schemas(benchling_service)
+    if len(tag_schemas) > 0:
+        raise Exception(
+            "No entity schemas found locally. Please ensure your env.py file imports your entity schema classes or generate entity schemas from your Benchling tenant first."
+        )
+    return {}

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from rich import print
 
+from liminal.base.base_dropdown import BaseDropdown
 from liminal.connection.benchling_service import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdowns_dict
 from liminal.entity_schemas.utils import get_converted_tag_schemas
@@ -59,11 +60,9 @@ def generate_all_entity_schema_files(
     models = get_converted_tag_schemas(benchling_service)
     has_date = False
     subdirectory_map: dict[str, list[tuple[str, str]]] = {}
-    benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
-    dropdown_name_to_classname_map: dict[str, str] = {
-        dropdown_name: to_pascal_case(dropdown_name)
-        for dropdown_name in benchling_dropdowns.keys()
-    }
+    dropdown_name_to_classname_map = _get_dropdown_name_to_classname_map(
+        benchling_service
+    )
     wh_name_to_classname: dict[str, str] = {
         sp.warehouse_name: to_pascal_case(sp.name) for sp, _, _ in models
     }
@@ -207,3 +206,23 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
         print(
             f"[green]Generated {write_path / '__init__.py'} with {len(models)} entity schema imports."
         )
+
+
+def _get_dropdown_name_to_classname_map(
+    benchling_service: BenchlingService,
+) -> dict[str, str]:
+    """Gets the dropdown name to classname map.
+    If there are dropdowns imported, use BenchlingDropdown.get_all_subclasses()
+    Otherwise, it will query for Benchling dropdowns and use those.
+    """
+    if len(BaseDropdown.get_all_subclasses()) > 0:
+        return {
+            dropdown.__benchling_name__: dropdown.__name__
+            for dropdown in BaseDropdown.get_all_subclasses()
+        }
+    benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
+    if len(benchling_dropdowns) > 0:
+        raise Exception(
+            "No dropdowns found locally. Please ensure your env.py file imports your dropdown classes or generate dropdowns from your Benchling tenant first."
+        )
+    return {}

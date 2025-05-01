@@ -83,7 +83,7 @@ connection = BenchlingConnection(
 
 @app.command(
     name="generate-files",
-    help="Generates the dropdown and entity schema files from your Benchling tenant and writes to the given path.",
+    help="Generates the dropdown, entity schema, and results schema files from your Benchling tenant and writes to the given path. This will overwrite any existing dropdowns, entity schemas, or results schemas that exist in the given path.",
 )
 def generate_files(
     benchling_tenant: str = typer.Argument(
@@ -95,13 +95,41 @@ def generate_files(
         "--write-path",
         help="The path to write the generated files to.",
     ),
+    entity_schemas_flag: bool = typer.Option(
+        False,
+        "-es",
+        "--entity-schemas",
+        help="Generate entity schema files.",
+    ),
+    dropdowns_flag: bool = typer.Option(
+        False,
+        "-d",
+        "--dropdowns",
+        help="Generate dropdown files.",
+    ),
+    results_schemas_flag: bool = typer.Option(
+        False,
+        "-rs",
+        "--results-schemas",
+        help="Generate results schema files.",
+    ),
 ) -> None:
     _, benchling_connection = read_local_liminal_dir(LIMINAL_DIR_PATH, benchling_tenant)
     benchling_service = BenchlingService(benchling_connection, use_internal_api=True)
     if not write_path.exists():
         write_path.mkdir()
         print(f"[green]Created directory: {write_path}")
-    generate_all_files(benchling_service, Path(write_path))
+    if not entity_schemas_flag and not dropdowns_flag and not results_schemas_flag:
+        entity_schemas_flag = True
+        dropdowns_flag = True
+        results_schemas_flag = True
+    generate_all_files(
+        benchling_service,
+        Path(write_path),
+        entity_schemas_flag,
+        dropdowns_flag,
+        results_schemas_flag,
+    )
 
 
 @app.command(

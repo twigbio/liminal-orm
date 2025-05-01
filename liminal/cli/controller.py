@@ -10,10 +10,16 @@ from liminal.migrate.revisions_timeline import RevisionsTimeline
 from liminal.results_schemas.generate_files import generate_all_results_schema_files
 
 
-def generate_all_files(benchling_service: BenchlingService, write_path: Path) -> None:
-    """Initializes all the dropdown and entity schema files from your Benchling tenant and writes to the given path.
-    Creates and writes to the dropdowns/ and entity_schemas/ directories.
-    Note: This will overwrite any existing dropdowns or entity schemas that exist in the given path.
+def generate_all_files(
+    benchling_service: BenchlingService,
+    write_path: Path,
+    entity_schemas_flag: bool = True,
+    dropdowns_flag: bool = True,
+    results_schemas_flag: bool = True,
+) -> None:
+    """Initializes all the dropdown, entity schema, and results schema files from your Benchling tenant and writes to the given path.
+    Creates and writes to the dropdowns/, entity_schemas/, and results_schemas/ directories.
+    Note: This will overwrite any existing dropdowns, entity schemas, or results schemas that exist in the given path.
 
     Parameters
     ----------
@@ -22,9 +28,12 @@ def generate_all_files(benchling_service: BenchlingService, write_path: Path) ->
     write_path : Path
         The path to write the generated files to.
     """
-    generate_all_dropdown_files(benchling_service, write_path)
-    generate_all_entity_schema_files(benchling_service, write_path)
-    generate_all_results_schema_files(benchling_service, write_path)
+    if dropdowns_flag:
+        generate_all_dropdown_files(benchling_service, write_path)
+    if entity_schemas_flag:
+        generate_all_entity_schema_files(benchling_service, write_path)
+    if results_schemas_flag:
+        generate_all_results_schema_files(benchling_service, write_path)
 
 
 def autogenerate_revision_file(
