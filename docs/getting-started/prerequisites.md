@@ -6,4 +6,4 @@
 
 ### Notes
 
-- It is important to note that Liminal only supports coverage for Benchling entity schemas and dropdowns at the moment. We are currently working on expanding support to include all Benchling schema types (registry schemas next). Leave a comment on the [Discussions](https://github.com/dynotx/liminal-orm/discussions) forum on your vote for what should be supported next, or what is blocking you from using Liminal!
+- Liminal currently supports coverage for Benchling entity schemas, results schemas, and dropdowns at the moment. Leave a comment on the [Discussions](https://github.com/dynotx/liminal-orm/discussions) forum on your vote for what should be supported next, or what is blocking you from using Liminal!
