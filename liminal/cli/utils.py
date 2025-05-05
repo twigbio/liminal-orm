@@ -81,7 +81,7 @@ def _read_local_env_file(
 def update_env_revision_id(
     env_file_path: Path, benchling_env: str, revision_id: str
 ) -> None:
-    """Updates the CURRENT_REVISION_ID variable in the env.py file to the given revision id. REMOVE WITH v4 release."""
+    """Updates the CURRENT_REVISION_ID variable in the env.py file to the given revision id. REMOVE WITH v5 release."""
     env_file_content = env_file_path.read_text().split("\n")
     for i, line in enumerate(env_file_content):
         if f"{benchling_env}_CURRENT_REVISION_ID =" in line:

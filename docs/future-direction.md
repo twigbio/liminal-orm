@@ -8,7 +8,7 @@ This roadmap is based on community feedback. If there is a feature or something 
     - Name template
     - Inventory settings
 - Expand coverage to all Benchling schema types
-    - Registry schemas (In progress 🚧)
+    - Registry schemas (Done! ✅)
     - Container schema
     - Box schema
     - Plate schema

@@ -34,7 +34,7 @@
 
         If you have multiple Benchling tenants you'd like to synchronize, you can define multiple Benchling connections in the `env.py` file by creating multiple `BenchlingConnection` objects.
 
-4. If your Benchling tenant has pre-existing schemas, run `liminal generate-files <benchling_tenant_name> -p [<write_path>]` to populate the root directory with your schema files from the given Benchling tenant. Your file structure should now look like this:
+4. If your Benchling tenant has pre-existing schemas, run `liminal generate-files <benchling_tenant_name> -p [<write_path>]` to populate the root directory with your dropdown, entity schema, and results schema files from the given Benchling tenant. Your file structure should now look like this:
 
         pizzahouse/
             liminal/
@@ -45,6 +45,8 @@
                 ...
             entity_schemas/
                 ...
+            results_schemas/
+                ...
 
     !!! tip
         It is recommended to generate files using your production Benchling tenant. These schemas will be used as the single source of truth for your production tenant as well as other tenants you may have.
@@ -54,6 +56,7 @@
     ```python
     from pizzahouse.dropdowns import *
     from pizzahouse.entity_schemas import *
+    from pizzahouse.results_schemas import *
     ```
 
     !!! warning

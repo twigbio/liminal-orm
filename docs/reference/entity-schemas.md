@@ -12,13 +12,11 @@ Below, we will go through the different components of defining an entity schema 
 
 ```python
 from liminal.orm.name_template_parts import RegistryIdentifierNumberPart, TextPart
-from liminal.orm.relationship import single_relationship
+from liminal.orm.relationship import single_relationship, multi_relationship
 from liminal.orm.schema_properties import SchemaProperties
 from liminal.orm.column import Column
 from liminal.orm.name_template import NameTemplate
-from liminal.validation import BenchlingValidator
 from liminal.enums import BenchlingEntityType, BenchlingFieldType, BenchlingNamingStrategy
-from sqlalchemy.orm import Query, Session
 from liminal.orm.mixins import CustomEntityMixin
 from liminal.orm.base_model import BaseModel
 from pizzahouse.dropdowns import Toppings
@@ -62,13 +60,36 @@ class Pizza(BaseModel, CustomEntityMixin):
 
 ```
 
-## Mixins: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/mixins.py)
+## Data Access & Validation
+
+If you have warehouse access, you can access data from entity schemas by using [SQLAlchemy's standard query interface](https://docs.sqlalchemy.org/en/14/orm/queryguide.html) or the built in base class functions Liminal provides.
+
+```python
+from ..pizza import Pizza
+
+# Standard SQLAlchemy query
+with BenchlingService(benchling_connection, with_db=True) as session:
+    all_pizzas = session.query(Pizza).all()
+
+# Liminal base class functions
+with BenchlingService(benchling_connection, with_db=True) as session:
+    all_pizzas = Pizza.all(session)
+
+    all_pizzas_df = Pizza.df(session)
+
+```
+
+With warehouse access, you can also create custom validation rules and run them very easily through Liminal's validation framework (see docs [here](../reference/validation.md)).
+
+## Components
+
+### Mixins: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/mixins.py)
 
 All Liminal entity schema classes must inherit from one of the mixins in the [mixins](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/mixins.py) module. The mixin provides the base columns for the specific entity schema type. For example, the `CustomEntityMixin` provides the base columns for a custom entity schema. To learn more, check out the SQLAlchemy documentation [here](https://docs.sqlalchemy.org/en/13/orm/extensions/declarative/mixins.html).
 
-## Schema Properties: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/schema_properties.py)
+### Schema Properties: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/schema_properties.py)
 
-### Parameters
+#### Parameters
 
 - **name: str**
 
@@ -129,7 +150,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 !!! tip
     When schemas (and fields) are archived, they still existing the Benchling warehouse. Using _archived is useful when you need to access archived data.
 
-## Column: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/column.py)
+### Column: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/column.py)
 
 !!! tip
     Liminal also detects the ordering of your fields. Define columns on different lines in your schema class to change the ordering of the fields on the Benchling entity schema.
@@ -139,7 +160,7 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 
     Liminal will enforce that the column variable name (which represents the warehouse name) matches the Benchling generated warehouse name, which Liminal assumes to be `to_snake_case(name)`.
 
-### Parameters
+#### Parameters
 
 - **name: str**
 
@@ -192,11 +213,11 @@ All Liminal entity schema classes must inherit from one of the mixins in the [mi
 
     Private attribute used to set the warehouse name of the column. This is useful when the variable name is not the same as the warehouse name.
 
-## Name Template: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/name_template.py)
+### Name Template: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/name_template.py)
 
 The name template is used to generate the name of entity schema entities. It is comprised of a list of name template parts. The name template parts are defined in the [name_template_parts](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/name_template_parts.py) module.
 
-### Parameters
+#### Parameters
 
 - **parts: list[NameTemplateParts]**
 
@@ -206,7 +227,7 @@ The name template is used to generate the name of entity schema entities. It is 
 
     Whether to order the name parts by sequence. This can only be set to True for sequence enity types. If one or many part link fields are included in the name template, list parts in the order they appear on the sequence map, sorted by start position and then end position.
 
-## Relationships: [module](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/relationship.py)
+### Relationships: [module](https://github.com/dynotx/liminal-orm/blob/main/liminal/orm/relationship.py)
 
 If there are columns that are entity links, that means the value of the column is the linked entity id or ids. You can easily define relationships using Liminal's wrapper functions around SQLAlchemy. The two relationships to define are `single_relationship` and `multi_relationship`, and examples are shown above.
 

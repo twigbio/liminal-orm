@@ -156,7 +156,7 @@ def current(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v4 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -200,7 +200,7 @@ def revision(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v4 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -229,7 +229,7 @@ def autogenerate(
     ),
 ) -> None:
     raise DeprecationWarning(
-        "CLI command `liminal autogenerate ...` is deprecated and will be removed in v4. Please use `liminal revision ...` instead."
+        "CLI command `liminal autogenerate ...` is deprecated and will be removed in v5. Please use `liminal revision ...` instead."
     )
 
 
@@ -256,7 +256,7 @@ def upgrade(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v4 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -300,7 +300,7 @@ def downgrade(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v4 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id

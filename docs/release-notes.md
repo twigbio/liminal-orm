@@ -1,5 +1,19 @@
 For full release notes, please visit the [GitHub Releases page](https://github.com/dynotx/liminal-orm/releases). Release versions follow [semantic versioning](https://semver.org/). This page will document migration steps needed for major and minor version changes.
 
+## v4.0.0
+
+[![github](https://img.shields.io/badge/github-v4.0.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/4.0.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/4.0.0.svg)](https://pypi.org/project/liminal-orm/4.0.0/)
+
+### 🗒️ Summary
+
+The v4.0.0 brings the ability to define results schemas in code using Liminal. Results tables are used to capture experimental and assay data in lab notebooks. With a single command, you can define all of your results schemas as classes in your codebase using Liminal's framework. This enables a simple and strongly-typed way of accessing this data, and the ability to create custom validation rules for your results. For full details, check out the [results schemas](../reference/results-schemas) documentation! This release also adds functionality to the `liminal generate-files` command to allow for more flexibility (run `liminal generate-files --help` for full details). Support for deprecated features has been extended to the release of v5.0.0.
+
+### Upgrade Steps
+
+- PR [#133](https://github.com/dynotx/liminal-orm/pull/133): results schemas!
+
+1. **Upgrade step**: Follow the getting started guide to [generate your results schema classes](../getting-started/synchronizing-results-schemas/).
+
 ## v3.2.0
 
 [![github](https://img.shields.io/badge/github-v3.2.0-blue)](https://github.com/dynotx/liminal-orm/releases/tag/3.2.0) [![pypi](https://img.shields.io/pypi/v/liminal-orm/3.2.0.svg)](https://pypi.org/project/liminal-orm/3.2.0/)
@@ -24,7 +38,7 @@ There are no upgrade steps for this release, but there are deprecation warnings 
 
 - The local `_CURRENT_REVISION_ID` variable is now longer used and should be deleted from your env.py file.
 
-- The multi_relationship function arguments have changed, and should be updated accordingly. See the [multi_relationship](../reference/multi_relationship.md) documentation for full details.
+- The multi_relationship function arguments have changed, and should be updated accordingly. See the [multi_relationship](../reference/entity-schemas/#relationships-module) documentation for full details.
 
 ## v3.1.0
 
@@ -38,7 +52,7 @@ This release adds the ability to define tenant-specific configuration flags for 
 
 - PR [#120](https://github.com/dynotx/liminal-orm/pull/120): adds ability to define tenant-specific configuration flags for entity schemas.
 
-1. **Upgrade step**: Remove the `warehouse_access` parameter from the `BenchlingConnection` object. Set the `config_flags` parameter on your `BenchlingConnection` object(s) to a `TenantConfigFlags` object. See documentation for [BenchlingConnection](../reference/benchling-connection.md) for full details.
+1. **Upgrade step**: Remove the `warehouse_access` parameter from the `BenchlingConnection` object. Set the `config_flags` parameter on your `BenchlingConnection` object(s) to a `TenantConfigFlags` object. See documentation for [BenchlingConnection](../reference/benchling-connection) for full details.
 
 ## v3.0.0
 

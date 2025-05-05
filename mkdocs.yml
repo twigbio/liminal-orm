@@ -8,12 +8,14 @@ nav:
       - getting-started/setup.md
       - getting-started/first-migration.md
       - getting-started/downgrading.md
+      - getting-started/synchronizing-results-schemas.md
       - getting-started/tutorials.md
   - Reference:
       - reference/benchling-connection.md
       - reference/benchling-session.md
       - reference/dropdowns.md
       - reference/entity-schemas.md
+      - reference/results-schemas.md
       - reference/validation.md
       - reference/revision-file.md
       - reference/operations.md

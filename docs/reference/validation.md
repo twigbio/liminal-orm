@@ -1,13 +1,13 @@
-When using Benchling to store essential data, it is important to validate the data to ensure accuracy and consistency. Liminal provides an easy way to define "validators" on entity schemas that ensure entities adhere to your defined business logic. These validators can be run easily by calling the `validate()` method on the entity schema.
+When using Benchling to store essential data, it is important to validate the data to ensure accuracy and consistency. Liminal provides an easy way to define "validators" on entity and results schemas that ensure entities adhere to your defined business logic. These validators can be run easily by calling the `validate()` method on the entity or results schema class.
 
 !!! note
     Warehouse access is required to run validators.
 
 ## Defining a Liminal Validator [decorator](https://github.com/dynotx/liminal-orm/blob/main/liminal/validation/__init__.py#L61)
 
-Any functions decorated with `liminal_validator` are detected as validators for the entity schema.
-Each validator returns a `BenchlingValidatorReport` object per entity it is run on, with either `valid=True` or `valid=False`.
-If no errors are raised when it is run on an entity, the report will be valid. If an error is raised, the report will be invalid.
+Any functions decorated with `liminal_validator` are detected as validators for the entity or results schema class.
+Each validator returns a `BenchlingValidatorReport` object per entity/result it is run on, with either `valid=True` or `valid=False`.
+If no errors are raised when it is run on an entity/result, the report will be valid. If an error is raised, the report will be invalid.
 
 ```python
 from liminal.validation import ValidationSeverity, liminal_validator
@@ -35,7 +35,7 @@ class Pizza(BaseModel, CustomEntityMixin):
 
 ## Running Validation
 
-To run validation using Liminal, call the `validate()` method on the entity schema:
+To run validation using Liminal, call the `validate()` method on the schema class:
 
 ```python
 with BenchlingSession(benchling_connection, with_db=True) as session:
@@ -70,7 +70,7 @@ with BenchlingSession(benchling_connection, with_db=True) as session:
 
     List of reports from running all validators on all entities returned from the query.
 
-## BenchlingValidatorReport: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/validation/__init__.py#L13
+## BenchlingValidatorReport: [class](https://github.com/dynotx/liminal-orm/blob/main/liminal/validation/__init__.py#L13)
 
 These reports are filled out by the `liminal_validator` decorator behind the scenes.
 
