@@ -78,7 +78,7 @@ class BaseResultsModel(Generic[T], Base):
         if base_filters.updated_date_end:
             query = query.filter(cls.modified_at <= base_filters.updated_date_end)
         if base_filters.entity_ids:
-            query = query.filter(cls.id.in_(base_filters.entity_ids))
+            query = query.filter(cls.v3_id.in_(base_filters.entity_ids))
         if base_filters.creator_full_names:
             query = query.filter(User.name.in_(base_filters.creator_full_names))
         return query
