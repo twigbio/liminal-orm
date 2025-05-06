@@ -26,6 +26,7 @@ from liminal.enums import (
 )
 
 logger = logging.getLogger(__name__)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 REMOTE_LIMINAL_SCHEMA_NAME = "_liminal_remote"
 REMOTE_REVISION_ID_FIELD_WH_NAME = "revision_id"
