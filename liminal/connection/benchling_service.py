@@ -25,10 +25,10 @@ from liminal.enums import (
     BenchlingNamingStrategy,
 )
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-REMOTE_LIMINAL_SCHEMA_NAME = "_liminal_remote"
+REMOTE_LIMINAL_SCHEMA_NAME = "liminal_remote"
 REMOTE_REVISION_ID_FIELD_WH_NAME = "revision_id"
 
 
@@ -71,7 +71,7 @@ class BenchlingService(Benchling):
             super().__init__(
                 url=url, auth_method=auth_method, retry_strategy=retry_strategy
             )
-            logger.info(f"Tenant {connection.tenant_name}: Connected to Benchling API.")
+            LOGGER.info(f"Tenant {connection.tenant_name}: Connected to Benchling API.")
         self.use_db = use_db
         if use_db:
             if connection.warehouse_connection_string:
@@ -79,7 +79,7 @@ class BenchlingService(Benchling):
                     connection.warehouse_connection_string
                 )
                 configure_mappers()
-                logger.info(
+                LOGGER.info(
                     f"Tenant {connection.tenant_name}: Connected to Benchling read-only Postgres warehouse."
                 )
             else:
@@ -105,7 +105,7 @@ class BenchlingService(Benchling):
                     "Referer": f"https://{connection.tenant_name}.benchling.com/",
                     "Content-Type": "application/json",
                 }
-                logger.info(
+                LOGGER.info(
                     f"Tenant {connection.tenant_name}: Connected to Benchling internal API."
                 )
             else:
@@ -151,7 +151,7 @@ class BenchlingService(Benchling):
 
     def get_remote_revision_id(self) -> str:
         """
-        Uses internal API to to search for the _liminal_remote schema, where the revision_id is stored.
+        Uses internal API to to search for the liminal_remote schema, where the revision_id is stored.
         This schema contains the remote revision_id in the name of the revision_id field.
 
         Returns the remote revision_id stored on the entity.
@@ -180,8 +180,8 @@ class BenchlingService(Benchling):
 
     def upsert_remote_revision_id(self, revision_id: str) -> None:
         """Updates or inserts a remote Liminal schema into your tenant with the given revision_id stored in the name of a field.
-        If the '_liminal_remote' schema is found, check and make sure a field with warehouse_name 'revision_id' is present. If both are present, update the revision_id stored within the name.
-        If no schema is found, create the _liminal_remote entity schema.
+        If the 'liminal_remote' schema is found, check and make sure a field with warehouse_name 'revision_id' is present. If both are present, update the revision_id stored within the name.
+        If no schema is found, create the liminal_remote entity schema.
         Upsert is needed to migrate users from using the CURRENT_REVISION_ID stored in the env.py file smoothly to storing in Benchling itself.
 
         Parameters
@@ -199,20 +199,20 @@ class BenchlingService(Benchling):
         try:
             liminal_schema = TagSchemaModel.get_one(self, REMOTE_LIMINAL_SCHEMA_NAME)
         except Exception:
-            # No _liminal_remote schema found. Create schema.
+            # No liminal_remote schema found. Create schema.
             from liminal.entity_schemas.operations import CreateEntitySchema
 
             CreateEntitySchema(
                 schema_properties=BaseSchemaProperties(
-                    name={REMOTE_LIMINAL_SCHEMA_NAME},
-                    warehouse_name={REMOTE_LIMINAL_SCHEMA_NAME},
-                    prefix={REMOTE_LIMINAL_SCHEMA_NAME},
+                    name=REMOTE_LIMINAL_SCHEMA_NAME,
+                    warehouse_name=REMOTE_LIMINAL_SCHEMA_NAME,
+                    prefix=REMOTE_LIMINAL_SCHEMA_NAME,
                     entity_type=BenchlingEntityType.CUSTOM_ENTITY,
                     naming_strategies={BenchlingNamingStrategy.NEW_IDS},
                 ),
                 fields=[
                     BaseFieldProperties(
-                        name={revision_id},
+                        name=revision_id,
                         warehouse_name=REMOTE_REVISION_ID_FIELD_WH_NAME,
                         type=BenchlingFieldType.TEXT,
                         parent_link=False,
@@ -221,14 +221,18 @@ class BenchlingService(Benchling):
                     )
                 ],
             ).execute(self)
-        # _liminal_remote schema found. Check if revision_id field exists on it.
+            LOGGER.warning(
+                f"Created {REMOTE_LIMINAL_SCHEMA_NAME} schema for tracking the remote revision id. Please delete the revision_id variable tracked in your env.py to complete the migration to tracking the tenant revision_id in Benchling instead of locally."
+            )
+            return
+        # liminal_remote schema found. Check if revision_id field exists on it.
         revision_id_fields = [
             f
             for f in liminal_schema.fields
             if f.systemName == REMOTE_REVISION_ID_FIELD_WH_NAME
         ]
         if len(revision_id_fields) == 1:
-            # _liminal_remote schema found, revision_id field found. Update revision_id field on it with given revision_id.
+            # liminal_remote schema found, revision_id field found. Update revision_id field on it with given revision_id.
             from liminal.entity_schemas.operations import UpdateEntitySchemaField
 
             revision_id_field = revision_id_fields[0]
