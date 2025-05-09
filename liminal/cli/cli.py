@@ -141,7 +141,7 @@ def generate_files(
 
 @app.command(
     name="current",
-    help="Returns the remote revision_id that your Benchling tenant is currently on. Reads this from the name on the '_liminal_remote' schema.",
+    help="Returns the remote revision_id that your Benchling tenant is currently on. Reads this from the name on the 'liminal_remote' schema.",
 )
 def current(
     benchling_tenant: str = typer.Argument(
@@ -156,7 +156,7 @@ def current(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the 'liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -200,7 +200,7 @@ def revision(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the 'liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -256,7 +256,7 @@ def upgrade(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the 'liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -272,7 +272,7 @@ def upgrade(
             f"[dim red]Set local {benchling_tenant}_CURRENT_REVISION_ID to {upgrade_revision_id} in liminal/env.py"
         )
     print(
-        f"[dim]Set revision_id to {upgrade_revision_id} withinn '_liminal_remote' schema."
+        f"[dim]Set revision_id to {upgrade_revision_id} within 'liminal_remote' schema."
     )
     print("[bold green]Migration complete")
 
@@ -300,7 +300,7 @@ def downgrade(
         remote_revision_id = benchling_service.get_remote_revision_id()
         if current_revision_id is not None:
             warnings.warn(
-                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the '_liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
+                f"Accessing and using the revision_id variable in {LIMINAL_DIR_PATH/'env.py'} is deprecated. Delete the variable set in the env.py file, the revision_id is now stored in your Benchling tenant within the 'liminal_remote' schema. Support for reading/writing the local revision_id will end with the v5 release.",
                 FutureWarning,
             )
         current_revision_id = remote_revision_id
@@ -316,7 +316,7 @@ def downgrade(
             f"[dim red]Set local {benchling_tenant}_CURRENT_REVISION_ID to {downgrade_revision_id} in liminal/env.py"
         )
     print(
-        f"[dim]Set revision_id to {downgrade_revision_id} withinn '_liminal_remote' schema."
+        f"[dim]Set revision_id to {downgrade_revision_id} within 'liminal_remote' schema."
     )
     print("[bold green]Migration complete")
 
