@@ -76,6 +76,7 @@ def generate_all_entity_schema_files(
     models = get_converted_tag_schemas(benchling_service)
     has_date = False
     subdirectory_map: dict[str, list[tuple[str, str]]] = {}
+    subdirectory_num_files_written: dict[str, int] = {}
     dropdown_name_to_classname_map = _get_dropdown_name_to_classname_map(
         benchling_service
     )
@@ -188,29 +189,33 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
 {init_string}
 
 """
-        write_directory_path = write_path / get_file_subdirectory(
-            schema_properties.entity_type
-        )
-        subdirectory_map[get_file_subdirectory(schema_properties.entity_type)] = (
-            subdirectory_map.get(
-                get_file_subdirectory(schema_properties.entity_type), []
-            )
-            + [(filename, classname)]
-        )
+        subdirectory_name = get_file_subdirectory(schema_properties.entity_type)
+        write_directory_path = write_path / subdirectory_name
+        if not subdirectory_map.get(subdirectory_name):
+            subdirectory_map[subdirectory_name] = []
+            subdirectory_num_files_written[subdirectory_name] = 0
+        subdirectory_map[subdirectory_name].append((filename, classname))
         write_directory_path.mkdir(exist_ok=True)
-        with open(write_directory_path / filename, "w") as file:
-            file.write(full_content)
+        if overwrite:
+            with open(write_directory_path / filename, "w") as file:
+                file.write(full_content)
+            subdirectory_num_files_written[subdirectory_name] += 1
 
     for subdir, names in subdirectory_map.items():
-        init_content = (
-            "\n".join(
-                f"from .{filename[:-3]} import {classname}"
-                for filename, classname in names
+        if subdirectory_num_files_written[subdir] > 0:
+            init_content = (
+                "\n".join(
+                    f"from .{filename[:-3]} import {classname}"
+                    for filename, classname in names
+                )
+                + "\n"
             )
-            + "\n"
-        )
-        with open(write_path / subdir / "__init__.py", "w") as file:
-            file.write(init_content)
+            with open(write_path / subdir / "__init__.py", "w") as file:
+                file.write(init_content)
+        else:
+            print(
+                f"[green dim]No new {subdir} entity schema files to be written. If you want to overwrite existing files, run with -o flag."
+            )
 
     with open(write_path / "__init__.py", "w") as file:
         file.write(

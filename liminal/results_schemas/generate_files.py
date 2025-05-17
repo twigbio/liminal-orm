@@ -47,6 +47,7 @@ def generate_all_results_schema_files(
         benchling_service
     )
     init_file_imports = []
+    num_files_written = 0
 
     for schema_properties, field_properties_dict in results_schemas:
         has_date = False
@@ -147,14 +148,21 @@ class {schema_name}(BaseResultsModel):
 {init_string}
 """
 
-        with open(write_path / file_name, "w") as file:
-            file.write(schema_content)
+        if overwrite:
+            with open(write_path / file_name, "w") as file:
+                file.write(schema_content)
+            num_files_written += 1
 
-    with open(write_path / "__init__.py", "w") as file:
-        file.write("\n".join(init_file_imports))
-    print(
-        f"[green]Generated {write_path / '__init__.py'} with {len(results_schemas)} entity schema imports."
-    )
+    if num_files_written > 0:
+        with open(write_path / "__init__.py", "w") as file:
+            file.write("\n".join(init_file_imports))
+        print(
+            f"[green]Generated {write_path / '__init__.py'} with {len(results_schemas)} entity schema imports. {num_files_written} results schema files written."
+        )
+    else:
+        print(
+            "[green dim]No new results schema files to be written. If you want to overwrite existing files, run with -o flag."
+        )
 
 
 def _get_dropdown_name_to_classname_map(
