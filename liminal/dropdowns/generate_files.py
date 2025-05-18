@@ -49,7 +49,7 @@ class {classname}(BaseDropdown):
         filename = to_snake_case(dropdown_name) + ".py"
         if overwrite or not (write_path / filename).exists():
             with open(write_path / filename, "w") as file:
-                    file.write(dropdown_content)
+                file.write(dropdown_content)
             num_files_written += 1
         file_names_to_classname.append((filename, classname))
 
