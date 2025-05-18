@@ -1,51 +1,57 @@
-[tool.poetry]
+[project]
 name = "liminal-orm"
 version = "4.1.2"
 description = "An ORM and toolkit that builds on top of Benchling's platform to keep your schemas and downstream code dependencies in sync."
-authors = ["DynoTx Open Source <opensource@dynotx.com>"]
+authors = [{ name = "DynoTx Open Source", email = "opensource@dynotx.com" }]
+requires-python = ">=3.9,<4"
 readme = "README.md"
-homepage = "https://github.com/dynotx/liminal-orm"
-repository = "https://github.com/dynotx/liminal-orm"
-documentation = "https://dynotx.github.io/liminal-orm/"
-packages = [{include = "liminal"}]
+dependencies = [
+    "benchling-sdk>=1.21.2,<2",
+    "bs4>=0.0.2,<0.0.3",
+    "numpy>=1.23.5,<2",
+    "pandas>=1.5.3,<2",
+    "pydantic>=2,<=2.7",
+    "requests>=2.32.3,<3",
+    "rich>=13.9.2,<14",
+    "sqlalchemy<2",
+    "tenacity>=8,<10",
+    "typer>=0.12.5,<0.13",
+    "lxml>=5.3.0,<6",
+    "psycopg2-binary>=2.9.10,<3",
+    "tornado==6.5.0",
+]
 
-[tool.poetry.urls]
+[project.urls]
+Homepage = "https://github.com/dynotx/liminal-orm"
+Repository = "https://github.com/dynotx/liminal-orm"
+Documentation = "https://dynotx.github.io/liminal-orm/"
 "Bug Tracker" = "https://github.com/dynotx/liminal-orm/issues"
 
-[tool.poetry.dependencies]
-python = ">=3.9,<4"
-benchling-sdk = "^1.21.2"
-bs4 = "^0.0.2"
-numpy = "^1.23.5"
-pandas = "^1.5.3"
-pydantic = ">=2,<=2.7" # TODO: We need to assess this upgrade
-requests = "^2.32.3"
-rich = "^13.9.2"
-sqlalchemy = "<2" # TODO: We need to assess this upgrade
-tenacity = ">=8,<10"
-typer = "^0.12.5"
-lxml = "^5.3.0"
-psycopg2-binary = "^2.9.10"
-tornado = "6.5.0"
+[project.scripts]
+liminal = "liminal.cli.cli:app"
 
-[tool.poetry.group.dev.dependencies]
-ipykernel = "^6.29.5"
-mkdocs-material = "^9.5.41"
-mypy = "^1.1.1"
-pre-commit = "^4.0.1"
-pytest = "^8.3.3"
-ruff = "^0.6.9"
-sqlalchemy = "1.4.49"
-types-beautifulsoup4 = "^4.12.0.20240907"
-types-requests = "^2.32.0.20240914"
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5,<7",
+    "mkdocs-material>=9.5.41,<10",
+    "mypy>=1.1.1,<2",
+    "pre-commit>=4.0.1,<5",
+    "pytest>=8.3.3,<9",
+    "ruff>=0.6.9,<0.7",
+    "sqlalchemy==1.4.49",
+    "types-beautifulsoup4>=4.12.0.20240907,<5",
+    "types-requests>=2.32.0.20240914,<3",
+]
 
+[tool.hatch.build.targets.sdist]
+include = ["liminal"]
+
+[tool.hatch.build.targets.wheel]
+include = ["liminal"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-liminal = "liminal.cli.cli:app"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.mypy]
 check_untyped_defs = true
