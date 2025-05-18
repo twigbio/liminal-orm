@@ -21,7 +21,7 @@ def generate_all_dropdown_files(
     write_path : Path
         The path to write the generated files to. dropdowns/ directory will be created within this path.
     overwrite : bool
-        Whether to overwrite existing the existing dropdowns/ directory.
+        Whether to overwrite existing files in the dropdowns/ directory.
     """
     write_path = write_path / "dropdowns"
     if write_path.exists() and overwrite:
@@ -33,6 +33,7 @@ def generate_all_dropdown_files(
 
     dropdowns = get_benchling_dropdowns_dict(benchling_service)
     file_names_to_classname = []
+    num_files_written = 0
     for dropdown_name, dropdown_options in dropdowns.items():
         dropdown_values = [option.name for option in dropdown_options.options]
         options_list = str(dropdown_values).replace("'", '"')
@@ -46,8 +47,10 @@ class {classname}(BaseDropdown):
     __allowed_values__ = {options_list}
 """
         filename = to_snake_case(dropdown_name) + ".py"
-        with open(write_path / filename, "w") as file:
-            file.write(dropdown_content)
+        if overwrite or not (write_path / filename).exists():
+            with open(write_path / filename, "w") as file:
+                file.write(dropdown_content)
+            num_files_written += 1
         file_names_to_classname.append((filename, classname))
 
     file_names_to_classname.sort(key=lambda x: x[0])
@@ -55,8 +58,13 @@ class {classname}(BaseDropdown):
         f"from .{filename[:-3]} import {classname}"
         for filename, classname in file_names_to_classname
     )
-    with open(write_path / "__init__.py", "w") as file:
-        file.write(import_statements)
+    if num_files_written > 0:
+        with open(write_path / "__init__.py", "w") as file:
+            file.write(import_statements)
         print(
-            f"[green]Generated {write_path / '__init__.py'} with {len(file_names_to_classname)} dropdown imports."
+            f"[green]Generated {write_path / '__init__.py'} with {len(file_names_to_classname)} dropdown imports. {num_files_written} dropdown files written."
+        )
+    else:
+        print(
+            "[green dim]No new dropdown files to be written. If you want to overwrite existing files, run with -o flag."
         )

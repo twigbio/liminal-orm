@@ -63,7 +63,7 @@ def generate_all_entity_schema_files(
     write_path : Path
         The path to write the generated files to. entity_schemas/ directory will be created within this path.
     overwrite : bool
-        Whether to overwrite existing the existing entity_schemas/ directory.
+        Whether to overwrite existing files in the entity_schemas/ directory.
     """
     write_path = write_path / "entity_schemas"
     if write_path.exists() and overwrite:
@@ -76,6 +76,7 @@ def generate_all_entity_schema_files(
     models = get_converted_tag_schemas(benchling_service)
     has_date = False
     subdirectory_map: dict[str, list[tuple[str, str]]] = {}
+    subdirectory_num_files_written: dict[str, int] = {}
     dropdown_name_to_classname_map = _get_dropdown_name_to_classname_map(
         benchling_service
     )
@@ -188,39 +189,45 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
 {init_string}
 
 """
-        write_directory_path = write_path / get_file_subdirectory(
-            schema_properties.entity_type
-        )
-        subdirectory_map[get_file_subdirectory(schema_properties.entity_type)] = (
-            subdirectory_map.get(
-                get_file_subdirectory(schema_properties.entity_type), []
-            )
-            + [(filename, classname)]
-        )
+        subdirectory_name = get_file_subdirectory(schema_properties.entity_type)
+        write_directory_path = write_path / subdirectory_name
+        if not subdirectory_map.get(subdirectory_name):
+            subdirectory_map[subdirectory_name] = []
+            subdirectory_num_files_written[subdirectory_name] = 0
+        subdirectory_map[subdirectory_name].append((filename, classname))
         write_directory_path.mkdir(exist_ok=True)
-        with open(write_directory_path / filename, "w") as file:
-            file.write(full_content)
+        if overwrite or not (write_directory_path / filename).exists():
+            with open(write_directory_path / filename, "w") as file:
+                file.write(full_content)
+            subdirectory_num_files_written[subdirectory_name] += 1
 
     for subdir, names in subdirectory_map.items():
-        init_content = (
-            "\n".join(
-                f"from .{filename[:-3]} import {classname}"
-                for filename, classname in names
+        if subdirectory_num_files_written[subdir] > 0:
+            init_content = (
+                "\n".join(
+                    f"from .{filename[:-3]} import {classname}"
+                    for filename, classname in names
+                )
+                + "\n"
             )
-            + "\n"
-        )
-        with open(write_path / subdir / "__init__.py", "w") as file:
-            file.write(init_content)
+            with open(write_path / subdir / "__init__.py", "w") as file:
+                file.write(init_content)
 
-    with open(write_path / "__init__.py", "w") as file:
-        file.write(
-            "\n".join(
-                f"from .{subdir} import * # noqa" for subdir in subdirectory_map.keys()
+    if sum(subdirectory_num_files_written.values()) > 0:
+        with open(write_path / "__init__.py", "w") as file:
+            file.write(
+                "\n".join(
+                    f"from .{subdir} import * # noqa"
+                    for subdir in subdirectory_map.keys()
+                )
+                + "\n"
             )
-            + "\n"
-        )
+            print(
+                f"[green]Generated {write_path / '__init__.py'} with {sum(subdirectory_num_files_written.values())} entity schema files written."
+            )
+    else:
         print(
-            f"[green]Generated {write_path / '__init__.py'} with {len(models)} entity schema imports."
+            "[green dim]No new entity schema files to be written. If you want to overwrite existing files, run with -o flag."
         )
 
 
@@ -237,8 +244,7 @@ def _get_dropdown_name_to_classname_map(
             for dropdown in BaseDropdown.get_all_subclasses()
         }
     benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
-    if len(benchling_dropdowns) > 0:
-        raise Exception(
-            "No dropdowns found locally. Please ensure your env.py file imports your dropdown classes or generate dropdowns from your Benchling tenant first."
-        )
-    return {}
+    return {
+        dropdown_name: to_pascal_case(dropdown_name)
+        for dropdown_name in benchling_dropdowns.keys()
+    }
