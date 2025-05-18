@@ -29,7 +29,7 @@ def generate_all_results_schema_files(
     write_path : Path
         The path to write the generated files to. results_schemas/ directory will be created within this path.
     overwrite : bool
-        Whether to overwrite existing the existing results_schemas/ directory.
+        Whether to overwrite existing files in the results_schemas/ directory.
     """
     write_path = write_path / "results_schemas"
     if write_path.exists() and overwrite:
@@ -148,7 +148,7 @@ class {schema_name}(BaseResultsModel):
 {init_string}
 """
 
-        if overwrite:
+        if overwrite or not (write_path / file_name).exists():
             with open(write_path / file_name, "w") as file:
                 file.write(schema_content)
             num_files_written += 1
@@ -178,11 +178,10 @@ def _get_dropdown_name_to_classname_map(
             for dropdown in BaseDropdown.get_all_subclasses()
         }
     benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
-    if len(benchling_dropdowns) > 0:
-        raise Exception(
-            "No dropdowns found locally. Please ensure your env.py file imports your dropdown classes or generate dropdowns from your Benchling tenant first."
-        )
-    return {}
+    return {
+        dropdown_name: to_pascal_case(dropdown_name)
+        for dropdown_name in benchling_dropdowns.keys()
+    }
 
 
 def _get_entity_schemas_wh_name_to_classname(
@@ -198,8 +197,7 @@ def _get_entity_schemas_wh_name_to_classname(
             for s in BaseModel.get_all_subclasses()
         }
     tag_schemas = get_converted_tag_schemas(benchling_service)
-    if len(tag_schemas) > 0:
-        raise Exception(
-            "No entity schemas found locally. Please ensure your env.py file imports your entity schema classes or generate entity schemas from your Benchling tenant first."
-        )
-    return {}
+    return {
+        schema_props.warehouse_name: to_pascal_case(schema_props.warehouse_name)
+        for schema_props, _, _ in tag_schemas
+    }

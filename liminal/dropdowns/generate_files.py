@@ -21,7 +21,7 @@ def generate_all_dropdown_files(
     write_path : Path
         The path to write the generated files to. dropdowns/ directory will be created within this path.
     overwrite : bool
-        Whether to overwrite existing the existing dropdowns/ directory.
+        Whether to overwrite existing files in the dropdowns/ directory.
     """
     write_path = write_path / "dropdowns"
     if write_path.exists() and overwrite:
@@ -47,10 +47,10 @@ class {classname}(BaseDropdown):
     __allowed_values__ = {options_list}
 """
         filename = to_snake_case(dropdown_name) + ".py"
-        with open(write_path / filename, "w") as file:
-            if overwrite:
-                file.write(dropdown_content)
-                num_files_written += 1
+        if overwrite or not (write_path / filename).exists():
+            with open(write_path / filename, "w") as file:
+                    file.write(dropdown_content)
+            num_files_written += 1
         file_names_to_classname.append((filename, classname))
 
     file_names_to_classname.sort(key=lambda x: x[0])

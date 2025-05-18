@@ -83,7 +83,7 @@ connection = BenchlingConnection(
 
 @app.command(
     name="generate-files",
-    help="Generates the dropdown, entity schema, and results schema files from your Benchling tenant and writes to the given path. By default, this will overwrite any existing files within the {write_path}/dropdowns/, {write_path}/entity_schemas/, and {write_path}/results_schemas/ directories.",
+    help="Generates the dropdown, entity schema, and results schema files from your Benchling tenant and writes to the given path. By default, this will not overwrite existing files.",
 )
 def generate_files(
     benchling_tenant: str = typer.Argument(
@@ -117,7 +117,7 @@ def generate_files(
         False,
         "-o",
         "--overwrite",
-        help="Overwrite existing files within the {write_path}/dropdowns/, {write_path}/entity_schemas/, and {write_path}/results_schemas/ directories.",
+        help="Overwrite the whole write directory at the given path.",
     ),
 ) -> None:
     _, benchling_connection = read_local_liminal_dir(LIMINAL_DIR_PATH, benchling_tenant)
