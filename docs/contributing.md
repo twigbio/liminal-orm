@@ -18,23 +18,21 @@ If you are interested in contributing to Liminal, please follow the steps below 
 
 1. Fork the Liminal repository by clicking the "Fork" button on the top right corner of the repository page. Follow the instructions here: [Fork a repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo). After forking, sync your fork with the upstream repository to keep it up-to-date.
 
-2. Ensure your Python environment is setup correctly. We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage python versions.
-
-3. Install UV
+2. Install UV
 
    Use the [UV Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
 
-4. Install python and create a virtual environment with uv
+3. Install python and create a virtual environment with uv
 
     `uv venv`
 
     Supported python versions of Liminal can be found in pyproject.toml. Liminal development is recommnded to be done in version 3.10.8, as specified in the .python-version file.
 
-5. Install Liminal dependencies
+4. Install Liminal dependencies
 
     `uv sync`
 
-6. Start developing :)
+5. Start developing :)
 
 ## Development cycle
 
