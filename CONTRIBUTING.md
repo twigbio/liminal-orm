@@ -18,17 +18,19 @@ If you are interested in contributing to Liminal, please follow the steps below 
 
 1. Fork the Liminal repository and sync to upstream. Instructions here: [Fork a repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 
-2. Install Poetry
+2. Install UV
 
-   Use the [Poetry Installation guide](https://python-poetry.org/docs/#installing-with-pipx)
+   Use the [UV Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
 
-3. Install Liminal dependencies
+3. Install python and create a virtual environment with uv
 
-    `poetry install --all-extras`
+    `uv venv`
 
-4. Ensure python version matches Liminal's supported version
+    Supported python versions of Liminal can be found in pyproject.toml. Liminal development is recommnded to be done in version 3.10.8, as specified in the .python-version file.
 
-    Supported python versions of Liminal can be found in pyproject.toml. We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage python versions.
+4. Install Liminal dependencies
+
+    `uv sync`
 
 5. Start developing :)
 

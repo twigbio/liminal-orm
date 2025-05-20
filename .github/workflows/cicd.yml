@@ -12,23 +12,24 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.10.9"]
+        python-version: ["3.10.8", "3.10.9"]
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
 
       - name: setup python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --all-extras
+        run: uv sync
 
       - name: Cache mypy
         uses: actions/cache@v3
@@ -40,29 +41,30 @@ jobs:
 
       - name: pre-commit
         run: |
-          poetry run pre-commit run -a
+          uv run pre-commit run -a
 
   test:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.10.9"]
+        python-version: ["3.10.8", "3.10.9"]
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
 
       - name: setup python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --all-extras
+        run: uv sync
 
       - name: Run tests
-        run: poetry run pytest liminal/
+        run: uv run pytest liminal/
