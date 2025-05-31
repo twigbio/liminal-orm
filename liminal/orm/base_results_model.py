@@ -16,6 +16,7 @@ from liminal.connection.benchling_service import BenchlingService
 from liminal.orm.base import Base
 from liminal.orm.base_tables.user import User
 from liminal.orm.results_schema_properties import ResultsSchemaProperties
+from liminal.results_schemas.utils import get_benchling_results_schemas
 from liminal.validation import BenchlingValidatorReport
 
 T = TypeVar("T")
@@ -98,11 +99,8 @@ class BaseResultsModel(Generic[T], Base):
         str
             The id of the results schema.
         """
-        all_schemas = [
-            s
-            for loe in benchling_service.schemas.list_assay_result_schemas()
-            for s in loe
-        ]
+        all_schemas = get_benchling_results_schemas(benchling_service)
+
         schemas_found_by_name = [
             s for s in all_schemas if s.name == cls.__schema_properties__.name
         ]

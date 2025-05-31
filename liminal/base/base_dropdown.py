@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Any
 
 from liminal.connection.benchling_service import BenchlingService
+from liminal.dropdowns.utils import get_benchling_dropdown_summaries
 
 
 class BaseDropdown(ABC):
@@ -51,7 +52,7 @@ class BaseDropdown(ABC):
         str
             The id of the dropdown.
         """
-        all_dropdowns = [d for lod in benchling_service.dropdowns.list() for d in lod]
+        all_dropdowns = get_benchling_dropdown_summaries(benchling_service)
         dropdowns_found_by_name = [
             d for d in all_dropdowns if d.name == cls.__benchling_name__
         ]

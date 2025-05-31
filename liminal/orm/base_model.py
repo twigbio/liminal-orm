@@ -14,6 +14,7 @@ from sqlalchemy.orm.decl_api import declared_attr
 from liminal.base.base_dropdown import BaseDropdown
 from liminal.base.base_validation_filters import BaseValidatorFilters
 from liminal.connection.benchling_service import BenchlingService
+from liminal.entity_schemas.utils import get_benchling_entity_schemas
 from liminal.enums import BenchlingNamingStrategy
 from liminal.enums.benchling_entity_type import BenchlingEntityType
 from liminal.enums.sequence_constraint import SequenceConstraint
@@ -294,9 +295,8 @@ class BaseModel(Generic[T], Base):
         str
             The id of the schema.
         """
-        all_schemas = [
-            s for loe in benchling_service.schemas.list_entity_schemas() for s in loe
-        ]
+        all_schemas = get_benchling_entity_schemas(benchling_service)
+
         schemas_found_by_name = [
             s for s in all_schemas if s.name == cls.__schema_properties__.name
         ]
