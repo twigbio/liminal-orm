@@ -378,7 +378,6 @@ class TagSchemaModel(BaseModel):
     labelingStrategies: list[str]
     mixtureSchemaConfig: MixtureSchemaConfig | None
     name: str | None
-    nameTemplateFields: list[str] | None
     nameTemplateParts: list[NameTemplatePartModel] | None
     permissions: dict[str, bool] | None
     prefix: str | None
