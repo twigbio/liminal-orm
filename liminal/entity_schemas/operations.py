@@ -445,11 +445,11 @@ class ArchiveEntitySchemaField(BaseOperation):
 
     def _validate(self, benchling_service: BenchlingService) -> TagSchemaModel:
         tag_schema = TagSchemaModel.get_one(benchling_service, self.wh_schema_name)
+        name_template_field_ids = [
+            p.fieldId for p in tag_schema.nameTemplateParts if p is not None
+        ]
         field = tag_schema.get_field(self.wh_field_name)
-        if (
-            tag_schema.nameTemplateFields
-            and field.name in tag_schema.nameTemplateFields
-        ):
+        if tag_schema.nameTemplateFields and field.id in name_template_field_ids:
             raise ValueError(
                 f"Cannot archive field {self.wh_field_name} on entity schema {self.wh_schema_name}. Field is used in name template."
             )
