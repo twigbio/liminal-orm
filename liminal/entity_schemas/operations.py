@@ -449,7 +449,7 @@ class ArchiveEntitySchemaField(BaseOperation):
             p.fieldId for p in tag_schema.nameTemplateParts if p is not None
         ]
         field = tag_schema.get_field(self.wh_field_name)
-        if tag_schema.nameTemplateFields and field.id in name_template_field_ids:
+        if field.id in name_template_field_ids:
             raise ValueError(
                 f"Cannot archive field {self.wh_field_name} on entity schema {self.wh_schema_name}. Field is used in name template."
             )
