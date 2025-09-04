@@ -1,8 +1,4 @@
 repos:
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.8.15
-    hooks:
-      - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
     hooks:
@@ -13,6 +9,6 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy --sqlite-cache
+        entry: uv run mypy --sqlite-cache
         language: system
         pass_filenames: false
