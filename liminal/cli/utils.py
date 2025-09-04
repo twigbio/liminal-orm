@@ -49,9 +49,17 @@ def _read_local_env_file(
         raise Exception(f"Could not find {env_file_path}.")
     module = importlib.util.module_from_spec(spec)
 
-    sys.path.insert(0, str(module_path.parent))
+    parent_dir = module_path.parent
+    sys_path_modified = False
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+        sys_path_modified = True
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if sys_path_modified:
+            sys.path.remove(parent_dir)
 
-    spec.loader.exec_module(module)
     for attr_name in dir(module):
         bc = getattr(module, attr_name)
         if isinstance(bc, BenchlingConnection):
