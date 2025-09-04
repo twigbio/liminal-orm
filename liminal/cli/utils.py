@@ -1,6 +1,7 @@
 import importlib.util
 from logging import Logger
 from pathlib import Path
+import sys
 
 from liminal.connection.benchling_connection import BenchlingConnection
 
@@ -47,7 +48,18 @@ def _read_local_env_file(
     if spec is None or spec.loader is None:
         raise Exception(f"Could not find {env_file_path}.")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+
+    parent_dir = str(module_path.parent)
+    sys_path_modified = False
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+        sys_path_modified = True
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if sys_path_modified:
+            sys.path.remove(parent_dir)
+
     for attr_name in dir(module):
         bc = getattr(module, attr_name)
         if isinstance(bc, BenchlingConnection):
