@@ -22,6 +22,8 @@ def get_converted_results_schemas(
     unit_id_to_name_map = get_unit_id_to_name_map(benchling_service)
     results_schemas_list = []
     for schema in results_schemas:
+        if schema.archiveRecord is not None:
+            continue
         schema_properties = ResultsSchemaProperties(
             name=schema.name,
             warehouse_name=schema.sqlIdentifier,
