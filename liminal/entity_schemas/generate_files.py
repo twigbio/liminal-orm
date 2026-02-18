@@ -3,7 +3,6 @@ from pathlib import Path
 
 from rich import print
 
-from liminal.base.base_dropdown import BaseDropdown
 from liminal.connection.benchling_service import BenchlingService
 from liminal.dropdowns.utils import get_benchling_dropdowns_dict
 from liminal.entity_schemas.utils import get_converted_tag_schemas
@@ -243,15 +242,7 @@ class {classname}(BaseModel, {get_entity_mixin(schema_properties.entity_type)}):
 def _get_dropdown_name_to_classname_map(
     benchling_service: BenchlingService,
 ) -> dict[str, str]:
-    """Gets the dropdown name to classname map.
-    If there are dropdowns imported, use BenchlingDropdown.get_all_subclasses()
-    Otherwise, it will query for Benchling dropdowns and use those.
-    """
-    if len(BaseDropdown.get_all_subclasses()) > 0:
-        return {
-            dropdown.__benchling_name__: dropdown.__name__
-            for dropdown in BaseDropdown.get_all_subclasses()
-        }
+    """Gets the dropdown name to classname map by querying Benchling dropdowns and using the dropdown name to create the classname."""
     benchling_dropdowns = get_benchling_dropdowns_dict(benchling_service)
     return {
         dropdown_name: to_pascal_case(dropdown_name)
